@@ -70,10 +70,10 @@ public class MenuBar {
 		addMenu("Domain Modelling", 0, items_domain_modelling, keyevents_domain_modelling, keys_domain_modelling, images_domain_modelling);
 		
 		// Scenario Modelling Menu
-		final String[] items_scenario_modelling =  {"Save Scenario"};
-		final int[] keyevents_scenario_modelling = {0};
-		final String[] keys_scenario_modelling =   {null};
-		final String[] images_scenario_modelling = {"save_scenario"};
+		final String[] items_scenario_modelling =  {"Save Scenario" , "Generate Scenario"};
+		final int[] keyevents_scenario_modelling = {0 , 0};
+		final String[] keys_scenario_modelling =   {null , null};
+		final String[] images_scenario_modelling = {"save_scenario" , "export_icon"};
 						
 		addMenu("Scenario Modelling", 0, items_scenario_modelling, keyevents_scenario_modelling, keys_scenario_modelling, images_scenario_modelling);
 
@@ -147,11 +147,11 @@ public class MenuBar {
 				}
 			}
 
-			if (items[i]=="Save Scenario" || items[i]=="Scenarios List" || items[i]=="Execution" || items[i]=="Feedback Loop"
+			if (items[i]=="Save Scenario" || items[i]=="Generate Scenario" || items[i]=="Scenarios List" || items[i]=="Execution" || items[i]=="Feedback Loop"
 					|| items[i]=="Generate OD" || items[i]=="ODD Manager")
 				menuItem.setEnabled(false);
 
-			if (items[i]=="New Project" || items[i]=="Import Template" || items[i]=="Save Scenario" ||
+			if (items[i]=="New Project" || items[i]=="Import Template" || items[i]=="Save Scenario" || items[i]=="Generate Scenario" ||
 					items[i]=="Open" || items[i]=="Save as Template" || items[i]=="Scenarios List" ||
 					items[i]=="Execution" || items[i]=="Feedback Loop" || items[i]=="Export XML" ||
 					items[i]=="Export Yaml" || items[i]=="Generate OD" || items[i]=="ODD Manager") {
@@ -168,6 +168,9 @@ public class MenuBar {
 						case "Scenarios List":
 							ScenarioList scenarioList = new ScenarioList();
 							scenarioList.createScenarioListWindow();
+							break;
+						case "Generate Scenario":
+							openGenerateScenarioWindow();
 							break;
 						case "Execution":
 							openExecutionWindow();
@@ -221,10 +224,10 @@ public class MenuBar {
 	}
 
 
-	private void cImportFunc() {
-		FileImporter fileImporter = new FileImporter();
-		fileImporter.showImportDialog(mainFrame);
+	private void openGenerateScenarioWindow() {
+
 	}
+
 
 	/**
      * @author Roy
@@ -243,8 +246,11 @@ public class MenuBar {
     	// jd.setAlwaysOnTop(true);
     }
 
-   
-	
+
+	private void cImportFunc() {
+		FileImporter fileImporter = new FileImporter();
+		fileImporter.showImportDialog(mainFrame);
+	}
     
     @SuppressWarnings("unchecked")
 	private void saveScenario() {
