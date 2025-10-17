@@ -384,23 +384,23 @@ public class ODDManager extends JPanel{
 					// For variables, output as list item.
 					curr.append(getIndent(currentYamlIndent))
 							.append("- ").append(componentName).append(":\n")
-							.append(getIndent(currentYamlIndent + 1))
+							.append(getIndent(currentYamlIndent + 2))
 							.append("type: ").append(row[2]).append("\n");
 
 					if (row[3] != null) {
-						curr.append(getIndent(currentYamlIndent + 1))
+						curr.append(getIndent(currentYamlIndent + 2))
 								.append("min: ").append(row[3]).append("\n");
 					}
 					if (row[4] != null) {
-						curr.append(getIndent(currentYamlIndent + 1))
+						curr.append(getIndent(currentYamlIndent + 2))
 								.append("max: ").append(row[4]).append("\n");
 					}
 					if (row[6] != null) {
-						curr.append(getIndent(currentYamlIndent + 1))
+						curr.append(getIndent(currentYamlIndent + 2))
 								.append("distributionName: ").append(row[6]).append("\n");
 					}
 					if (row[6] != null) {
-						curr.append(getIndent(currentYamlIndent + 1))
+						curr.append(getIndent(currentYamlIndent + 2))
 								.append("distributionDetails: ").append(row[7]).append("\n");
 					}
 				}

@@ -35,12 +35,21 @@ public class SamplingManager {
         String constraint = scenario.getConstraint();
 
         List<Parameter> numericalParams = scenario.getParameters().stream()
-                .filter(p -> "numerical".equals(p.getType()))
+                .filter(p -> "int".equals(p.getType()) || "double".equals(p.getType() ))
                 .collect(Collectors.toList());
 
         List<Parameter> categoricalParams = scenario.getParameters().stream()
                 .filter(p -> "categorical".equals(p.getType()))
                 .collect(Collectors.toList());
+
+
+        //apply contraints
+        //START
+
+            
+
+        //END
+
 
         // 2. Generate all the necessary samples at once
         // This is much more efficient than generating one by one in a loop
@@ -105,34 +114,62 @@ public class SamplingManager {
     /**
      * Writes the final list of valid samples to a CSV file.
      */
-    private void writeToCsv(List<Map<String, Double>> scaledSamples, List<Parameter> numericalParams, List<Parameter> categoricalParams, String filePath) throws IOException {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(filePath))) {
-            // Write Header
+
+    private void writeToCsv(List<Map<String, Double>> samples,
+                            List<Parameter> numericalParams,
+                            List<Parameter> categoricalParams,
+                            String outputCsvPath) throws IOException {
+
+        // If no data -> skip writing
+        if ((samples == null || samples.isEmpty()) && (categoricalParams == null || categoricalParams.isEmpty())) {
+            System.out.println(" No samples or parameters to write!");
+            return;
+        }
+
+        try (PrintWriter writer = new PrintWriter(new FileWriter(outputCsvPath))) {
+            //  Write header
             List<String> headers = new ArrayList<>();
-            numericalParams.forEach(p -> headers.add(p.getName()));
-            categoricalParams.forEach(p -> headers.add(p.getName()));
+
+            // Add numerical headers
+            for (Parameter p : numericalParams) {
+                headers.add(p.getName());
+            }
+
+            // Add categorical headers
+            for (Parameter p : categoricalParams) {
+                headers.add(p.getName());
+            }
+
             writer.println(String.join(",", headers));
 
-            // Write Data Rows
-            for (Map<String, Double> sample : scaledSamples) {
+            //  Write sample rows
+            for (Map<String, Double> sample : samples) {
                 List<String> row = new ArrayList<>();
-                // Add numerical values
-                for (Parameter param : numericalParams) {
 
-                    row.add(String.format(Locale.US, "%.4f", sample.get(param.getName())));
-
+                // numerical values
+                for (Parameter p : numericalParams) {
+                    Double val = sample.get(p.getName());
+                    row.add(val != null ? String.valueOf(val) : "");
                 }
-                // Add randomly chosen categorical values
-                for (Parameter param : categoricalParams) {
-                    List<String> options = param.getOptions();
-                    if (options != null && !options.isEmpty()) {
-                        String chosenOption = options.get(random.nextInt(options.size()));
-                        row.add(chosenOption);
+
+                // categorical values (for now, random option per sample)
+                for (Parameter p : categoricalParams) {
+                    if (p.getOptions() != null && !p.getOptions().isEmpty()) {
+                        int idx = (int) (Math.random() * p.getOptions().size());
+                        row.add(p.getOptions().get(idx)); // random category
+                    } else {
+                        row.add("");
                     }
                 }
+
                 writer.println(String.join(",", row));
             }
+
+            writer.flush();
         }
+
+        System.out.println(" CSV successfully written to: " + outputCsvPath);
     }
+
 }
 

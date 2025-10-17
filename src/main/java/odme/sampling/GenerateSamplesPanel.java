@@ -3,6 +3,7 @@ package odme.sampling;
 import odme.odmeeditor.ODMEEditor;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,7 +17,9 @@ public class GenerateSamplesPanel extends JPanel {
 
     private final JTextField numSamplesField;
     private final JTextField filePathField;
+    private final JTextField filePathFieldyaml;
     private final JButton browseButton;
+    private final JButton browseButtonyaml;
     private final JButton generateButton;
     private final JButton cancelButton;
 
@@ -28,36 +31,56 @@ public class GenerateSamplesPanel extends JPanel {
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
+        //  Select YAML file
+        JLabel yamlLabel = new JLabel("Select YAML:");
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 0;
+        add(yamlLabel, gbc);
+
+        filePathFieldyaml = new JTextField();
+        filePathFieldyaml.setEditable(false); // User should use the browse button
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.weightx = 4;
+        add(filePathFieldyaml, gbc);
+
+        browseButtonyaml = new JButton("Browse...");
+        gbc.gridx = 2;
+        gbc.gridy = 0;
+        gbc.weightx = 0;
+        add(browseButtonyaml, gbc);
+
         //  Number of Samples Input
         JLabel numSamplesLabel = new JLabel("Number of Samples:");
         gbc.gridx = 0;
-        gbc.gridy = 0;
+        gbc.gridy = 1;
         gbc.weightx = 0;
         add(numSamplesLabel, gbc);
 
         numSamplesField = new JTextField("100"); // Default value
         gbc.gridx = 1;
-        gbc.gridy = 0;
+        gbc.gridy = 1;
         gbc.weightx = 1;
         add(numSamplesField, gbc);
 
         //  Output File Path Input
         JLabel filePathLabel = new JLabel("Save As:");
         gbc.gridx = 0;
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         gbc.weightx = 0;
         add(filePathLabel, gbc);
 
         filePathField = new JTextField();
         filePathField.setEditable(false); // User should use the browse button
         gbc.gridx = 1;
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         gbc.weightx = 1;
         add(filePathField, gbc);
 
         browseButton = new JButton("Browse...");
         gbc.gridx = 2;
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         gbc.weightx = 0;
         add(browseButton, gbc);
 
@@ -69,7 +92,7 @@ public class GenerateSamplesPanel extends JPanel {
         buttonPanel.add(cancelButton);
 
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.gridwidth = 3;
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.EAST;
@@ -85,11 +108,31 @@ public class GenerateSamplesPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 JFileChooser fileChooser = new JFileChooser(ODMEEditor.fileLocation);
                 fileChooser.setDialogTitle("Save Sampled Data As");
-                fileChooser.setSelectedFile(new File("generated_samples.csv"));
+                fileChooser.setSelectedFile(new File("Zgenerated_samples.csv"));
                 int userSelection = fileChooser.showSaveDialog(GenerateSamplesPanel.this);
 
                 if (userSelection == JFileChooser.APPROVE_OPTION) {
                     filePathField.setText(fileChooser.getSelectedFile().getAbsolutePath());
+                }
+            }
+        });
+
+        browseButtonyaml.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser(ODMEEditor.fileLocation);
+                // ✅ Create a filter for .txt files
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("YAML Files (*.yaml)", "yaml");
+                // Apply the filter
+                fileChooser.setFileFilter(filter);
+                // Optional: disable "All files" option
+                fileChooser.setAcceptAllFileFilterUsed(false);
+                fileChooser.setDialogTitle("Select YAML File");
+
+                int userSelection = fileChooser.showSaveDialog(GenerateSamplesPanel.this);
+
+                if (userSelection == JFileChooser.APPROVE_OPTION) {
+                    filePathFieldyaml.setText(fileChooser.getSelectedFile().getAbsolutePath());
                 }
             }
         });
@@ -121,10 +164,9 @@ public class GenerateSamplesPanel extends JPanel {
                 }
 
                 // Construct the path to the YAML file
-                yamlFilePath = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + ODMEEditor.projName + ".yaml";
+                yamlFilePath = filePathFieldyaml.getText().trim();
 
                 // --- STEP 3: Use the variables inside the try-catch block ---
-                // This now works because all variables were declared in the outer scope.
                 try {
                     System.out.println("Calling sampling logic with:");
                     System.out.println("  - Samples: " + numberOfSamples);
