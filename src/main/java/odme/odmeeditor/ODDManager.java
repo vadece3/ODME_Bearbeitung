@@ -377,7 +377,7 @@ public class ODDManager extends JPanel{
 					// For constraints
 					curr.append(getIndent(currentYamlIndent))
 							.append("- ").append(componentName).append(":\n")
-							.append(getIndent(currentYamlIndent + 1))
+							.append(getIndent(currentYamlIndent + 2))
 							.append("IntraConstraint: ").append(row[8]).append("\n");
 				}
 				else if (type.equals("Variable")) {

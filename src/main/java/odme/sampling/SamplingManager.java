@@ -42,14 +42,9 @@ public class SamplingManager {
                 .filter(p -> "categorical".equals(p.getType()))
                 .collect(Collectors.toList());
 
-
-        //apply contraints
-        //START
-
-            
-
-        //END
-
+//        List<Parameter> constraintParams = scenario.getParameters().stream()
+//                .filter(p -> p.getConstraint())
+//                .collect(Collectors.toList());
 
         // 2. Generate all the necessary samples at once
         // This is much more efficient than generating one by one in a loop
@@ -66,6 +61,7 @@ public class SamplingManager {
                 finalSamples.add(scaledSample);
             }
         }
+
         // If there IS a constraint, perform rejection sampling.
         else {
             System.out.println("Constraint found. Starting rejection sampling...");
