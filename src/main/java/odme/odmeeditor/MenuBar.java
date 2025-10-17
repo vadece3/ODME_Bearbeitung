@@ -23,6 +23,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import odme.module.importFromCameo.FileImporter;
+import odme.sampling.GenerateSamplesPanel;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -97,10 +98,10 @@ public class MenuBar {
 		addMenu("Operation Design Domain", 0, items_operation_design_domain, keyevents_operation_design_domain, keys_operation_design_domain, images_operation_design_domain);
 		
 		// Scenario Manager Menu
-		final String[] items_scenario_manager =  {"Scenarios List", "Execution", "Feedback Loop"};
-		final int[] keyevents_scenario_manager = {0               , 0         ,  0             };
-		final String[] keys_scenario_manager =   {null            , null      ,  null          };
-		final String[] images_scenario_manager = {"list"          ,"executionIcon"      ,"feedbackLoopIcon"          };
+		final String[] items_scenario_manager =  {"Scenarios List", "Execution", "Feedback Loop",  "Generate Samples"};
+		final int[] keyevents_scenario_manager = {0               , 0         ,  0     , 0        };
+		final String[] keys_scenario_manager =   {null            , null      ,  null  , null        };
+		final String[] images_scenario_manager = {"list"          ,"executionIcon"      ,"feedbackLoopIcon"    , "list"   };
 										
 		addMenu("Scenario Manager", 0, items_scenario_manager, keyevents_scenario_manager, keys_scenario_manager, images_scenario_manager);
 		
@@ -147,13 +148,13 @@ public class MenuBar {
 				}
 			}
 
-			if (items[i]=="Save Scenario" || items[i]=="Generate Scenario" || items[i]=="Scenarios List" || items[i]=="Execution" || items[i]=="Feedback Loop"
+			if (items[i]=="Save Scenario" || items[i]=="Generate Scenario" || items[i]=="Scenarios List" || items[i]=="Execution" || items[i]=="Feedback Loop" || items[i]=="Generate Samples"
 					|| items[i]=="Generate OD" || items[i]=="ODD Manager")
 				menuItem.setEnabled(false);
 
 			if (items[i]=="New Project" || items[i]=="Import Template" || items[i]=="Save Scenario" || items[i]=="Generate Scenario" ||
 					items[i]=="Open" || items[i]=="Save as Template" || items[i]=="Scenarios List" ||
-					items[i]=="Execution" || items[i]=="Feedback Loop" || items[i]=="Export XML" ||
+					items[i]=="Execution" || items[i]=="Feedback Loop" ||  items[i]=="Generate Samples" || items[i]=="Export XML" ||
 					items[i]=="Export Yaml" || items[i]=="Generate OD" || items[i]=="ODD Manager") {
 				fileMenuItems.add(menuItem);
 			}
@@ -174,6 +175,9 @@ public class MenuBar {
 							break;
 						case "Execution":
 							openExecutionWindow();
+							break;
+						case "Generate Samples":
+							openGenerateSamplesWindow();
 							break;
 						case "New Project":
 							newFunc();
@@ -221,6 +225,17 @@ public class MenuBar {
 			menu.add(menuItem);
 		}
 		menuBar.add(menu);
+	}
+
+	private void openGenerateSamplesWindow() {
+		ODMEEditor.saveFunc(false);
+		ODMEEditor.updateState();
+		JFrame f = new JFrame("Generate Samples");
+		f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		f.getContentPane().add(new GenerateSamplesPanel()); // create this JPanel class
+		f.pack();
+		f.setLocationRelativeTo(null);
+		f.setVisible(true);
 	}
 
 

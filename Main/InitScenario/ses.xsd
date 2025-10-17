@@ -49,6 +49,28 @@
     </xs:complexType>
 
 
+    <xs:complexType name="intracontraintType">
+        <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="unbounded" ref="entity"/>
+        </xs:sequence>
+        <xs:attribute name="name" use="required"/>
+        <xs:attribute intratest="intracontraintname"/>
+
+
+    </xs:complexType>
+
+
+    <xs:complexType name="intercontraintType">
+        <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="unbounded" ref="entity"/>
+        </xs:sequence>
+        <xs:attribute name="name" use="required"/>
+        <xs:attribute intertest="intercontraintname"/>
+
+
+    </xs:complexType>
+
+
     <xs:complexType name="behaviourType"> 
         <xs:sequence>
             <xs:element minOccurs="0" maxOccurs="unbounded" ref="entity"/>
@@ -67,6 +89,8 @@
                     <xs:element ref="multiAspect"/>
                     <xs:element ref="var"/>
                     <xs:element ref="distion"/>
+                    <xs:element ref="intercontraint"/>
+                    <xs:element ref="intracontraint"/>
                     <xs:element ref="behaviour"/>
                     
                 </xs:choice>            
@@ -90,6 +114,8 @@
     <xs:element name="specialization" type="specializationType"/>
     <xs:element name="var" type="varType"/>
     <xs:element name="distion" type="distionType"/>
+    <xs:element name="intercontraint" type="intercontraintType"/>
+    <xs:element name="intracontraint" type="intracontraintType"/>
     <xs:element name="behaviour" type="behaviourType"/>   
 
      
