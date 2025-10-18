@@ -22,6 +22,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import odme.jtreetograph.*;
 import odme.module.importFromCameo.FileImporter;
 import odme.sampling.GenerateSamplesPanel;
 import org.json.simple.JSONArray;
@@ -32,11 +33,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.mxgraph.util.mxCellRenderer;
 import com.mxgraph.util.mxUndoManager;
 import com.mxgraph.util.svg.ParseException;
-
-import odme.jtreetograph.JtreeToGraphConvert;
-import odme.jtreetograph.JtreeToGraphGeneral;
-import odme.jtreetograph.JtreeToGraphSave;
-import odme.jtreetograph.JtreeToGraphVariables;
 
 import static odme.odmeeditor.XmlUtils.sesview;
 
@@ -59,7 +55,7 @@ public class MenuBar {
 		final int[] keyevents_file = {KeyEvent.VK_S, KeyEvent.VK_A, 0             , 0   , KeyEvent.VK_X};
 		final String[] keys_file =   {"control S"  ,"control A"   , null          , null, "control X"  };
 		final String[] images_file = {"save_icon"  , "save_icon"  , "png_icon"    , null, "exit_icon"  };
-				
+
 		addMenu("File", KeyEvent.VK_F, items_file, keyevents_file, keys_file, images_file);
 
 		// Domain Modelling Menu
@@ -67,15 +63,15 @@ public class MenuBar {
 		final int[] keyevents_domain_modelling = {KeyEvent.VK_N, KeyEvent.VK_O, KeyEvent.VK_I    , KeyEvent.VK_E    , KeyEvent.VK_C     };
 		final String[] keys_domain_modelling =   {"control N"  , "control O"  , "control I"      , "control E"      , "control C"       };
 		final String[] images_domain_modelling = {"new_icon"   , "open_icon"  , "import_icon"    , "export_icon"    , "cimport_icon"     };
-				
+
 		addMenu("Domain Modelling", 0, items_domain_modelling, keyevents_domain_modelling, keys_domain_modelling, images_domain_modelling);
-		
+
 		// Scenario Modelling Menu
-		final String[] items_scenario_modelling =  {"Save Scenario" , "Generate Scenario"};
-		final int[] keyevents_scenario_modelling = {0 , 0};
-		final String[] keys_scenario_modelling =   {null , null};
-		final String[] images_scenario_modelling = {"save_scenario" , "export_icon"};
-						
+		final String[] items_scenario_modelling =  {"Save Scenario" };
+		final int[] keyevents_scenario_modelling = {0};
+		final String[] keys_scenario_modelling =   {null};
+		final String[] images_scenario_modelling = {"save_scenario" };
+
 		addMenu("Scenario Modelling", 0, items_scenario_modelling, keyevents_scenario_modelling, keys_scenario_modelling, images_scenario_modelling);
 
 		//Behavior Modelling
@@ -94,23 +90,23 @@ public class MenuBar {
 		final int[] keyevents_operation_design_domain = {0,0};
 		final String[] keys_operation_design_domain =   {null,null};
 		final String[] images_operation_design_domain = {"export_icon","list"};
-								
+
 		addMenu("Operation Design Domain", 0, items_operation_design_domain, keyevents_operation_design_domain, keys_operation_design_domain, images_operation_design_domain);
-		
+
 		// Scenario Manager Menu
 		final String[] items_scenario_manager =  {"Scenarios List", "Execution", "Feedback Loop",  "Generate Samples"};
 		final int[] keyevents_scenario_manager = {0               , 0         ,  0     , 0        };
 		final String[] keys_scenario_manager =   {null            , null      ,  null  , null        };
 		final String[] images_scenario_manager = {"list"          ,"executionIcon"      ,"feedbackLoopIcon"    , "list"   };
-										
+
 		addMenu("Scenario Manager", 0, items_scenario_manager, keyevents_scenario_manager, keys_scenario_manager, images_scenario_manager);
-		
+
 		// Help Menu
 		final String[] items_help =  {"Manual"     , "About"   };
 		final int[] keyevents_help = {KeyEvent.VK_M, KeyEvent.VK_T};
 		final String[] keys_help =   {"control M"  , "control T"  };
 		final String[] images_help = {"manual_icon", "about_icon"  };
-						
+
 		addMenu("Help", KeyEvent.VK_H, items_help, keyevents_help, keys_help, images_help);
 
 	}
@@ -148,15 +144,23 @@ public class MenuBar {
 				}
 			}
 
-			if (items[i]=="Save Scenario" || items[i]=="Generate Scenario" || items[i]=="Scenarios List" || items[i]=="Execution" || items[i]=="Feedback Loop" || items[i]=="Generate Samples"
+			if (items[i]=="Save Scenario" || items[i]=="Scenarios List" || items[i]=="Execution" || items[i]=="Feedback Loop" || items[i]=="Generate Samples"
 					|| items[i]=="Generate OD" || items[i]=="ODD Manager")
 				menuItem.setEnabled(false);
 
-			if (items[i]=="New Project" || items[i]=="Import Template" || items[i]=="Save Scenario" || items[i]=="Generate Scenario" ||
+			if (items[i]=="New Project" || items[i]=="Import Template" || items[i]=="Save Scenario" ||
 					items[i]=="Open" || items[i]=="Save as Template" || items[i]=="Scenarios List" ||
 					items[i]=="Execution" || items[i]=="Feedback Loop" ||  items[i]=="Generate Samples" || items[i]=="Export XML" ||
 					items[i]=="Export Yaml" || items[i]=="Generate OD" || items[i]=="ODD Manager") {
 				fileMenuItems.add(menuItem);
+			}
+
+			//adding the different generation scenario options as submenus
+			if ("Save Scenario".equals(items[i])) {
+				// Create the submenu instead of a normal menu item
+				JMenu generateScenarioSubMenu = new JMenu("Generate Scenario");
+				addGeneratedScenarioSubMenu(generateScenarioSubMenu);
+				menu.add(generateScenarioSubMenu);
 			}
 
 			menuItem.addActionListener(new ActionListener() {
@@ -169,9 +173,6 @@ public class MenuBar {
 						case "Scenarios List":
 							ScenarioList scenarioList = new ScenarioList();
 							scenarioList.createScenarioListWindow();
-							break;
-						case "Generate Scenario":
-							openGenerateScenarioWindow();
 							break;
 						case "Execution":
 							openExecutionWindow();
@@ -227,6 +228,143 @@ public class MenuBar {
 		menuBar.add(menu);
 	}
 
+	public void addGeneratedScenarioSubMenu(JMenu parentMenu) {
+		// First-level submenu items
+		JMenuItem csvGenScen = new JMenuItem("From CSV");
+		JMenuItem oddGenScen = new JMenuItem("Direct From ODD");
+
+//		// Example of a nested submenu
+//		JMenu advancedMenu = new JMenu("Advanced");
+//		JMenuItem betaDist = new JMenuItem("Beta Distribution");
+//		JMenuItem gammaDist = new JMenuItem("Gamma Distribution");
+//
+//		advancedMenu.add(betaDist);
+//		advancedMenu.add(gammaDist);
+
+		// Add actions
+		csvGenScen.addActionListener(e -> {
+			openGenerateScenarioWithCsvWindow();
+		});
+
+		oddGenScen.addActionListener(e -> {
+
+		});
+
+		// Add everything into the "Add Distribution" menu
+		parentMenu.add(csvGenScen);
+		parentMenu.add(oddGenScen);
+		parentMenu.addSeparator();
+//		parentMenu.add(advancedMenu); // submenu inside submenu
+	}
+
+	public static void openGenerateScenarioWithCsvWindow() {
+		// Create the dialog
+		JDialog dialog = new JDialog((Frame) null, "Generate Scenario Using CSV File", true);
+		dialog.setLayout(new GridBagLayout());
+		dialog.setSize(500, 200);
+		dialog.setLocationRelativeTo(null); // center on screen
+
+		// Layout helper
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(8, 8, 8, 8);
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.weightx = 1;
+
+		// --- Scenario Name ---
+		JLabel nameLabel = new JLabel("Enter Scenario Name:");
+		JTextField nameField = new JTextField();
+
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		dialog.add(nameLabel, gbc);
+		gbc.gridx = 1;
+		gbc.gridy = 0;
+		dialog.add(nameField, gbc);
+
+		// --- YAML File Path ---
+		JLabel pathLabel = new JLabel("CSV File Path:");
+		JTextField pathField = new JTextField();
+		pathField.setEditable(false); // not editable
+
+		JButton browseButton = new JButton("Browse...");
+		browseButton.addActionListener(e -> {
+			JFileChooser fileChooser = new JFileChooser(ODMEEditor.fileLocation);
+			FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV files (*.csv)", "csv");
+			fileChooser.setFileFilter(filter);
+			fileChooser.setDialogTitle("Select CSV File");
+			fileChooser.setMultiSelectionEnabled(false);
+			fileChooser.setAcceptAllFileFilterUsed(false);
+
+			int result = fileChooser.showOpenDialog(dialog);
+			if (result == JFileChooser.APPROVE_OPTION) {
+				File selectedFile = fileChooser.getSelectedFile();
+				pathField.setText(selectedFile.getAbsolutePath());
+			}
+		});
+
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		dialog.add(pathLabel, gbc);
+		gbc.gridx = 1;
+		gbc.gridy = 1;
+		dialog.add(pathField, gbc);
+		gbc.gridx = 2;
+		gbc.gridy = 1;
+		dialog.add(browseButton, gbc);
+
+		// --- Buttons ---
+		JButton okButton = new JButton("OK");
+		JButton cancelButton = new JButton("Cancel");
+
+		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		buttonPanel.add(okButton);
+		buttonPanel.add(cancelButton);
+
+		gbc.gridx = 0;
+		gbc.gridy = 2;
+		gbc.gridwidth = 3;
+		dialog.add(buttonPanel, gbc);
+
+		// --- Label under the dialog box ---
+		JLabel infoLabel = new JLabel("Scenario Location: "+ODMEEditor.fileLocation + "/Scenarios");
+		infoLabel.setForeground(Color.DARK_GRAY);
+		infoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+		gbc.gridx = 0;
+		gbc.gridy = 3;
+		gbc.gridwidth = 3;
+		gbc.anchor = GridBagConstraints.CENTER;
+		dialog.add(infoLabel, gbc);
+
+		// --- OK button action ---
+		okButton.addActionListener(e -> {
+			String scenarioName = nameField.getText().trim();
+			String csvPath = pathField.getText().trim();
+
+			if (scenarioName.isEmpty()) {
+				JOptionPane.showMessageDialog(dialog, "Please enter a scenario name.", "Missing Name", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			if (csvPath.isEmpty()) {
+				JOptionPane.showMessageDialog(dialog, "Please select a CSV file.", "Missing File", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+
+			ScenarioGeneration.generateScenarios(csvPath , scenarioName);
+
+			System.out.println(" Scenario Name: " + scenarioName);
+			System.out.println(" CSV File: " + csvPath);
+
+			dialog.dispose(); // close dialog
+		});
+
+		// --- Cancel button action ---
+		cancelButton.addActionListener(e -> dialog.dispose());
+
+		dialog.setVisible(true);
+	}
+
+
 	private void openGenerateSamplesWindow() {
 		ODMEEditor.saveFunc(false);
 		ODMEEditor.updateState();
@@ -237,12 +375,6 @@ public class MenuBar {
 		f.setLocationRelativeTo(null);
 		f.setVisible(true);
 	}
-
-
-	private void openGenerateScenarioWindow() {
-
-	}
-
 
 	/**
      * @author Roy

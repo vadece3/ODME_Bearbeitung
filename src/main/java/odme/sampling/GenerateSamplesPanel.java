@@ -121,7 +121,7 @@ public class GenerateSamplesPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser fileChooser = new JFileChooser(ODMEEditor.fileLocation);
-                // ✅ Create a filter for .txt files
+                // Create a filter for .txt files
                 FileNameExtensionFilter filter = new FileNameExtensionFilter("YAML Files (*.yaml)", "yaml");
                 // Apply the filter
                 fileChooser.setFileFilter(filter);

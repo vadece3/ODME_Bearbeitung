@@ -8,11 +8,41 @@ public class ScenarioGeneration {
     public static String[] rawScenarioList = null;
     public static String currentNewScenario = "NewScenarios";
 
-    public static void generateScenarios ( String nameScenarioList) {
+    /**
+     * This function gets the CSV file which contains the sampled data.
+     * It reads the CSV file and gets all information to transform into scenarios.
+     * Multiple Scenarois here will be generated at once.
+     * The number of generated scenarois depends on the number of rows present in the CSV file
+     * */
+    public static void generateScenarios ( String csvPath, String nameScenarioList) {
+
+        String pathParent = ODMEEditor.fileLocation + "/Scenarios/" + nameScenarioList ;
+        File folder = new File(pathParent);
+
+        // Check if folder exists
+        if (folder.exists()) {
+            String newPathParent = ODMEEditor.fileLocation + "/Scenarios/" + nameScenarioList + "1" ;
+            File newFolder = new File(newPathParent);
+            // Try to create it
+            boolean created = newFolder.mkdirs(); // use mkdirs() to also create parent folders
+            if (created) {
+                System.out.println("New folder created: " + newFolder.getAbsolutePath());
+            } else {
+                System.out.println("Failed to create new folder: " + newFolder.getAbsolutePath());
+            }
+        } else {
+            // Try to create it
+            boolean created = folder.mkdirs(); // use mkdirs() to also create parent folders
+            if (created) {
+                System.out.println("Folder created: " + folder.getAbsolutePath());
+            } else {
+                System.out.println("Failed to create folder: " + folder.getAbsolutePath());
+            }
+        }
 
         for (int index = 0 ; index == rawScenarioList.length ; index++) {
             try {
-                String path = ODMEEditor.fileLocation + "/" + currentNewScenario + "/" + nameScenarioList + "/" + nameScenarioList + index + ".xml";
+                String path = pathParent + "/" + nameScenarioList + index + ".xml";
                 File file = new File("example.txt");
                 file.createNewFile();
                 xmlOutput(path,index);

@@ -48,7 +48,7 @@ public class GraphCellPopUp extends JPopupMenu {
 				//adding the Distribution menu which containes a submenu
 				if ("Add Distribution".equals(items[i])) {
 					JMenu distributionMenu = new JMenu("Add Distribution");
-					addDistributionFromGraphPopup(distributionMenu, pos);
+					addDistributionSubMenu(distributionMenu, pos);
 					add(distributionMenu);
 				} else {
 					item = new JMenuItem(items[i]);
@@ -135,7 +135,7 @@ public class GraphCellPopUp extends JPopupMenu {
     	}
     }
 
-	public void addDistributionFromGraphPopup(JMenu parentMenu, Object pos) {
+	public void addDistributionSubMenu(JMenu parentMenu, Object pos) {
 		// First-level submenu items
 		JMenuItem normalDist = new JMenuItem("Normal Distribution");
 		JMenuItem uniformDist = new JMenuItem("Uniform Distribution");
