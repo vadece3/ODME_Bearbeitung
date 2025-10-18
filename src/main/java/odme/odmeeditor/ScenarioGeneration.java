@@ -22,22 +22,15 @@ public class ScenarioGeneration {
         // Check if folder exists
         if (folder.exists()) {
             String newPathParent = ODMEEditor.fileLocation + "/Scenarios/" + nameScenarioList + "1" ;
-            File newFolder = new File(newPathParent);
-            // Try to create it
-            boolean created = newFolder.mkdirs(); // use mkdirs() to also create parent folders
-            if (created) {
-                System.out.println("New folder created: " + newFolder.getAbsolutePath());
-            } else {
-                System.out.println("Failed to create new folder: " + newFolder.getAbsolutePath());
-            }
+            folder = new File(newPathParent);
+        }
+
+        // Try to create it
+        boolean created = folder.mkdirs(); // use mkdirs() to also create parent folders
+        if (created) {
+            System.out.println("Folder created: " + folder.getAbsolutePath());
         } else {
-            // Try to create it
-            boolean created = folder.mkdirs(); // use mkdirs() to also create parent folders
-            if (created) {
-                System.out.println("Folder created: " + folder.getAbsolutePath());
-            } else {
-                System.out.println("Failed to create folder: " + folder.getAbsolutePath());
-            }
+            System.out.println("Failed to create folder: " + folder.getAbsolutePath());
         }
 
         for (int index = 0 ; index == rawScenarioList.length ; index++) {
