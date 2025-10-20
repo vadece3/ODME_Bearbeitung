@@ -1,12 +1,15 @@
 package odme.odmeeditor;
 
 import java.io.*;
-import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ScenarioGeneration {
 
-    public static String[] rawScenarioList = null;
-    public static String currentNewScenario = "NewScenarios";
+    public static int fileExistValidator = 0;
+    public static String scenarioName = null;
 
     /**
      * This function gets the CSV file which contains the sampled data.
@@ -14,13 +17,15 @@ public class ScenarioGeneration {
      * Multiple Scenarois here will be generated at once.
      * The number of generated scenarois depends on the number of rows present in the CSV file
      * */
-    public static void generateScenarios ( String csvPath, String nameScenarioList) {
+    public static String generateScenarios ( String csvPath, String nameScenarioList) {
 
+        scenarioName = nameScenarioList;
         String pathParent = ODMEEditor.fileLocation + "/Scenarios/" + nameScenarioList ;
         File folder = new File(pathParent);
 
         // Check if folder exists
         if (folder.exists()) {
+            fileExistValidator = 1;
             String newPathParent = ODMEEditor.fileLocation + "/Scenarios/" + nameScenarioList + "1" ;
             folder = new File(newPathParent);
         }
@@ -30,143 +35,132 @@ public class ScenarioGeneration {
         if (created) {
             System.out.println("Folder created: " + folder.getAbsolutePath());
         } else {
-            System.out.println("Failed to create folder: " + folder.getAbsolutePath());
+//            System.out.println("Failed to create folder: " + folder.getAbsolutePath());
+            fileExistValidator = 0;
+            return "Failed to create folder: " + folder.getAbsolutePath()+"\n" +
+                    ">>Restart the Process and Enter a NEW Scenario Name<<";
         }
-
-        for (int index = 0 ; index == rawScenarioList.length ; index++) {
-            try {
-                String path = pathParent + "/" + nameScenarioList + index + ".xml";
-                File file = new File("example.txt");
-                file.createNewFile();
-                xmlOutput(path,index);
-            } catch (IOException e) {
-                System.out.println("An error occurred while creating the new file.");
-                e.printStackTrace();
-            }
-        }
+        return importScenarioDatasFromCSVFile( csvPath , folder.getAbsolutePath() );
 
     }
 
-
-    // fix this file according to the generated result from Sampling
-    public static void xmlOutput( String path , int scenarioIndexNumber) {
-        PrintWriter f0 = null;
-        try {
-            f0 = new PrintWriter(
-                    new FileWriter(path));
-        }
-        catch (IOException e1) {
-            e1.printStackTrace();
-        }
-
-
-        String[] scenarioValues = rawScenarioList[scenarioIndexNumber].split(",");
-
-        Scanner in = null;
-        int first = 0;
-        f0.println("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
-        f0.println("<entity xmlns:vc=\"http://www.w3.org/2007/XMLSchema-versioning\""
-                + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
-                + " xsi:noNamespaceSchemaLocation=\"ses.xsd\" name=\"" + scenarioValues[0] + "\">");
-
-        for (String result: scenarioValues) { // Iterates each value in the list
-            String mod = null;
-
-            //to open the tag
-            if (result.endsWith("Dec")) {
-                mod = "<aspect name=\"" + result + "\">";
-            } else if (result.endsWith("MAsp")) {
-                mod = "<multiAspect name=\"" + result + "\">";
-            } else if (result.endsWith("Spec")) {
-                mod = "<specialization name=\"" + result + "\">";
-            }
-            f0.println(mod);
-
-
-
-            //to close the tag
-            if (result.endsWith("Dec")) {
-                mod = "</aspect>";
-            } else if (result.endsWith("MAsp")) {
-                mod = "</multiAspect>";
-            } else if (result.endsWith("Spec")) {
-                mod = "</specialization>";
-            } else {
-                if (result.endsWith("Seq")) {
-                    continue;
-                }
-                mod = "</entity>";
-            }
-            f0.println(mod);
-
-
-
-            //stays in the middle
-            if (result.endsWith("Var")) {
-                String novarresult = result.replace("Var", "");
-
-                String[] properties = novarresult.split("<->");
-                if (properties[1].equals("string") || properties[1].equals("boolean")) {
-
-                    f0.println("<var name=\"" + properties[0] + "\" type=\"" + properties[1]
-                            + "\" default=\"" + properties[2]
-                            + "\"> </var>");
-                } else {
-
-                    if (properties.length > 5) {
-                        f0.println("<var name=\"" + properties[0] + "\" type=\"" + properties[1]
-                                + "\" default=\"" + properties[2]
-                                + "\" lower=\"" + properties[3]
-                                + "\" " + "upper=\"" + properties[4]
-                                + "\" distributionType=\"" + properties[5]
-                                + "\" distributionDetails=\"" + properties[6] + "\"> </var>");
-                    } else {
-                        f0.println("<var name=\"" + properties[0] + "\" type=\"" + properties[1]
-                                + "\" default=\"" + properties[2]
-                                + "\" lower=\"" + properties[3] + "\" " + "upper=\""
-                                + properties[4] + "\"> </var>");
-                    }
-                }
-
-            } else if (result.endsWith("Distion")) {
-                String novarresult = result.replace("Distion", "");
-                String[] properties = novarresult.split(",");
-                f0.println("<distion variablename=\"" + properties[0]
-                        + "\" distributiontype=\"" + properties[1]
-                        + "\" details=\"" + properties[2] + "\"> </distion>");
-            } else if (result.endsWith("InterCon")) {
-                String novarresult = result.replace("InterCon", "");
-                String[] properties = novarresult.split("<->");
-                f0.println("<InterCon intercontraintname=\"" + properties[0] + "\"> </InterCon>");
-            } else if (result.endsWith("IntraCon")) {
-                String novarresult = result.replace("IntraCon", "");
-                String[] properties = novarresult.split("<->");
-                f0.println("<IntraCon intracontraintname=\"" + properties[0] + "\"> </IntraCon>");
-            } else if (result.endsWith("Behaviour")) {
-                String novarresult = result.replace("Behaviour", "");
-                String[] properties = novarresult.split("<->");
-                f0.println("<behaviour name=\"" + properties[0] + "\"> </behaviour>");
-            } else if (result.endsWith("RefNode")) {
-                String noRefNoderesult = result.replace("RefNode", "");
-
-                if (noRefNoderesult.endsWith("Dec")) {
-                    f0.println("<aspect name=\"" + noRefNoderesult + "\" ref=\"" + noRefNoderesult
-                            + "\"/>");
-                } else if (noRefNoderesult.endsWith("MAsp")) {
-                    f0.println(
-                            "<multiAspect name=\"" + noRefNoderesult + "\" ref=\"" + noRefNoderesult
-                                    + "\"/>");
-                } else if (noRefNoderesult.endsWith("Spec")) {
-                    f0.println("<specialization name=\"" + noRefNoderesult + "\" ref=\""
-                            + noRefNoderesult + "\"/>");
-                } else {
-                    f0.println("<entity name=\"" + noRefNoderesult + "\" ref=\"" + noRefNoderesult
-                            + "\"/>");
-                }
+    public static String importScenarioDatasFromCSVFile(String csvFilePath, String outputDirectory) {
+        try (BufferedReader br = new BufferedReader(new FileReader(csvFilePath))) {
+            // Read header (titles)
+            String headerLine = br.readLine();
+            if (headerLine == null) {
+                System.out.println("CSV is empty!");
+                return "CSV is empty!";
             }
 
+            String[] headers = headerLine.split(",");
 
+            // Ensure output folder exists
+            File outputDir = new File(outputDirectory);
+            if (!outputDir.exists()) {
+                outputDir.mkdirs();
+            }
+
+            String line;
+            int fileCount = 1;
+
+            // Read each data line
+            while ((line = br.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
+
+                String[] values = line.split(",");
+                Map<String, String> data = new LinkedHashMap<>();
+
+                for (int i = 0; i < headers.length && i < values.length; i++) {
+                    data.put(headers[i].trim(), values[i].trim());
+                }
+
+                // Generate XML content for this line
+                String xmlContent = buildXMLScenarioContent(data);
+
+                // Create and write file
+                String fileName = "Scenario_" + fileCount + ".xml";
+                File outputFile = new File(outputDir, fileName);
+
+                try (PrintWriter writer = new PrintWriter(new FileWriter(outputFile))) {
+                    writer.write(xmlContent);
+                }
+
+//                System.out.println("Created file: " + outputFile.getAbsolutePath());
+                fileCount++;
+            }
+
+            String result = "Files saved in " + outputDirectory;
+            if (fileExistValidator == 1){
+                result = "Files saved in " + outputDirectory +
+                        "\n NB: \n- The Scenario name " + scenarioName + " you entered already exist.\n" +
+                        "- The new Scenario Name is "
+                                + scenarioName + "1. \n" +
+                        "- Next time use a different Scenario name";
+                fileExistValidator = 0;
+                return result;
+            }
+            fileExistValidator = 0;
+            return result;
+
+        } catch (IOException e) {
+            fileExistValidator = 0;
+//            System.err.println("Error: " + e.getMessage());
+            return "Error: " + e.getMessage();
         }
-        f0.close();
+    }
+
+
+
+    private static String buildXMLScenarioContent(Map<String, String> data) {
+        StringBuilder xml = new StringBuilder();
+
+        // XML header
+        xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n");
+        xml.append("<entity xmlns:vc=\"http://www.w3.org/2007/XMLSchema-versioning\" ")
+                .append("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" ")
+                .append("xsi:noNamespaceSchemaLocation=\"ses.xsd\" name=\"Scenario\">\n");
+        xml.append("<aspect name=\"scenarioDec\">\n");
+
+        // Group all parameters by their entity prefix
+        Map<String, List<Map.Entry<String, String>>> entityGroups = new LinkedHashMap<>();
+
+        for (Map.Entry<String, String> entry : data.entrySet()) {
+            String key = entry.getKey();
+            if (!key.contains("_")) continue; // Skip invalid format
+
+            // Split "EgoAC_Altitude" → ["EgoAC", "Altitude"]
+            String[] parts = key.split("_", 2);
+            String entityName = parts[0].trim();
+            String varName = parts[1].trim();
+
+            entityGroups
+                    .computeIfAbsent(entityName, k -> new ArrayList<>())
+                    .add(Map.entry(varName, entry.getValue().trim()));
+        }
+
+        // Build XML for each entity group
+        for (Map.Entry<String, List<Map.Entry<String, String>>> entity : entityGroups.entrySet()) {
+            String entityName = entity.getKey();
+            xml.append("<entity name=\"").append(entityName).append("\">\n");
+
+            for (Map.Entry<String, String> variable : entity.getValue()) {
+                String varName = variable.getKey();
+                String value = variable.getValue();
+
+                xml.append("<var name=\"")
+                        .append(varName)
+                        .append("\" default=\"")
+                        .append(value)
+                        .append("\"> </var>\n");
+            }
+
+            xml.append("</entity>\n");
+        }
+
+        // Close XML structure
+        xml.append("</aspect>\n</entity>\n");
+
+        return xml.toString();
     }
 }

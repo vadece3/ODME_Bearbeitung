@@ -325,17 +325,6 @@ public class MenuBar {
 		gbc.gridwidth = 3;
 		dialog.add(buttonPanel, gbc);
 
-		// --- Label under the dialog box ---
-		JLabel infoLabel = new JLabel("Scenario Location: "+ODMEEditor.fileLocation + "/Scenarios");
-		infoLabel.setForeground(Color.DARK_GRAY);
-		infoLabel.setHorizontalAlignment(SwingConstants.CENTER);
-
-		gbc.gridx = 0;
-		gbc.gridy = 3;
-		gbc.gridwidth = 3;
-		gbc.anchor = GridBagConstraints.CENTER;
-		dialog.add(infoLabel, gbc);
-
 		// --- OK button action ---
 		okButton.addActionListener(e -> {
 			String scenarioName = nameField.getText().trim();
@@ -350,10 +339,14 @@ public class MenuBar {
 				return;
 			}
 
-			ScenarioGeneration.generateScenarios(csvPath , scenarioName);
-
 			System.out.println(" Scenario Name: " + scenarioName);
 			System.out.println(" CSV File: " + csvPath);
+
+			// Show confirmation dialog with the folder path where the Scenarios are saved
+			JOptionPane.showMessageDialog(dialog,
+					"You entered:\n\n" + ScenarioGeneration.generateScenarios(csvPath , scenarioName),
+					"Your Message",
+					JOptionPane.INFORMATION_MESSAGE);
 
 			dialog.dispose(); // close dialog
 		});
