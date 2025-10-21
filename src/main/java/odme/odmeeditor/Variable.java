@@ -32,19 +32,19 @@ import java.awt.event.MouseEvent;
  * table.
  * </p>
  *
- * @author 
- * @version 
+ * @author
+ * @version
  */
 public class Variable extends JPanel {
 
-	private static final long serialVersionUID = 1L;
-	public static JTable table;
+    private static final long serialVersionUID = 1L;
+    public static JTable table;
     private static DefaultTableModel model;
     // selectedType is using in below function: addVariableFromGraphPopup
     public static String selectedType;
-    
-    public static final String variableFieldRegEx = "[a-zA-Z_][a-zA-Z0-9_]*";
-    
+
+    public static final String variableFieldRegEx = "^[a-zA-Z]+$";
+
 
     public Variable() {
         setLayout(new GridLayout(1, 0)); // rows,cols
@@ -61,17 +61,17 @@ public class Variable extends JPanel {
         table.setDefaultEditor(Object.class, null);
         table.setSelectionBackground(new Color(217, 237, 146));
         table.setSelectionForeground(new Color(188, 71, 73));
-        
+
         // row listener
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        
+
 
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 // Double click
                 if (e.getClickCount() == 2) {
                     JTable target = (JTable) e.getSource();
-                    
+
                     Point point = e.getPoint();
                     int row = table.rowAtPoint(point);
 
@@ -82,10 +82,10 @@ public class Variable extends JPanel {
                     String lowerBound = (String) target.getModel().getValueAt(row, 4);
                     String uperBound = (String) target.getModel().getValueAt(row, 5);
 //                    String comment = (String) target.getModel().getValueAt(row, 6);
-                    
-                    if (variableName != "")
-                    	updateTableData(nodeName, variableName, variableType, variableValue, lowerBound,
-                    			uperBound,"comment");
+
+//                    if (variableName != "")
+//                        updateTableData(nodeName, variableName, variableType, variableValue, lowerBound,
+//                                uperBound,"comment");
                 }
             }
         });
@@ -95,7 +95,7 @@ public class Variable extends JPanel {
 
         // Add the scroll pane to this panel.
         add(scrollPane);
-        
+
         setNullRowsToVariableTable();
     }
 
@@ -124,14 +124,14 @@ public class Variable extends JPanel {
             if (a == 0) {
                 if (value == null) {
                     model.addRow(new Object[] {selectedNode, "", "", "", "", ""});
-                } 
+                }
                 else {
                     properties = value.split(",");
 
                     if (properties[1].equals("string") || properties[1].equals("boolean")) {
                         model.addRow(
                                 new Object[] {selectedNode, properties[0], properties[1], properties[2]});
-                    } 
+                    }
                     else {
                         model.addRow(new Object[] {selectedNode, properties[0], properties[1], properties[2],
                                 properties[3], properties[4]});
@@ -159,35 +159,35 @@ public class Variable extends JPanel {
                 }
             }
         }
-        
+
         setNullRowsToVariableTable();
     }
-    
+
     // added by amir - for compatibility with other parts of program (whoever called the old version, is gonna get it still)
     public static void updateTableData(String nodeName, String variableName, String variableType,
-            String variableValue, String variableLowerBound, String variableUpperBound) {
-    	updateTableData(nodeName,variableName,variableType,variableValue,variableLowerBound,variableUpperBound,null);
+                                       String variableValue, String variableLowerBound, String variableUpperBound) {
+        updateTableData(nodeName,variableName,variableType,variableValue,variableLowerBound,variableUpperBound,null);
     }
 
     public static void updateTableData(String nodeName, String variableName, String variableType,
-                                String variableValue, String variableLowerBound, String variableUpperBound,String variableComment) {
+                                       String variableValue, String variableLowerBound, String variableUpperBound,String variableComment) {
 
         // multiple input for variable---------------------------------
-    	JLabel errorLabelField = new JLabel();
+        JLabel errorLabelField = new JLabel();
         JTextField nodeNameleField = new JTextField();
         JTextField variableField = new JTextField();
         JTextField valueField = new JTextField();
         JTextField lowerBoundField = new JTextField();
         JTextField upperBoundField = new JTextField();
         JTextField commentField = new JTextField(); // added by amir
-        
+
         lowerBoundField.setEnabled(false);
         upperBoundField.setEnabled(false);
         nodeNameleField.setEnabled(false);
-        
+
         if(variableComment!=null)
-        	commentField.setEnabled(false); // added by amir
-        
+            commentField.setEnabled(false); // added by amir
+
         // for validation of input
         errorLabelField.setText("Value is not Valid");
         errorLabelField.setForeground(Color.RED);
@@ -198,10 +198,10 @@ public class Variable extends JPanel {
         JComboBox<String> variableTypeField = new JComboBox<String>(typeList);
         variableTypeField.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent event) {
-            	if (event.getStateChange() == ItemEvent.SELECTED) {
-            	variableTypeFieldChange(variableField, valueField, errorLabelField,
-                		lowerBoundField, upperBoundField, variableTypeField);
-            	}
+                if (event.getStateChange() == ItemEvent.SELECTED) {
+                    variableTypeFieldChange(variableField, valueField, errorLabelField,
+                            lowerBoundField, upperBoundField, variableTypeField);
+                }
             }
         });
 
@@ -227,50 +227,50 @@ public class Variable extends JPanel {
             // have to check why without this gives error during opening this form even
             // value is correct.during debugging i saw if condition is not working and make
             // the error label visible but values was correct
-        } 
+        }
         else {
             lowerBoundField.setEnabled(true);
             upperBoundField.setEnabled(true);
         }
-        
+
         if (selectedType.equals("string") || selectedType.equals("boolean")) {
             variableNameOld = variableName + "," + variableType + "," + variableValue;
             //System.out.println(variableNameOld);
         } else {
             variableNameOld =
                     variableName + "," + variableType + "," + variableValue + "," + variableLowerBound + ","
-                    + variableUpperBound;
+                            + variableUpperBound;
         }
-        
+
         if (ODMEEditor.toolMode == "pes") {
-        	nodeNameleField.setEnabled(false);
-        	variableField.setEnabled(false);
-        	lowerBoundField.setEnabled(false);
-        	upperBoundField.setEnabled(false);
-        	variableTypeField.setEnabled(false);
-        	commentField.setEnabled(false);
+            nodeNameleField.setEnabled(false);
+            variableField.setEnabled(false);
+            lowerBoundField.setEnabled(false);
+            upperBoundField.setEnabled(false);
+            variableTypeField.setEnabled(false);
+            commentField.setEnabled(false);
         }
-        
-        
+
+
         variableTypeFieldChange(variableField, valueField, errorLabelField,
-        		lowerBoundField, upperBoundField, variableTypeField);
-        
+                lowerBoundField, upperBoundField, variableTypeField);
+
         variableFieldValidator(
-        		variableField, valueField, errorLabelField,
-        		lowerBoundField, upperBoundField);
-        
+                variableField, valueField, errorLabelField,
+                lowerBoundField, upperBoundField);
+
         valueFieldvalidator(
-        		variableField, valueField, errorLabelField,
-        		lowerBoundField, upperBoundField);
-        
+                variableField, valueField, errorLabelField,
+                lowerBoundField, upperBoundField);
+
         lowerBoundFieldValidator(
-        		variableField, valueField, errorLabelField,
-        	    lowerBoundField, upperBoundField);
-        
+                variableField, valueField, errorLabelField,
+                lowerBoundField, upperBoundField);
+
         upperBoundFieldValidator(
-        		variableField, valueField, errorLabelField,
-        		lowerBoundField, upperBoundField);
-        
+                variableField, valueField, errorLabelField,
+                lowerBoundField, upperBoundField);
+
         variableCommentValidator(variableField,errorLabelField); // added by amir
 
         variableField.addKeyListener(new KeyListener() {
@@ -278,9 +278,9 @@ public class Variable extends JPanel {
             public void keyTyped(KeyEvent e) {}
             @Override
             public void keyReleased(KeyEvent e) {
-            	variableFieldValidator(
-                		variableField, valueField, errorLabelField,
-                		lowerBoundField, upperBoundField);
+                variableFieldValidator(
+                        variableField, valueField, errorLabelField,
+                        lowerBoundField, upperBoundField);
             }
             @Override
             public void keyPressed(KeyEvent e) {}
@@ -291,9 +291,9 @@ public class Variable extends JPanel {
             public void keyTyped(KeyEvent e) {}
             @Override
             public void keyReleased(KeyEvent e) {
-            	valueFieldvalidator(
-                		variableField, valueField, errorLabelField,
-                		lowerBoundField, upperBoundField);
+                valueFieldvalidator(
+                        variableField, valueField, errorLabelField,
+                        lowerBoundField, upperBoundField);
             }
             @Override
             public void keyPressed(KeyEvent e) {}
@@ -304,9 +304,9 @@ public class Variable extends JPanel {
             public void keyTyped(KeyEvent e) {}
             @Override
             public void keyReleased(KeyEvent e) {
-            	lowerBoundFieldValidator(
-                		variableField, valueField, errorLabelField,
-                		lowerBoundField, upperBoundField);
+                lowerBoundFieldValidator(
+                        variableField, valueField, errorLabelField,
+                        lowerBoundField, upperBoundField);
             }
             @Override
             public void keyPressed(KeyEvent e) {}
@@ -317,9 +317,9 @@ public class Variable extends JPanel {
             public void keyTyped(KeyEvent e) {}
             @Override
             public void keyReleased(KeyEvent e) {
-            	upperBoundFieldValidator(
-                		variableField, valueField, errorLabelField,
-                		lowerBoundField, upperBoundField);
+                upperBoundFieldValidator(
+                        variableField, valueField, errorLabelField,
+                        lowerBoundField, upperBoundField);
             }
             @Override
             public void keyPressed(KeyEvent e) {}
@@ -350,7 +350,7 @@ public class Variable extends JPanel {
             }
 
             if (variableLowerBound.equals("")) {
-            	variableLowerBound = "none";
+                variableLowerBound = "none";
             }
 
             if (variableUpperBound.equals("")) {
@@ -359,31 +359,31 @@ public class Variable extends JPanel {
 
 
             if (variableTypeField.getSelectedItem().toString().trim().equals("string") ||
-            	variableTypeField.getSelectedItem().toString().trim().equals("boolean")) {
-                   variableName = variableName + "," + variableType + "," + variableValue;
+                    variableTypeField.getSelectedItem().toString().trim().equals("boolean")) {
+                variableName = variableName + "," + variableType + "," + variableValue;
             }
             else {
-                   variableName = variableName + "," + variableType + "," + variableValue + "," + variableLowerBound
-                            + "," + variableUpperBound;
+                variableName = variableName + "," + variableType + "," + variableValue + "," + variableLowerBound
+                        + "," + variableUpperBound;
             }
 
             JtreeToGraphDelete.deleteVariableFromScenarioTableForUpdate(
-            		JtreeToGraphVariables.selectedNodeCellForVariableUpdate, variableNameOld, variableName);
+                    JtreeToGraphVariables.selectedNodeCellForVariableUpdate, variableNameOld, variableName);
         }
-        
+
         else if (option == JOptionPane.OK_OPTION && errorLabelField.isVisible()){
-        	JOptionPane.showMessageDialog(Main.frame, "Value is not Valid!", "Error",
+            JOptionPane.showMessageDialog(Main.frame, "Value is not Valid!", "Error",
                     JOptionPane.ERROR_MESSAGE);
-        	
-        	updateTableData(nodeName, variableName, variableType,
+
+            updateTableData(nodeName, variableName, variableType,
                     variableValue, variableLowerBound, variableUpperBound);
         }
     }
-    
+
     public static void variableFieldValidator(
-    		JTextField variableField, JTextField valueField, JLabel errorLabelField,
-    		JTextField lowerBoundField, JTextField upperBoundField) {
-    	if (selectedType.equals("string")) {
+            JTextField variableField, JTextField valueField, JLabel errorLabelField,
+            JTextField lowerBoundField, JTextField upperBoundField) {
+        if (selectedType.equals("string")) {
             errorLabelField.setVisible(
                     !variableField.getText().trim().matches(variableFieldRegEx) || !valueField
                             .getText().trim().matches(variableFieldRegEx));
@@ -398,11 +398,11 @@ public class Variable extends JPanel {
         else if (selectedType.equals("double")) {
 
             errorLabelField.setVisible(
-                    !valueField.getText().trim().matches("^\\d*\\.\\d+") || !variableField.getText()
+                    !valueField.getText().trim().matches("^-?\\d*(\\.\\d+)?$") || !variableField.getText()
                             .trim().matches(variableFieldRegEx) || !lowerBoundField.getText().trim()
-                            .matches("^\\d*\\.\\d+") || !upperBoundField.getText().trim()
-                            .matches("^\\d*\\.\\d+"));
-        } 
+                            .matches("^-?\\d*(\\.\\d+)?$") || !upperBoundField.getText().trim()
+                            .matches("^-?\\d*(\\.\\d+)?$"));
+        }
         else {
             errorLabelField.setVisible(
                     !variableField.getText().trim().matches(variableFieldRegEx) || !valueField
@@ -411,62 +411,62 @@ public class Variable extends JPanel {
                             .matches("^[0-9]+"));
         }
     }
-    
+
     // added by amir
     public static void variableCommentValidator(JTextField commentFiled,JLabel errorLabelField) {
-    	try {
-    		errorLabelField.setVisible(
-				!commentFiled.getText().trim().matches("^[a-zA-Z_][a-Z0-9A-Z ]*")
-    		);
-    	}
-    	catch (Exception e) {
-    		errorLabelField.setVisible(true);
-		}
-    }
-    
-    public static void valueFieldvalidator(
-    		JTextField variableField, JTextField valueField, JLabel errorLabelField,
-    		JTextField lowerBoundField, JTextField upperBoundField) {
-    	if (selectedType.equals("boolean")) {
+        try {
             errorLabelField.setVisible(
-                    !valueField.getText().trim().equals("false") 
-                    && !valueField.getText().trim().equals("true"));
-        } 
-        else if (selectedType.equals("int")) {
-        	try {
-        		errorLabelField.setVisible(
-        				!valueField.getText().trim().matches("^-{0,1}[0-9]+") ||
-        				Integer.parseInt(valueField.getText()) > Integer.parseInt(upperBoundField.getText()) || 
-        				Integer.parseInt(valueField.getText()) < Integer.parseInt(lowerBoundField.getText()));
-        	}
-        	catch (Exception e) {
-        		errorLabelField.setVisible(true);
-			}
-        } 
-        else if (selectedType.equals("float")) {
-        	try {
-        		errorLabelField.setVisible(
-        				!valueField.getText().trim().matches("^\\d*\\.\\d+") ||
-        				Float.parseFloat(valueField.getText()) > Float.parseFloat(upperBoundField.getText()) || 
-        				Float.parseFloat(valueField.getText()) < Float.parseFloat(lowerBoundField.getText()));
-        	}
-        	catch (Exception e) {
-        		errorLabelField.setVisible(true);
-        	}
-        } 
-    	
-        else if (selectedType.equals("double")) {
-        	try {
-        		errorLabelField.setVisible(
-        				!valueField.getText().trim().matches("^\\d*\\.\\d+") ||
-        				Double.parseDouble(valueField.getText()) > Double.parseDouble(upperBoundField.getText()) || 
-        				Double.parseDouble(valueField.getText()) < Double.parseDouble(lowerBoundField.getText()));
-        	}
-        	catch (Exception e) {
-        		errorLabelField.setVisible(true);
-        	}
+                    !commentFiled.getText().trim().matches("^[a-zA-Z_][a-Z0-9A-Z ]*")
+            );
         }
-        	
+        catch (Exception e) {
+            errorLabelField.setVisible(true);
+        }
+    }
+
+    public static void valueFieldvalidator(
+            JTextField variableField, JTextField valueField, JLabel errorLabelField,
+            JTextField lowerBoundField, JTextField upperBoundField) {
+        if (selectedType.equals("boolean")) {
+            errorLabelField.setVisible(
+                    !valueField.getText().trim().equals("false")
+                            && !valueField.getText().trim().equals("true"));
+        }
+        else if (selectedType.equals("int")) {
+            try {
+                errorLabelField.setVisible(
+                        !valueField.getText().trim().matches("^-{0,1}[0-9]+") ||
+                                Integer.parseInt(valueField.getText()) > Integer.parseInt(upperBoundField.getText()) ||
+                                Integer.parseInt(valueField.getText()) < Integer.parseInt(lowerBoundField.getText()));
+            }
+            catch (Exception e) {
+                errorLabelField.setVisible(true);
+            }
+        }
+        else if (selectedType.equals("float")) {
+            try {
+                errorLabelField.setVisible(
+                        !valueField.getText().trim().matches("^-?\\d*(\\.\\d+)?$") ||
+                                Float.parseFloat(valueField.getText()) > Float.parseFloat(upperBoundField.getText()) ||
+                                Float.parseFloat(valueField.getText()) < Float.parseFloat(lowerBoundField.getText()));
+            }
+            catch (Exception e) {
+                errorLabelField.setVisible(true);
+            }
+        }
+
+        else if (selectedType.equals("double")) {
+            try {
+                errorLabelField.setVisible(
+                        !valueField.getText().trim().matches("^-?\\d*(\\.\\d+)?$") ||
+                                Double.parseDouble(valueField.getText()) > Double.parseDouble(upperBoundField.getText()) ||
+                                Double.parseDouble(valueField.getText()) < Double.parseDouble(lowerBoundField.getText()));
+            }
+            catch (Exception e) {
+                errorLabelField.setVisible(true);
+            }
+        }
+
         else if (selectedType.equals("string")) {
             errorLabelField.setVisible(
                     !valueField.getText().trim().matches(variableFieldRegEx));
@@ -474,9 +474,9 @@ public class Variable extends JPanel {
     }
 
     public static void lowerBoundFieldValidator(
-    		JTextField variableField, JTextField valueField, JLabel errorLabelField,
-    		JTextField lowerBoundField, JTextField upperBoundField){
-    	
+            JTextField variableField, JTextField valueField, JLabel errorLabelField,
+            JTextField lowerBoundField, JTextField upperBoundField){
+
         if (selectedType.equals("int")) {
 
             errorLabelField.setVisible(
@@ -484,22 +484,22 @@ public class Variable extends JPanel {
                             .matches(variableFieldRegEx) || !lowerBoundField.getText().trim()
                             .matches("^[0-9]+") || !upperBoundField.getText().trim()
                             .matches("^[0-9]+"));
-        } 
+        }
         else if (selectedType.equals("float") || selectedType.equals("double")) {
 
             errorLabelField.setVisible(
-                    !valueField.getText().trim().matches("^\\d*\\.\\d+") || !variableField.getText()
+                    !valueField.getText().trim().matches("^-?\\d*(\\.\\d+)?$") || !variableField.getText()
                             .trim().matches(variableFieldRegEx) || !lowerBoundField.getText().trim()
-                            .matches("^\\d*\\.\\d+") || !upperBoundField.getText().trim()
-                            .matches("^\\d*\\.\\d+"));
+                            .matches("^-?\\d*(\\.\\d+)?$") || !upperBoundField.getText().trim()
+                            .matches("^-?\\d*(\\.\\d+)?$"));
         }
     }
-    
+
     public static void upperBoundFieldValidator(
-    		JTextField variableField, JTextField valueField, JLabel errorLabelField,
-    		JTextField lowerBoundField, JTextField upperBoundField){
-    	if (selectedType.equals("float")) {
-        	
+            JTextField variableField, JTextField valueField, JLabel errorLabelField,
+            JTextField lowerBoundField, JTextField upperBoundField){
+        if (selectedType.equals("float")) {
+
             errorLabelField.setVisible(
                     !valueField.getText().trim().matches("^[0-9]+") || !variableField.getText().trim()
                             .matches(variableFieldRegEx) || !lowerBoundField.getText().trim()
@@ -513,61 +513,61 @@ public class Variable extends JPanel {
                             .matches(variableFieldRegEx) || !lowerBoundField.getText().trim()
                             .matches("^[0-9]+") || !upperBoundField.getText().trim()
                             .matches("^[0-9]+"));
-        } 
+        }
         else if (selectedType.equals("double")) {
 
             errorLabelField.setVisible(
-                    !valueField.getText().trim().matches("^\\d*\\.\\d+") || !variableField.getText()
+                    !valueField.getText().trim().matches("^-?\\d*(\\.\\d+)?$") || !variableField.getText()
                             .trim().matches(variableFieldRegEx) || !lowerBoundField.getText().trim()
-                            .matches("^\\d*\\.\\d+") || !upperBoundField.getText().trim()
-                            .matches("^\\d*\\.\\d+"));
+                            .matches("^-?\\d*(\\.\\d+)?$") || !upperBoundField.getText().trim()
+                            .matches("^-?\\d*(\\.\\d+)?$"));
         }
     }
-    
+
     public static void variableTypeFieldChange(JTextField variableField,
-    		JTextField valueField, JLabel errorLabelField,
-    		JTextField lowerBoundField, JTextField upperBoundField,
-    		JComboBox<String> variableTypeField) {
-    	
-    	
-            selectedType = variableTypeField.getSelectedItem().toString();
+                                               JTextField valueField, JLabel errorLabelField,
+                                               JTextField lowerBoundField, JTextField upperBoundField,
+                                               JComboBox<String> variableTypeField) {
 
-            if (selectedType.equals("string") || selectedType.equals("boolean")) {
-                lowerBoundField.setText(null);
-                upperBoundField.setText(null);
-                lowerBoundField.setEnabled(false);
-                upperBoundField.setEnabled(false);
-            } 
-            else if (ODMEEditor.toolMode == "ses"){
-                lowerBoundField.setEnabled(true);
-                upperBoundField.setEnabled(true);
-            }
 
-            // --------------
-            if (selectedType.equals("boolean")) {
-                errorLabelField.setVisible(
-                        !variableField.getText().trim().matches(variableFieldRegEx) || (
-                                !valueField.getText().trim().equals("true") && !variableField
-                                        .getText().trim().equals("false")));
-            }
-            else if (selectedType.equals("string")) {
-                errorLabelField.setVisible(
-                        !variableField.getText().trim().matches(variableFieldRegEx) || !valueField
-                                .getText().trim().matches(variableFieldRegEx));
-            } 
-            else if (selectedType.equals("double")) {
-                errorLabelField.setVisible(
-                        !valueField.getText().trim().matches("^\\d*\\.\\d+") || !variableField
-                                .getText().trim().matches(variableFieldRegEx) || !lowerBoundField
-                                .getText().trim().matches("^\\d*\\.\\d+") || !upperBoundField
-                                .getText().trim().matches("^\\d*\\.\\d+"));
-            } 
-            else {
-                errorLabelField.setVisible(
-                        !variableField.getText().trim().matches(variableFieldRegEx) || !valueField
-                                .getText().trim().matches("^[0-9]+") || !lowerBoundField.getText()
-                                .trim().matches("^[0-9]+") || !upperBoundField.getText().trim()
-                                .matches("^[0-9]+"));
-            }
+        selectedType = variableTypeField.getSelectedItem().toString();
+
+        if (selectedType.equals("string") || selectedType.equals("boolean")) {
+            lowerBoundField.setText(null);
+            upperBoundField.setText(null);
+            lowerBoundField.setEnabled(false);
+            upperBoundField.setEnabled(false);
+        }
+        else if (ODMEEditor.toolMode == "ses"){
+            lowerBoundField.setEnabled(true);
+            upperBoundField.setEnabled(true);
+        }
+
+        // --------------
+        if (selectedType.equals("boolean")) {
+            errorLabelField.setVisible(
+                    !variableField.getText().trim().matches(variableFieldRegEx) || (
+                            !valueField.getText().trim().equals("true") && !variableField
+                                    .getText().trim().equals("false")));
+        }
+        else if (selectedType.equals("string")) {
+            errorLabelField.setVisible(
+                    !variableField.getText().trim().matches(variableFieldRegEx) || !valueField
+                            .getText().trim().matches(variableFieldRegEx));
+        }
+        else if (selectedType.equals("double")) {
+            errorLabelField.setVisible(
+                    !valueField.getText().trim().matches("^-?\\d*(\\.\\d+)?$") || !variableField
+                            .getText().trim().matches(variableFieldRegEx) || !lowerBoundField
+                            .getText().trim().matches("^-?\\d*(\\.\\d+)?$") || !upperBoundField
+                            .getText().trim().matches("^-?\\d*(\\.\\d+)?$"));
+        }
+        else {
+            errorLabelField.setVisible(
+                    !variableField.getText().trim().matches(variableFieldRegEx) || !valueField
+                            .getText().trim().matches("^[0-9]+") || !lowerBoundField.getText()
+                            .trim().matches("^[0-9]+") || !upperBoundField.getText().trim()
+                            .matches("^[0-9]+"));
+        }
     }
 }

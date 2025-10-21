@@ -233,7 +233,7 @@ public class JtreeToGraphAdd {
 
         String[] typeList = {" ", "boolean", "int", "float", "double", "string"};
 
-        String variableFieldRegEx = "[a-zA-Z_][a-zA-Z0-9_]*"; // alphanumeric but not start with number
+        String variableFieldRegEx = "^[a-zA-Z]+$"; // just alphanumeric
 
         JComboBox<String> variableTypeField = new JComboBox<String>(typeList);
 
@@ -265,10 +265,10 @@ public class JtreeToGraphAdd {
                     } 
                     else if (selectedType.equals("double")) {
                         errorLabelField.setVisible(
-                                !valueField.getText().trim().matches("^\\d*\\.\\d+") || !variableField
+                                !valueField.getText().trim().matches("^-?\\d*(\\.\\d+)?$") || !variableField
                                         .getText().trim().matches(variableFieldRegEx) || !lowerBoundField
-                                        .getText().trim().matches("^\\d*\\.\\d+") || !upperBoundField
-                                        .getText().trim().matches("^\\d*\\.\\d+"));
+                                        .getText().trim().matches("^-?\\d*(\\.\\d+)?$") || !upperBoundField
+                                        .getText().trim().matches("^-?\\d*(\\.\\d+)?$"));
                     } 
                     else {
                         errorLabelField.setVisible(
@@ -317,10 +317,10 @@ public class JtreeToGraphAdd {
                 }
                 else if (selectedType.equals("double")) {
                     errorLabelField.setVisible(
-                            !valueField.getText().trim().matches("^\\d*\\.\\d+") || !variableField.getText()
+                            !valueField.getText().trim().matches("^-?\\d*(\\.\\d+)?$") || !variableField.getText()
                                     .trim().matches(variableFieldRegEx) || !lowerBoundField.getText().trim()
-                                    .matches("^\\d*\\.\\d+") || !upperBoundField.getText().trim()
-                                    .matches("^\\d*\\.\\d+"));
+                                    .matches("^-?\\d*(\\.\\d+)?$") || !upperBoundField.getText().trim()
+                                    .matches("^-?\\d*(\\.\\d+)?$"));
                 } 
                 else {
                     errorLabelField.setVisible(
@@ -359,18 +359,18 @@ public class JtreeToGraphAdd {
                 }
                 else if (selectedType.equals("float")) {
                     errorLabelField.setVisible(
-                            !valueField.getText().trim().matches("^\\d*\\.\\d+") || !variableField.getText()
+                            !valueField.getText().trim().matches("^-?\\d*(\\.\\d+)?$") || !variableField.getText()
                                     .trim().matches(variableFieldRegEx)
-                            || !lowerBoundField.getText().trim().matches("^\\d*\\.\\d+") || !upperBoundField
-                                    .getText().trim().matches("^\\d*\\.\\d+"));
+                            || !lowerBoundField.getText().trim().matches("^-?\\d*(\\.\\d+)?$") || !upperBoundField
+                                    .getText().trim().matches("^-?\\d*(\\.\\d+)?$"));
 
                 } 
                 else if (selectedType.equals("double")) {
                     errorLabelField.setVisible(
-                            !valueField.getText().trim().matches("^\\d*\\.\\d+") || !variableField.getText()
+                            !valueField.getText().trim().matches("^-?\\d*(\\.\\d+)?$") || !variableField.getText()
                                     .trim().matches(variableFieldRegEx) || !lowerBoundField.getText().trim()
-                                    .matches("^\\d*\\.\\d+") || !upperBoundField.getText().trim()
-                                    .matches("^\\d*\\.\\d+"));
+                                    .matches("^-?\\d*(\\.\\d+)?$") || !upperBoundField.getText().trim()
+                                    .matches("^-?\\d*(\\.\\d+)?$"));
 
                 }
                 else if (selectedType.equals("string")) {
@@ -408,10 +408,10 @@ public class JtreeToGraphAdd {
                 } 
                 else if (selectedType.equals("double")) {
                     errorLabelField.setVisible(
-                            !valueField.getText().trim().matches("^\\d*\\.\\d+") || !variableField.getText()
+                            !valueField.getText().trim().matches("^-?\\d*(\\.\\d+)?$") || !variableField.getText()
                                     .trim().matches(variableFieldRegEx) || !lowerBoundField.getText().trim()
-                                    .matches("^\\d*\\.\\d+") || !upperBoundField.getText().trim()
-                                    .matches("^\\d*\\.\\d+"));
+                                    .matches("^-?\\d*(\\.\\d+)?$") || !upperBoundField.getText().trim()
+                                    .matches("^-?\\d*(\\.\\d+)?$"));
                 }
             }
 
@@ -441,10 +441,10 @@ public class JtreeToGraphAdd {
                 } 
                 else if (selectedType.equals("double")) {
                     errorLabelField.setVisible(
-                            !valueField.getText().trim().matches("^\\d*\\.\\d+") || !variableField.getText()
+                            !valueField.getText().trim().matches("^-?\\d*(\\.\\d+)?$") || !variableField.getText()
                                     .trim().matches(variableFieldRegEx) || !lowerBoundField.getText().trim()
-                                    .matches("^\\d*\\.\\d+") || !upperBoundField.getText().trim()
-                                    .matches("^\\d*\\.\\d+"));
+                                    .matches("^-?\\d*(\\.\\d+)?$") || !upperBoundField.getText().trim()
+                                    .matches("^-?\\d*(\\.\\d+)?$"));
                 }
             }
 
@@ -453,7 +453,7 @@ public class JtreeToGraphAdd {
         });
 
         Object[] message =
-                {"Variable Name:", variableField, "Variable Type:", variableTypeField, "Default Value:",
+                {"Variable Name:(Only words are accepted e.g speedVariant )", variableField, "Variable Type:", variableTypeField, "Default Value:",
                         valueField, "Lower Bound:", lowerBoundField, "Upper Bound:", upperBoundField, " ",
                         errorLabelField,"Comment: ",commentField};
 
@@ -461,7 +461,7 @@ public class JtreeToGraphAdd {
                 .showConfirmDialog(Main.frame, message, "Please Enter", JOptionPane.OK_CANCEL_OPTION,
                         JOptionPane.PLAIN_MESSAGE);
 
-        if (option == JOptionPane.OK_OPTION) {
+        if (option == JOptionPane.OK_OPTION && !errorLabelField.isVisible()) {
             variableName = variableField.getText();
             variableType = (String) variableTypeField.getSelectedItem();
             variableValue = valueField.getText();
@@ -512,10 +512,16 @@ public class JtreeToGraphAdd {
                     .getSelectedItem().toString().trim().equals("boolean")) {
                 variableName = variableName + "," + variableType + "," + variableValue;
             } 
+            else if(variableTypeField.getSelectedItem().toString().trim().equals("double") || variableTypeField
+                    .getSelectedItem().toString().trim().equals("float")){
+                variableName =
+                        variableName + "," + variableType + "," + normalizeToDecimalString(variableValue) + "," +
+                                normalizeToDecimalString(variableLowerBound) + "," + normalizeToDecimalString(variableUpperBound);
+            }
             else {
                 variableName =
                         variableName + "," + variableType + "," + variableValue + "," + variableLowerBound
-                        + "," + variableUpperBound;
+                                + "," + variableUpperBound;
             }
 
 
@@ -552,6 +558,15 @@ public class JtreeToGraphAdd {
                 // have to call a function to refresh the table view
                 ODMEEditor.treePanel.refreshVariableTable(treePathForVariable);
             }
+        }
+        else if (option == JOptionPane.OK_OPTION && errorLabelField.isVisible()){
+            JOptionPane.showMessageDialog(Main.frame, "Value is not Valid!\nNB:\n" +
+                            "- Type int does not support negative values\n" +
+                            "- Type double and Float accepts decimal places with a dot (.) and not with a comma (,)\n" +
+                            "- Type boolean accepts in the Value field either true or false", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+
+            addVariableFromGraphPopup(pos);
         }
     }
 
@@ -1611,4 +1626,30 @@ public class JtreeToGraphAdd {
         
         ODMEEditor.treePanel.refreshVariableTable(treePathForVariable);
     }
+
+    /**
+     * Normalize numeric string:
+     * - if input is an integer like "12" or "-3", returns "12.0" / "-3.0"
+     * - if input already has a decimal point or exponent (e/E), returns it unchanged
+     * - trims text
+     */
+    private static String normalizeToDecimalString(String s) {
+        if (s == null) return null;
+        String t = s.trim();
+        if (t.isEmpty()) return t;
+
+        // If it contains '.' or scientific notation 'e'/'E', keep as-is (but you can format if desired)
+        if (t.contains(".") || t.contains("e") || t.contains("E")) {
+            return t;
+        }
+
+        // If it's a plain integer (optional sign + digits), append .0
+        if (t.matches("^[+-]?\\d+$")) {
+            return t + ".0";
+        }
+
+        // Fallback: return original (validation should have rejected invalid formats)
+        return t;
+    }
+
 }
