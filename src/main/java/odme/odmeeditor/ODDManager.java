@@ -351,60 +351,130 @@ public class ODDManager extends JPanel{
 			indentStack.push(new int[]{-1, -1});
 
 			for (String[] row : xsd) {
-				int xsdIndent = countLeadingSpaces(row[0]) / 2;
-				String componentName = row[0].replaceAll("^\\s*-?", "").trim();
-				if (componentName.isEmpty()) {
-					continue;  // Skip empty names
-				}
-				String type = row[1].trim();
+				String raw = row[0];
+				if (raw == null) continue;
 
-				// Pop until the current xsdIndent is greater than the one at stack top.
-				while (!indentStack.isEmpty() && indentStack.peek()[0] >= xsdIndent) {
+				// Normalize indentation: treat tabs as 2 spaces to match your /2 rule
+				raw = raw.replace("\t", "  ");
+
+				int xsdIndent = countLeadingSpaces(raw) / 2; // every 2 spaces = 1 level
+				String componentName = raw.replaceAll("^\\s*-?", "").trim();
+				if (componentName.isEmpty()) continue;
+
+				String type = (row.length > 1 && row[1] != null) ? row[1].trim() : "";
+				String vType = (row.length > 2 && row[2] != null) ? row[2].trim() : "";
+
+				// Pop back to the parent: keep the top strictly less than current
+				while (indentStack.peek()[0] >= xsdIndent) {
 					indentStack.pop();
 				}
 
-				int parentYamlIndent = indentStack.isEmpty() ? -1 : indentStack.peek()[1];
+				int parentYamlIndent = indentStack.peek()[1];
 				int currentYamlIndent = parentYamlIndent + 1;
 
-				if (type.equals("Node")) {
+				// ---- Emit YAML ----
+				// two spaces per YAML indent level
+				String pad = "  ".repeat(currentYamlIndent);
+
+				// If this row introduces a mapping key (like tC11, tC12, node14, etc.)
+				// print "key:" and (optionally) nested fields later
+				if (type.isEmpty()) {
+					curr.append(pad).append(componentName).append(":\n");
+				} else if (type.equals("Node")) {
 					// For nodes, output a mapping key with a colon.
-					curr.append(getIndent(currentYamlIndent))
-							.append(componentName)
-							.append(":\n");
-					indentStack.push(new int[]{xsdIndent, currentYamlIndent});
+					curr.append(pad).append(" ").append(componentName).append(":\n");
+//					indentStack.push(new int[]{xsdIndent, currentYamlIndent});
 				}
 				else if(type.equals("->")){
 					// For constraints
-					curr.append(getIndent(currentYamlIndent))
-							.append("- ").append(componentName).append(":\n")
-							.append(getIndent(currentYamlIndent + 2))
+					curr.append(pad).append(" ").append(componentName).append(":\n")
+							.append(getIndent(currentYamlIndent))
 							.append("IntraConstraint: ").append(row[8]).append("\n");
 				}
 				else if (type.equals("Variable")) {
 					// For variables, output as list item.
-					curr.append(getIndent(currentYamlIndent))
-							.append("- ").append(componentName).append(":\n")
-							.append(getIndent(currentYamlIndent + 2))
-							.append("type: ").append(row[2]).append("\n");
+					curr.append(pad).append(" ").append(componentName).append(":\n");
 
+					if(!vType.equals("string")) {
+						curr.append(pad).append("type: ").append(row[2]).append("\n");
+					}
 					if (row[3] != null) {
-						curr.append(getIndent(currentYamlIndent + 2))
-								.append("min: ").append(row[3]).append("\n");
+						curr.append(pad).append("min: ").append(row[3]).append("\n");
 					}
 					if (row[4] != null) {
-						curr.append(getIndent(currentYamlIndent + 2))
-								.append("max: ").append(row[4]).append("\n");
+						curr.append(pad).append("max: ").append(row[4]).append("\n");
 					}
 					if (row[6] != null) {
-						curr.append(getIndent(currentYamlIndent + 2))
-								.append("distributionName: ").append(row[6]).append("\n");
+						curr.append(pad).append("distributionName: ").append(row[6]).append("\n");
 					}
 					if (row[6] != null) {
-						curr.append(getIndent(currentYamlIndent + 2))
-								.append("distributionDetails: ").append(row[7]).append("\n");
+						curr.append(pad).append("distributionDetails: ").append(row[7]).append("\n");
 					}
 				}
+
+				// CRUCIAL: push EVERY node so siblings attach to the same parent
+				indentStack.push(new int[]{xsdIndent, currentYamlIndent});
 			}
+
+//			for (String[] row : xsd) {
+//				int xsdIndent = countLeadingSpaces(row[0]) / 2;
+//				String componentName = row[0].replaceAll("^\\s*-?", "").trim();
+//				if (componentName.isEmpty()) {
+//					continue;  // Skip empty names
+//				}
+//				String type = row[1].trim();
+//				String vType = " ";
+//				if(row[2] != null) {
+//					vType = row[2].trim();
+//				}
+//				// Pop until the current xsdIndent is greater than the one at stack top.
+//				while (!indentStack.isEmpty() && indentStack.peek()[0] >= xsdIndent) {
+//					indentStack.pop();
+//				}
+//
+//				int parentYamlIndent = indentStack.isEmpty() ? -1 : indentStack.peek()[1];
+//				int currentYamlIndent = parentYamlIndent + 1;
+//
+//				if (type.equals("Node")) {
+//					// For nodes, output a mapping key with a colon.
+//					curr.append(getIndent(currentYamlIndent))
+//							.append(" ").append(componentName).append(":\n");
+//					indentStack.push(new int[]{xsdIndent, currentYamlIndent});
+//				}
+//				else if(type.equals("->")){
+//					// For constraints
+//					curr.append(getIndent(currentYamlIndent))
+//							.append(" ").append(componentName).append(":\n")
+//							.append(getIndent(currentYamlIndent))
+//							.append("IntraConstraint: ").append(row[8]).append("\n");
+//				}
+//				else if (type.equals("Variable")) {
+//					// For variables, output as list item.
+//					curr.append(getIndent(currentYamlIndent))
+//							.append(" ").append(componentName).append(":\n");
+//
+//					if(!vType.equals("string")) {
+//						curr.append(getIndent(currentYamlIndent))
+//								.append("type: ").append(row[2]).append("\n");
+//					}
+//					if (row[3] != null) {
+//						curr.append(getIndent(currentYamlIndent))
+//								.append("min: ").append(row[3]).append("\n");
+//					}
+//					if (row[4] != null) {
+//						curr.append(getIndent(currentYamlIndent))
+//								.append("max: ").append(row[4]).append("\n");
+//					}
+//					if (row[6] != null) {
+//						curr.append(getIndent(currentYamlIndent))
+//								.append("distributionName: ").append(row[6]).append("\n");
+//					}
+//					if (row[6] != null) {
+//						curr.append(getIndent(currentYamlIndent))
+//								.append("distributionDetails: ").append(row[7]).append("\n");
+//					}
+//				}
+//			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -603,7 +673,7 @@ public class ODDManager extends JPanel{
 
 		// processing xs:attribute tags under the current xs:element tag (which is e)
 		NodeList attrs=e.getElementsByTagName("xs:attribute");
-		indent+=2;
+		indent+=4;
 		Element curr=null;
 		String firstParentName=null;
 		for(int i=0;i<attrs.getLength();i++) {
@@ -642,7 +712,7 @@ public class ODDManager extends JPanel{
 
 		if (Objects.equals(e.getAttribute("name"), "HasConstraint")) {
 			// adding constraints
-			r[0] = indentStr("-" + e.getAttribute("name"), indent);
+			r[0] = indentStr("-" + e.getAttribute("name"), indent+4);
 			r[1] = "->";
 			for (int i = 0; i < nl.getLength(); i++) {
 				temp = (Element) nl.item(i);
@@ -661,13 +731,14 @@ public class ODDManager extends JPanel{
 			r[0] = indentStr("-" + e.getAttribute("name"), indent);
 
 			r[1] = "Variable";
+			r[2] = e.getAttribute("type");
 			for (int i = 0; i < nl.getLength(); i++) {
 				temp = (Element) nl.item(i);
 				switch (temp.getNodeName()) {
 					//for Variable
-					case "xs:restriction":
-						r[2] = temp.getAttribute("base").replace("xs:", "");
-						break;
+//					case "xs:restriction":
+//						r[2] = temp.getAttribute("base").replace("xs:", "");
+//						break;
 					case "xs:minInclusive":
 						r[3] = temp.getAttribute("value");
 						break;
