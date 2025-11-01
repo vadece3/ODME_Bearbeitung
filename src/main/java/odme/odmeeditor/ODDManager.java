@@ -387,7 +387,7 @@ public class ODDManager extends JPanel{
 				}
 				else if(type.equals("->")){
 					// For constraints
-					curr.append(pad).append(" ").append(componentName).append(":\n")
+					curr.append(pad+pad).append(" ").append(componentName).append(":\n")
 							.append(getIndent(currentYamlIndent))
 							.append("IntraConstraint: ").append(row[8]).append("\n");
 				}
@@ -396,19 +396,19 @@ public class ODDManager extends JPanel{
 					curr.append(pad).append(" ").append(componentName).append(":\n");
 
 					if(!vType.equals("string")) {
-						curr.append(pad).append("type: ").append(row[2]).append("\n");
+						curr.append(pad+pad).append("type: ").append(row[2]).append("\n");
 					}
 					if (row[3] != null) {
-						curr.append(pad).append("min: ").append(row[3]).append("\n");
+						curr.append(pad+pad).append("min: ").append(row[3]).append("\n");
 					}
 					if (row[4] != null) {
-						curr.append(pad).append("max: ").append(row[4]).append("\n");
+						curr.append(pad+pad).append("max: ").append(row[4]).append("\n");
 					}
 					if (row[6] != null) {
-						curr.append(pad).append("distributionName: ").append(row[6]).append("\n");
+						curr.append(pad+pad).append("distributionName: ").append(row[6]).append("\n");
 					}
 					if (row[6] != null) {
-						curr.append(pad).append("distributionDetails: ").append(row[7]).append("\n");
+						curr.append(pad+pad).append("distributionDetails: ").append(row[7]).append("\n");
 					}
 				}
 
