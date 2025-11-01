@@ -11,5 +11,5 @@ import java.util.List;
 @Data // Lombok annotation to auto-generate getters, setters, toString, etc.
 public class Scenario {
     private List<Parameter> parameters = new ArrayList<>();
-    private String constraint;
+    private List<String> constraint = new ArrayList<>();
 }

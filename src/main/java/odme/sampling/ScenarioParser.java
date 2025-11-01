@@ -1,5 +1,6 @@
 package odme.sampling;
 
+import com.ibm.icu.impl.CollectionSet;
 import odme.sampling.model.Parameter;
 import odme.sampling.model.Scenario;
 import org.yaml.snakeyaml.Yaml;
@@ -14,6 +15,9 @@ import java.util.*;
  * Parses a scenario's .yaml file into a structured Scenario object.
  */
 public class ScenarioParser {
+
+
+    public static List<String> constraintList = new ArrayList<>();
 
     @SuppressWarnings("unchecked")
     public Scenario parse(String yamlFilePath) throws FileNotFoundException {
@@ -57,6 +61,8 @@ public class ScenarioParser {
 
             for (Map.Entry<String, Object> entry : scenarioData.entrySet()) {
                 parseEntity(entry.getKey(), entry.getValue(), scenario);
+
+                scenario.setConstraint(constraintList);
             }
 
             // Optionally keep track of which root was used:
@@ -192,7 +198,7 @@ public class ScenarioParser {
         if (map == null || map.isEmpty()) return false;
         // keys that indicate a parameter detail
         Set<String> indicatorKeys = new HashSet<>(Arrays.asList(
-                "type", "min", "max", "options", "HasConstraint", "mean", "variance" // add any other keys you use
+                "type", "min", "max", "options", "IntraConstraint", "InterConstraint", "mean", "variance" // add any other keys you use
         ));
         for (String key : map.keySet()) {
             if (indicatorKeys.contains(key)) return true;
@@ -201,8 +207,7 @@ public class ScenarioParser {
     }
 
     /**
-     * Parses the details of a single parameter.
-     * This method is mostly unchanged but we keep it robust to different numeric types.
+     * Parses the details of a single constraint.
      */
     @SuppressWarnings("unchecked")
     private void parseParameter(String entityName, String paramKey, Object paramValue, Scenario scenario) {
@@ -210,7 +215,7 @@ public class ScenarioParser {
             if (paramValue instanceof Map) {
                 Object intra = ((Map<?, ?>) paramValue).get("IntraConstraint");
                 if (intra instanceof String) {
-                    scenario.setConstraint((String) intra);
+                    constraintList.add((String)intra);
                 }
             }
             return;
@@ -221,6 +226,26 @@ public class ScenarioParser {
             Map<String, Object> details = (Map<String, Object>) paramValue;
 
             // If the details indicate categorical options (e.g., options: { ... } or map of nulls)
+            Object intraConstraintObj = details.get("IntraConstraint");
+            if (intraConstraintObj instanceof List) {
+                Parameter param = new Parameter();
+                param.setName(entityName + "_" + paramKey);
+                param.setType("constraint");
+                param.setOptions(new ArrayList<>((List<String>) intraConstraintObj));
+                scenario.getParameters().add(param);
+                return;
+            }
+
+            Object interConstraintObj = details.get("IntraConstraint");
+            if (interConstraintObj instanceof List) {
+                Parameter param = new Parameter();
+                param.setName(entityName + "_" + paramKey);
+                param.setType("constraint");
+                param.setOptions(new ArrayList<>((List<String>) interConstraintObj));
+                scenario.getParameters().add(param);
+                return;
+            }
+
             Object optionsObj = details.get("options");
             if (optionsObj instanceof List) {
                 Parameter param = new Parameter();
