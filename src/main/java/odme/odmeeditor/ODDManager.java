@@ -387,8 +387,8 @@ public class ODDManager extends JPanel{
 				}
 				else if(type.equals("->")){
 					// For constraints
-					curr.append(pad+pad).append(" ").append(componentName).append(":\n")
-							.append(getIndent(currentYamlIndent))
+					curr.append(pad).append(" ").append(componentName).append(":\n")
+							.append(pad+pad).append(" ")
 							.append("IntraConstraint: ").append(row[8]).append("\n");
 				}
 				else if (type.equals("Variable")) {
