@@ -210,119 +210,107 @@ public class JtreeToGraphGeneral {
                 }
                 f0.println(mod);
             } 
-            else if (line.startsWith("<")) {
-                if (line.endsWith("/>")) {
-                    String result = line.replaceAll("[</>]", "");
+            else //Manage Constraints
+                if (line.startsWith("<if")) {
+                    String result1 = line.replaceAll("<if", "if");
+                    String result = result1.replaceAll("/>", "");
 
-                    if (result.endsWith("Var")) { // Author : Vadece Kamdem--> modified so that it can print the variable type
-                        String novarresult = result.replace("Var", "");
-
-                        String[] properties = novarresult.split(",");
-                        if (properties[1].equals("string") || properties[1].equals("boolean")) {
-
-                            f0.println("<var name=\"" + properties[0] + "\" type=\"" + properties[1]
-                                    + "\" default=\"" + properties[2]
-                                       + "\"> </var>");
-                        }
-                        else {
-
-                            if (properties.length > 5) {
-                                f0.println("<var name=\"" + properties[0] + "\" type=\"" + properties[1]
-                                        + "\" default=\"" + properties[2]
-                                        + "\" lower=\"" + properties[3]
-                                        + "\" " + "upper=\"" + properties[4]
-                                        + "\" distributionType=\"" + properties[5]
-                                        + "\" distributionDetails=\"" + properties[6] + "\"> </var>");
-                            }
-                            else {
-                                f0.println("<var name=\"" + properties[0] + "\" type=\"" + properties[1]
-                                        + "\" default=\"" + properties[2]
-                                        + "\" lower=\"" + properties[3] + "\" " + "upper=\""
-                                        + properties[4] + "\"> </var>");
-                            }
-                        }
-
-                    }
-                    else if (result.endsWith("Distion")) { // Author : Vadece Kamdem
-                        String novarresult = result.replace("Distion", "");
-                        String[] properties = novarresult.split(",");
-                        f0.println("<distion variablename=\"" + properties[0]
-                                + "\" distributiontype=\"" + properties[1]
-                                + "\" details=\"" + properties[2] + "\"> </distion>");
-                    }
-
-                    else if (result.endsWith("InterCon")) { // Author : Vadece Kamdem
+                     if (result.endsWith("InterCon")) {
                         String novarresult = result.replace("InterCon", "");
-                        String[] properties = novarresult.split(",");
-                        f0.println("<InterCon intercontraintname=\"" + properties[0] + "\"> </InterCon>");
-                    }
-                    else if (result.endsWith("IntraCon")) { // Author : Vadece Kamdem
+                        f0.println("<InterCon intercontraintname=\"" + novarresult + "\"> </InterCon>");
+                    } else if (result.endsWith("IntraCon")) {
                         String novarresult = result.replace("IntraCon", "");
-                        String[] properties = novarresult.split(",");
-                        f0.println("<IntraCon intracontraintname=\"" + properties[0] + "\"> </IntraCon>");
+                        f0.println("<IntraCon intracontraintname=\"" + novarresult + "\"> </IntraCon>");
                     }
-                    else if (result.endsWith("Con")) {
-                        String constraintText = result.replace("Con", "");
-                        f0.println("    <constraint>" + escapeXml(constraintText) + "</constraint>");
-                    }
+                } else //Manage other variables
+                    if (line.startsWith("<")) {
+                        if (line.endsWith("/>")) {
+                            String result = line.replaceAll("[</>]", "");
 
-                    else if (result.endsWith("Behaviour")) { // Author : Vadece Kamdem
-                        String novarresult = result.replace("Behaviour", "");
-                        String[] properties = novarresult.split(",");
-                        f0.println("<behaviour name=\"" + properties[0] + "\"> </behaviour>");
-                    }
-                    else if (result.endsWith("RefNode")) {
-                        String noRefNoderesult = result.replace("RefNode", "");
+                            if (result.endsWith("Var")) { // Author : Vadece Kamdem--> modified so that it can print the variable type
+                                String novarresult = result.replace("Var", "");
 
-                        if (noRefNoderesult.endsWith("Dec")) {
-                            f0.println("<aspect name=\"" + noRefNoderesult + "\" ref=\"" + noRefNoderesult
-                                       + "\"/>");
-                        }
-                        else if (noRefNoderesult.endsWith("MAsp")) {
-                            f0.println(
-                                    "<multiAspect name=\"" + noRefNoderesult + "\" ref=\"" + noRefNoderesult
-                                    + "\"/>");
-                        }
-                        else if (noRefNoderesult.endsWith("Spec")) {
-                            f0.println("<specialization name=\"" + noRefNoderesult + "\" ref=\""
-                                       + noRefNoderesult + "\"/>");
-                        }
-                        else {
-                            f0.println("<entity name=\"" + noRefNoderesult + "\" ref=\"" + noRefNoderesult
-                                       + "\"/>");
-                        }
-                    } else {}
-                }
-                else {
-                    String result = line.replaceAll("[</>]", "");
+                                String[] properties = novarresult.split(",");
+                                if (properties[1].equals("string") || properties[1].equals("boolean")) {
 
-                    if (result.endsWith("Dec")) {
-                        mod = "<aspect name=\"" + result + "\">";
-                    } 
-                    else if (result.endsWith("MAsp")) {
-                        mod = "<multiAspect name=\"" + result + "\">";
-                    } 
-                    else if (result.endsWith("Spec")) {
-                        mod = "<specialization name=\"" + result + "\">";
-                    } 
-                    else {
-                        if (first == 0) {
-                            mod = "<entity xmlns:vc=\"http://www.w3.org/2007/XMLSchema-versioning\""
-                                  + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
-                                  //+ " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema\""
-                                  + " xsi:noNamespaceSchemaLocation=\"ses.xsd\" name=\"" + result + "\">";
-                            first = 1;
-                        }
-                        else {
-                            if (result.endsWith("Seq")) {
-                                continue;
+                                    f0.println("<var name=\"" + properties[0] + "\" type=\"" + properties[1]
+                                            + "\" default=\"" + properties[2]
+                                            + "\"> </var>");
+                                } else {
+
+                                    if (properties.length > 5) {
+                                        f0.println("<var name=\"" + properties[0] + "\" type=\"" + properties[1]
+                                                + "\" default=\"" + properties[2]
+                                                + "\" lower=\"" + properties[3]
+                                                + "\" " + "upper=\"" + properties[4]
+                                                + "\" distributionType=\"" + properties[5]
+                                                + "\" distributionDetails=\"" + properties[6] + "\"> </var>");
+                                    } else {
+                                        f0.println("<var name=\"" + properties[0] + "\" type=\"" + properties[1]
+                                                + "\" default=\"" + properties[2]
+                                                + "\" lower=\"" + properties[3] + "\" " + "upper=\""
+                                                + properties[4] + "\"> </var>");
+                                    }
+                                }
+
+                            } else if (result.endsWith("Distion")) { // Author : Vadece Kamdem
+                                String novarresult = result.replace("Distion", "");
+                                String[] properties = novarresult.split(",");
+                                f0.println("<distion variablename=\"" + properties[0]
+                                        + "\" distributiontype=\"" + properties[1]
+                                        + "\" details=\"" + properties[2] + "\"> </distion>");
+                            } else if (result.endsWith("Con")) {
+                                String constraintText = result.replace("Con", "");
+                                f0.println("    <constraint>" + escapeXml(constraintText) + "</constraint>");
+                            } else if (result.endsWith("Behaviour")) { // Author : Vadece Kamdem
+                                String novarresult = result.replace("Behaviour", "");
+                                String[] properties = novarresult.split(",");
+                                f0.println("<behaviour name=\"" + properties[0] + "\"> </behaviour>");
+                            } else if (result.endsWith("RefNode")) {
+                                String noRefNoderesult = result.replace("RefNode", "");
+
+                                if (noRefNoderesult.endsWith("Dec")) {
+                                    f0.println("<aspect name=\"" + noRefNoderesult + "\" ref=\"" + noRefNoderesult
+                                            + "\"/>");
+                                } else if (noRefNoderesult.endsWith("MAsp")) {
+                                    f0.println(
+                                            "<multiAspect name=\"" + noRefNoderesult + "\" ref=\"" + noRefNoderesult
+                                                    + "\"/>");
+                                } else if (noRefNoderesult.endsWith("Spec")) {
+                                    f0.println("<specialization name=\"" + noRefNoderesult + "\" ref=\""
+                                            + noRefNoderesult + "\"/>");
+                                } else {
+                                    f0.println("<entity name=\"" + noRefNoderesult + "\" ref=\"" + noRefNoderesult
+                                            + "\"/>");
+                                }
+                            } else {
                             }
-                            mod = "<entity name=\"" + result + "\">";
+                        } else {
+                            String result = line.replaceAll("[</>]", "");
+
+                            if (result.endsWith("Dec")) {
+                                mod = "<aspect name=\"" + result + "\">";
+                            } else if (result.endsWith("MAsp")) {
+                                mod = "<multiAspect name=\"" + result + "\">";
+                            } else if (result.endsWith("Spec")) {
+                                mod = "<specialization name=\"" + result + "\">";
+                            } else {
+                                if (first == 0) {
+                                    mod = "<entity xmlns:vc=\"http://www.w3.org/2007/XMLSchema-versioning\""
+                                            + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
+                                            //+ " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema\""
+                                            + " xsi:noNamespaceSchemaLocation=\"ses.xsd\" name=\"" + result + "\">";
+                                    first = 1;
+                                } else {
+                                    if (result.endsWith("Seq")) {
+                                        continue;
+                                    }
+                                    mod = "<entity name=\"" + result + "\">";
+                                }
+                            }
+                            f0.println(mod);
                         }
                     }
-                    f0.println(mod);
-                }
-            }
         }
         in.close();
         f0.close();

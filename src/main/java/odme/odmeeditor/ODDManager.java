@@ -396,7 +396,9 @@ public class ODDManager extends JPanel{
 					curr.append(pad).append(" ").append(componentName).append(":\n");
 
 					if(!vType.equals("string")) {
-						curr.append(pad+pad).append("type: ").append(row[2]).append("\n");
+						if(!vType.equals("boolean")) {
+							curr.append(pad+pad).append("type: ").append(row[2]).append("\n");
+						}
 					}
 					if (row[3] != null) {
 						curr.append(pad+pad).append("min: ").append(row[3]).append("\n");

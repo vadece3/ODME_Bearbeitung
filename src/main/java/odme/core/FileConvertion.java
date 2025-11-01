@@ -107,132 +107,126 @@ public class FileConvertion {
                 }
 
             }
-            else if (line.startsWith("<")) {
-                 if (line.endsWith("/>")) { // The original if statement becomes an else if
-                    String result = line.replaceAll("[</>]", "");
-
-                    if (result.endsWith("Var")) {
-                        String novarresult = result.replace("Var", "");
-
-                        // variable with proper style
-                        String[] properties = novarresult.split(",");
-                        if (properties[1].equals("string") || properties[1].equals("boolean")) {
-                            f0.println(
-                                    "<xs:attribute name=\"" + properties[0] + "\" type=\"" + properties[1]
-                                            + "\" default=\"" + properties[2]
-                                            + "\">");
-                            f0.println("</xs:attribute>");
-                        }
-                        else {
-                            f0.println(
-                                    "<xs:attribute name=\"" + properties[0] + "\" type=\"" + properties[1] + "\" default=\"" + properties[2]
-                                            + "\">");
-                            f0.println("<xs:simpleType>");
-                            f0.println("<xs:restriction base=\"xs:" + properties[1] + "\">");
-                            f0.println("<xs:type value=\"" + properties[1] + "\"/>");
-                            f0.println("<xs:minInclusive value=\"" + properties[3] + "\"/>");
-                            f0.println("<xs:maxInclusive value=\"" + properties[4] + "\"/>");
-                            if (properties.length > 5) {
-                                f0.println("<xs:distributionType value=\"" + properties[5] + "\"/>");
-                                f0.println("<xs:distributionDetails value=\"" + properties[6] + "\"/>");
-                            }
-                            f0.println("</xs:restriction>");
-                            f0.println("</xs:simpleType>");
-                            f0.println("</xs:attribute>");
-                        }
-                    }
-                    else if (result.endsWith("Behaviour")) {
-                        String nobresult = result.replace("Behaviour", "");
-
-                        // behaviour with proper style
-                        String[] properties = nobresult.split(",");
-                        f0.println("<xs:attribute name=\"" + properties[0] + "\">");
-                        f0.println("</xs:attribute>");
-
-                    }
-                    else if (result.endsWith("InterCon")) {
+            else //Manage Constraints
+                if (line.startsWith("<if")) {
+                    String result1 = line.replaceAll("<if", "if");
+                    String result2 = result1.replaceAll("/>", "");
+                    String result3 = result2.replaceAll("&", "&amp;");
+                    String result4 = result3.replaceAll("<", "&lt;");
+                    String result5 = result4.replaceAll(">", "&gt;");
+                    String result6 = result5.replaceAll("\"", "&quot;");
+                    String result = result6.replaceAll("'", "&apos;");
+                    if (result.endsWith("InterCon")) {
                         String nobresult = result.replace("InterCon", "");
 
-                        // behaviour with proper style
-                        String[] properties = nobresult.split(",");
                         f0.println("<xs:attribute name=\"HasConstraint\" type=\"\" default=\"\">");
                         f0.println("<xs:simpleType>");
-                        f0.println("<xs:assert intertest=\"" + properties[0] + "\"/>");
+                        f0.println("<xs:assert intertest=\"" + nobresult + "\"/>");
                         f0.println("</xs:simpleType>");
                         f0.println("</xs:attribute>");
 
-                    }
-                    else if (result.endsWith("IntraCon")) {
+                    } else if (result.endsWith("IntraCon")) {
                         String nobresult = result.replace("IntraCon", "");
 
-                        // behaviour with proper style
-                        String[] properties = nobresult.split(",");
                         f0.println("<xs:attribute name=\"HasConstraint\" type=\"\" default=\"\">");
                         f0.println("<xs:simpleType>");
-                        f0.println("<xs:assert intratest=\"" + properties[0] + "\"/>");
+                        f0.println("<xs:assert intratest=\"" + nobresult + "\"/>");
                         f0.println("</xs:simpleType>");
                         f0.println("</xs:attribute>");
 
                     }
-                    // The old "Con" block can be deleted as it's now handled by the new block above.
-                    else if (result.endsWith("RefNode")) {
-                        String noRefNoderesult = result.replace("RefNode", "");
+                } else //Manage other variables
+                     if (line.startsWith("<")) {
+                         if (line.endsWith("/>")) { // The original if statement becomes an else if
+                             String result = line.replaceAll("[</>]", "");
 
-                        if (noRefNoderesult.endsWith("Dec") || noRefNoderesult.endsWith("MAsp")) {
-                            f0.println("<xs:sequence ref=\"" + noRefNoderesult + "\"/>");
-                        }
-                        else if (noRefNoderesult.endsWith("Spec")) {
-                            f0.println("<xs:choice ref=\"" + noRefNoderesult + "\"/>");
-                        }
-                        else {
-                            f0.println("<xs:element ref=\"" + noRefNoderesult + "\"/>");
-                        }
+                             if (result.endsWith("Var")) {
+                                 String novarresult = result.replace("Var", "");
 
-                    }
-                    else {
-                        mod = "<xs:element name=\"" + result + "\"/>";
-                        f0.println(mod);
-                    }
-                }
-                else {
-                    String result = line.replaceAll("[</>]", "");
+                                 // variable with proper style
+                                 String[] properties = novarresult.split(",");
+                                 if (properties[1].equals("string") || properties[1].equals("boolean")) {
+                                     f0.println(
+                                             "<xs:attribute name=\"" + properties[0] + "\" type=\"" + properties[1]
+                                                     + "\" default=\"" + properties[2]
+                                                     + "\">");
+                                     f0.println("</xs:attribute>");
+                                 } else {
+                                     f0.println(
+                                             "<xs:attribute name=\"" + properties[0] + "\" type=\"" + properties[1] + "\" default=\"" + properties[2]
+                                                     + "\">");
+                                     f0.println("<xs:simpleType>");
+                                     f0.println("<xs:restriction base=\"xs:" + properties[1] + "\">");
+                                     f0.println("<xs:type value=\"" + properties[1] + "\"/>");
+                                     f0.println("<xs:minInclusive value=\"" + properties[3] + "\"/>");
+                                     f0.println("<xs:maxInclusive value=\"" + properties[4] + "\"/>");
+                                     if (properties.length > 5) {
+                                         f0.println("<xs:distributionType value=\"" + properties[5] + "\"/>");
+                                         f0.println("<xs:distributionDetails value=\"" + properties[6] + "\"/>");
+                                     }
+                                     f0.println("</xs:restriction>");
+                                     f0.println("</xs:simpleType>");
+                                     f0.println("</xs:attribute>");
+                                 }
+                             } else if (result.endsWith("Behaviour")) {
+                                 String nobresult = result.replace("Behaviour", "");
 
-                    if (result.endsWith("Dec")) {
-                        mod = "<xs:sequence id=\"" + result + "\">";
-                        f0.println(mod);
+                                 // behaviour with proper style
+                                 String[] properties = nobresult.split(",");
+                                 f0.println("<xs:attribute name=\"" + properties[0] + "\">");
+                                 f0.println("</xs:attribute>");
 
-                    }
-                    else if (result.endsWith("MAsp")) {
-                        mod = "<xs:sequence id=\"" + result + "\">";
-                        f0.println(mod);
-                        entiyAfterMAsp = 1;
+                             }
+                             // The old "Con" block can be deleted as it's now handled by the new block above.
+                             else if (result.endsWith("RefNode")) {
+                                 String noRefNoderesult = result.replace("RefNode", "");
 
-                    }
-                    else if (result.endsWith("Spec")) {
-                        mod = "<xs:choice id=\"" + result + "\">";
-                        f0.println(mod);
-                    }
-                    else {
-                        if (entiyAfterMAsp == 1) {
-                            mod = "<xs:element name=\"" + result
-                                    + "\" minOccurs=\"0\" maxOccurs=\"unbounded\">";
-                            f0.println(mod);
-                            f0.println("<xs:complexType>");
+                                 if (noRefNoderesult.endsWith("Dec") || noRefNoderesult.endsWith("MAsp")) {
+                                     f0.println("<xs:sequence ref=\"" + noRefNoderesult + "\"/>");
+                                 } else if (noRefNoderesult.endsWith("Spec")) {
+                                     f0.println("<xs:choice ref=\"" + noRefNoderesult + "\"/>");
+                                 } else {
+                                     f0.println("<xs:element ref=\"" + noRefNoderesult + "\"/>");
+                                 }
 
-                            entiyAfterMAsp = 0;
-                        }
-                        else if (result.endsWith("Seq")) {
-                            mod = "<xs:sequence>";
-                            f0.println(mod);
-                        }
-                        else {
-                            mod = "<xs:element name=\"" + result + "\">";
-                            f0.println(mod);
-                            f0.println("<xs:complexType>");
-                        }
-                    }
-                }
-            }
+                             } else {
+                                 mod = "<xs:element name=\"" + result + "\"/>";
+                                 f0.println(mod);
+                             }
+                         } else {
+                             String result = line.replaceAll("[</>]", "");
+
+                             if (result.endsWith("Dec")) {
+                                 mod = "<xs:sequence id=\"" + result + "\">";
+                                 f0.println(mod);
+
+                             } else if (result.endsWith("MAsp")) {
+                                 mod = "<xs:sequence id=\"" + result + "\">";
+                                 f0.println(mod);
+                                 entiyAfterMAsp = 1;
+
+                             } else if (result.endsWith("Spec")) {
+                                 mod = "<xs:choice id=\"" + result + "\">";
+                                 f0.println(mod);
+                             } else {
+                                 if (entiyAfterMAsp == 1) {
+                                     mod = "<xs:element name=\"" + result
+                                             + "\" minOccurs=\"0\" maxOccurs=\"unbounded\">";
+                                     f0.println(mod);
+                                     f0.println("<xs:complexType>");
+
+                                     entiyAfterMAsp = 0;
+                                 } else if (result.endsWith("Seq")) {
+                                     mod = "<xs:sequence>";
+                                     f0.println(mod);
+                                 } else {
+                                     mod = "<xs:element name=\"" + result + "\">";
+                                     f0.println(mod);
+                                     f0.println("<xs:complexType>");
+                                 }
+                             }
+                         }
+                     }
         }
         f0.println("</xs:schema>");
         in.close();
