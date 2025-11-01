@@ -285,18 +285,21 @@ public class DynamicTree extends JPanel implements MouseListener {
         		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + newProjectName + ".ssdcon";
         	else
         		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + newProjectName + ".ssdcon";
-            ObjectInputStream oiscon = new ObjectInputStream(new FileInputStream(path));
-            interConstraintsList = (Multimap<TreePath, String>) oiscon.readObject();
-            oiscon.close();
+            File interCon = new File(path);
+            if (interCon.exists()) {
+                ObjectInputStream oiscon = new ObjectInputStream(new FileInputStream(interCon));
+                interConstraintsList = (Multimap<TreePath, String>) oiscon.readObject();
+                oiscon.close();
+            }
 
             // for intra constraints
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + newProjectName + ".ssdintracons";
             else
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + newProjectName + ".ssdintracons";
-            File intraConFile = new File(path);
-            if (intraConFile.exists()) {
-                ObjectInputStream oisintracon = new ObjectInputStream(new FileInputStream(intraConFile));
+            File intraCon = new File(path);
+            if (intraCon.exists()) {
+                ObjectInputStream oisintracon = new ObjectInputStream(new FileInputStream(intraCon));
                 intraConstraintsList = (Multimap<TreePath, String>) oisintracon.readObject();
                 oisintracon.close();
             }

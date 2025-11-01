@@ -810,68 +810,68 @@ public class FileConvertion {
         PrintWriter f0 = null;
         Scanner in = null;
 
-        try {
-            // --- FIX 1: Construct the correct, full file paths ---
-            String inputFilePath = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/xmlforxsd.xml";
-            String outputFilePath = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/testcon.xml";
-
-            File inputFile = new File(inputFilePath);
-
-            // --- FIX 2: Check if the input file exists, and create it if it doesn't ---
-            if (!inputFile.exists()) {
-                inputFile.createNewFile();
-            }
-
-            in = new Scanner(inputFile);
-            f0 = new PrintWriter(new FileWriter(outputFilePath));
-
-            // --- The rest of your logic can now run safely ---
-            while (in.hasNext()) {
-                String line = in.nextLine();
-
-                if (line.startsWith("<?")) {
-                    f0.println(line);
-                }
-                else if (line.startsWith("</")) {
-                    f0.println(line);
-                }
-                else if (line.startsWith("<")) {
-                    String node = line.replaceAll("[<>]", "");
-                    String[] splited = node.split("\\s+");
-
-                    if (count < len) {
-                        if (splited[0].equals(sesNodesInPath[count])) {
-                            count++;
-                        }
-                        if (count == len) {
-                            f0.println("<" + splited[0] + " " + splited[1] + " " + "constraint=\"" + constraint
-                                    + "\" " + ">");
-                        }
-                        else {
-                            f0.println(line);
-                        }
-                    }
-                    else {
-                        f0.println(line);
-                    }
-                }
-                else {
-                    f0.println(line);
-                }
-            }
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        finally {
-            // --- FIX 3: Safely close the file streams in a finally block ---
-            if (in != null) {
-                in.close();
-            }
-            if (f0 != null) {
-                f0.close();
-            }
-        }
+//        try {
+//            // --- FIX 1: Construct the correct, full file paths ---
+//            String inputFilePath = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/xmlforxsd.xml";
+//            String outputFilePath = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/testcon.xml";
+//
+//            File inputFile = new File(inputFilePath);
+//
+//            // --- FIX 2: Check if the input file exists, and create it if it doesn't ---
+//            if (!inputFile.exists()) {
+//                inputFile.createNewFile();
+//            }
+//
+//            in = new Scanner(inputFile);
+//            f0 = new PrintWriter(new FileWriter(outputFilePath));
+//
+//            // --- The rest of your logic can now run safely ---
+//            while (in.hasNext()) {
+//                String line = in.nextLine();
+//
+//                if (line.startsWith("<?")) {
+//                    f0.println(line);
+//                }
+//                else if (line.startsWith("</")) {
+//                    f0.println(line);
+//                }
+//                else if (line.startsWith("<")) {
+//                    String node = line.replaceAll("[<>]", "");
+//                    String[] splited = node.split("\\s+");
+//
+//                    if (count < len) {
+//                        if (splited[0].equals(sesNodesInPath[count])) {
+//                            count++;
+//                        }
+//                        if (count == len) {
+//                            f0.println("<" + splited[0] + " " + splited[1] + " " + "constraint=\"" + constraint
+//                                    + "\" " + ">");
+//                        }
+//                        else {
+//                            f0.println(line);
+//                        }
+//                    }
+//                    else {
+//                        f0.println(line);
+//                    }
+//                }
+//                else {
+//                    f0.println(line);
+//                }
+//            }
+//        }
+//        catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        finally {
+//            // --- FIX 3: Safely close the file streams in a finally block ---
+//            if (in != null) {
+//                in.close();
+//            }
+//            if (f0 != null) {
+//                f0.close();
+//            }
+//        }
     }
 
     public void placeAssertInRightPosition() {
