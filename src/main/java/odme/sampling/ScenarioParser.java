@@ -198,7 +198,7 @@ public class ScenarioParser {
         if (map == null || map.isEmpty()) return false;
         // keys that indicate a parameter detail
         Set<String> indicatorKeys = new HashSet<>(Arrays.asList(
-                "type", "min", "max", "options", "IntraConstraint", "InterConstraint", "mean", "variance" // add any other keys you use
+                "type", "min", "max", "options", "IntraConstraint", "InterConstraint", "distributionType", "distributionDetails" // add any other keys you use
         ));
         for (String key : map.keySet()) {
             if (indicatorKeys.contains(key)) return true;
@@ -214,8 +214,12 @@ public class ScenarioParser {
         if ("HasConstraint".equals(paramKey)) {
             if (paramValue instanceof Map) {
                 Object intra = ((Map<?, ?>) paramValue).get("IntraConstraint");
+                Object inter = ((Map<?, ?>) paramValue).get("InterConstraint");
                 if (intra instanceof String) {
                     constraintList.add((String)intra);
+                }
+                if (inter instanceof String) {
+                    constraintList.add((String)inter);
                 }
             }
             return;
@@ -224,28 +228,7 @@ public class ScenarioParser {
         // If paramValue is a Map with details (type/min/max/options...)
         if (paramValue instanceof Map) {
             Map<String, Object> details = (Map<String, Object>) paramValue;
-
-            // If the details indicate categorical options (e.g., options: { ... } or map of nulls)
-            Object intraConstraintObj = details.get("IntraConstraint");
-            if (intraConstraintObj instanceof List) {
-                Parameter param = new Parameter();
-                param.setName(entityName + "_" + paramKey);
-                param.setType("constraint");
-                param.setOptions(new ArrayList<>((List<String>) intraConstraintObj));
-                scenario.getParameters().add(param);
-                return;
-            }
-
-            Object interConstraintObj = details.get("IntraConstraint");
-            if (interConstraintObj instanceof List) {
-                Parameter param = new Parameter();
-                param.setName(entityName + "_" + paramKey);
-                param.setType("constraint");
-                param.setOptions(new ArrayList<>((List<String>) interConstraintObj));
-                scenario.getParameters().add(param);
-                return;
-            }
-
+            
             Object optionsObj = details.get("options");
             if (optionsObj instanceof List) {
                 Parameter param = new Parameter();
@@ -283,6 +266,16 @@ public class ScenarioParser {
                     param.setMax(Double.parseDouble((String) maxVal));
                 } catch (NumberFormatException ignored) {
                 }
+            }
+
+            // distribution if present
+            Object distributionTypeObj = details.get("distributionType");
+            if (distributionTypeObj instanceof String) {
+                param.setDistributionType(((String) distributionTypeObj));
+            }
+            Object distributionDetailsObj = details.get("distributionDetails");
+            if (distributionDetailsObj instanceof String) {
+                param.setDistributionDetails(((String) distributionDetailsObj));
             }
 
             scenario.getParameters().add(param);

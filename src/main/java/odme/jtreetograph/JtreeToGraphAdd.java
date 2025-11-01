@@ -603,7 +603,7 @@ public class JtreeToGraphAdd {
 
         meanField = new JTextField();
         varianceTypeField = new JTextField();
-        distributionName = "normal_distribution";
+        distributionName = "normalDistribution";
 
         Object[] message =
                 {"Variable Name:", variableNameComboBox, "Mean:", meanField, "Variance:", varianceTypeField};
@@ -689,7 +689,7 @@ public class JtreeToGraphAdd {
 
         minValTypeField = new JTextField();
         maxValTypeField = new JTextField();
-        distributionName = "uniform_distribution";
+        distributionName = "uniformDistribution";
 
         Object[] message =
                 {"Variable Name:", variableNameComboBox, "Minimum Value:", minValTypeField, "Maximum Value:", maxValTypeField};

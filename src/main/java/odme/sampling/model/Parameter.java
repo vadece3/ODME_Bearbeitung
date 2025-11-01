@@ -9,7 +9,11 @@ import lombok.Data;
 @Data // Lombok annotation to auto-generate getters, setters, toString, etc.
 public class Parameter {
     private String name;
-    private String type; // e.g., "int", "double", "categorical"
+    private String type; // e.g., "int", "double", "float", "categorical"
+
+    // For distribution parameters
+    private String distributionType;
+    private String distributionDetails;
 
     // For numerical parameters
     private Double min;
