@@ -96,6 +96,74 @@ public class SamplingManager {
         System.out.println("Successfully wrote " + numberOfSamples + " samples to " + outputCsvPath);
     }
 
+
+    public void generateSamplesforDomainModel(String yamlFilePath, int numberOfSamples, String outputCsvPath) throws Exception {
+        // 1. Parse the YAML file to understand the sampling space
+        Scenario scenario = parser.parse(yamlFilePath);
+        List <String> constraint = scenario.getConstraint();
+
+        List<Parameter> numericalParams = scenario.getParameters().stream()
+                .filter(p -> "int".equals(p.getType()) || "double".equals(p.getType()) || "float".equals(p.getType()  ))
+                .collect(Collectors.toList());
+
+        List<Parameter> categoricalParams = scenario.getParameters().stream()
+                .filter(p -> "categorical".equals(p.getType()))
+                .collect(Collectors.toList());
+
+//        List<Parameter> constraintParams = scenario.getParameters().stream()
+//                .filter(p -> "constraint".equals(p.getType()))
+//                .collect(Collectors.toList());
+
+        // 2. Generate all the necessary samples at once
+        // This is much more efficient than generating one by one in a loop
+        System.out.println("Generating base samples...");
+        List<double[]> normalizedSamples = sampler.generateNormalizedSamples(numericalParams.size(), numberOfSamples);
+
+        List<Map<String, Double>> finalSamples = new ArrayList<>();
+
+        // If there's no constraint, all generated samples are valid.
+        if (constraint == null || constraint.isEmpty()) {
+            System.out.println("No constraint found. Scaling all generated samples.");
+            for (double[] normalizedSample : normalizedSamples) {
+                Map<String, Double> scaledSample = scaleSample(normalizedSample, numericalParams);
+                finalSamples.add(scaledSample);
+            }
+        }
+
+        // If there is a constraint, perform rejection sampling.
+        else {
+            System.out.println("Constraint found. Starting rejection sampling...");
+            int attemptCount = 0;
+            // Safety break to prevent infinite loops on impossible constraints
+            int maxAttempts = numberOfSamples * 200;
+
+            while (finalSamples.size() < numberOfSamples && attemptCount < maxAttempts) {
+                // Generate a single new sample for this attempt
+                double[] normalizedSample = sampler.generateNormalizedSamples(numericalParams.size(), 1).get(0);
+                Map<String, Double> scaledSample = scaleSample(normalizedSample, numericalParams);
+
+                // Check if the scaled sample satisfies the constraints
+                for ( String constraints : constraint) {
+                    if (evaluator.evaluate(constraints, scaledSample)) {
+                        finalSamples.add(scaledSample);
+                        System.out.printf("Found valid sample %d of %d%n", finalSamples.size(), numberOfSamples);
+                    }
+                }
+                attemptCount++;
+            }
+
+            if (finalSamples.size() < numberOfSamples) {
+                throw new RuntimeException("Could not generate the required number of valid samples. " +
+                        "Only found " + finalSamples.size() + " after " + maxAttempts + " attempts. " +
+                        "The constraint may be too restrictive.");
+            }
+        }
+
+        // 3. Write the final results to a CSV file
+        writeToCsv(finalSamples, numericalParams, categoricalParams, outputCsvPath);
+        System.out.println("Successfully wrote " + numberOfSamples + " samples to " + outputCsvPath);
+    }
+
     /**
      * Helper method to scale a normalized sample to its real-world values.
      */

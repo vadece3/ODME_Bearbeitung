@@ -480,6 +480,19 @@ public class ODMEEditor extends JPanel {
         catch(IOException ioe1) { ioe1.printStackTrace(); }
     }
 
+    public static void saveYamlTempFile(String content,String suggestedPath,String ext) {
+        FileWriter fw=null;
+        try{
+            fw=new FileWriter(suggestedPath);
+            fw.write(content);
+            javax.swing.JOptionPane.showMessageDialog(null,"File Saved Successfully.");
+        }catch(IOException ioe) {ioe.printStackTrace();}
+
+        // handle leakage and canceling
+        try { if(fw!=null) fw.close(); }
+        catch(IOException ioe1) { ioe1.printStackTrace(); }
+    }
+
     private void tabbedPaneChange() {
     	
         tabbedPane.addChangeListener(new ChangeListener() {

@@ -228,7 +228,7 @@ public class ScenarioParser {
         // If paramValue is a Map with details (type/min/max/options...)
         if (paramValue instanceof Map) {
             Map<String, Object> details = (Map<String, Object>) paramValue;
-            
+
             Object optionsObj = details.get("options");
             if (optionsObj instanceof List) {
                 Parameter param = new Parameter();

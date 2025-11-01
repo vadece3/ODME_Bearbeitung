@@ -34,6 +34,8 @@ import org.xml.sax.SAXException;
 import odme.jtreetograph.JtreeToGraphConvert;
 import javax.swing.JFileChooser;
 
+import static odme.odmeeditor.ODMEEditor.projName;
+
 /**
  * ODDManager is a JPanel that shows the current ODD in a table and provides functionalities to manipulate
  * the data and the ODD themselves and also export them in Yaml and Xml
@@ -341,6 +343,10 @@ public class ODDManager extends JPanel{
 		return xsdToYaml(getStateXsdFilePath());
 	}
 
+	public static String currentXsdToYamlTemp(String xsdPath) {
+		return xsdToYaml(xsdPath);
+	}
+
 	public static String xsdToYaml(String path) {
 		StringBuilder curr = new StringBuilder();
 		List<String[]> xsd;
@@ -544,7 +550,7 @@ public class ODDManager extends JPanel{
 	 * #ROY - adding new Functionality : use it for a Human Readable Yaml, which is NOT
 	 * convertable to xsd/xml
 	 **/
-	private void exportYaml() {
+	public void exportYaml() {
 		// javax.swing.JOptionPane.showMessageDialog(null,ODDManager.getODDsPath());
 		ODMEEditor.saveFunc(false);
 		ODMEEditor.updateState();
