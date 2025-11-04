@@ -726,7 +726,10 @@ public class ODDManager extends JPanel{
 				temp = (Element) nl.item(i);
 				switch (temp.getNodeName()) {
 					case "xs:assert":
-						r[8] = temp.getAttribute("intratest");
+						if(temp.hasAttribute("intratest"))
+							r[8] = temp.getAttribute("intratest");
+						if(temp.hasAttribute("intertest"))
+							r[9] = temp.getAttribute("intertest");
 						break;
 
 					default:
