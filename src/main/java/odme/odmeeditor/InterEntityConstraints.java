@@ -7,35 +7,20 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
-
-import odme.jtreetograph.JtreeToGraphDelete;
-import odme.jtreetograph.JtreeToGraphVariables;
-
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-/**
- * <h1>Constraint</h1>
- * <p>
- * Creates an window to show added constraint in the SES model. The window
- * contains a table and constraint of the selected aspect node is displayed in
- * that table.
- * </p>
- *
- * @author ---
- * @version ---
- */
 public class InterEntityConstraints extends JPanel {
 
-	private static final long serialVersionUID = 1L;
-	public static JTable table;
+    private static final long serialVersionUID = 1L;
+    public static JTable table;
     public static DefaultTableModel model;
 
     public InterEntityConstraints() {
-    	
+
         setLayout(new GridLayout(1, 0));
 
         final String[] columnNames = {"InterEntityConstraints"};
@@ -51,7 +36,7 @@ public class InterEntityConstraints extends JPanel {
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-            	// Double click
+                // Double click
                 if (e.getClickCount() == 2) {
                     JTable target = (JTable) e.getSource();
                     Point point = e.getPoint();
@@ -101,18 +86,18 @@ public class InterEntityConstraints extends JPanel {
         constraintsField.setLineWrap(true);
         constraintsField.setWrapStyleWord(true);
         constraintsField.setText(constraints);
-        
+
         String constraintsOld = constraints;
         Object[] message = {"Constraints:", constraintsField};
-        
+
         int option = JOptionPane
                 .showConfirmDialog(Main.frame, message, "Please Update", JOptionPane.OK_CANCEL_OPTION,
                         JOptionPane.PLAIN_MESSAGE);
-        
+
         if (option == JOptionPane.OK_OPTION) {
             constraints = constraintsField.getText();
-            JtreeToGraphDelete.deleteConstraintFromScenarioTableForUpdate(
-            		JtreeToGraphVariables.selectedNodeCellForVariableUpdate, constraintsOld, constraints);
+            // JtreeToGraphDelete.deleteConstraintFromScenarioTableForUpdate(
+            //		JtreeToGraphVariables.selectedNodeCellForVariableUpdate, constraintsOld, constraints);
         }
     }
 }

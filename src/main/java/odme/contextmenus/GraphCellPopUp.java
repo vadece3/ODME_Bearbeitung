@@ -38,13 +38,13 @@ public class GraphCellPopUp extends JPopupMenu {
 
 	public GraphCellPopUp(Object pos) {
 
-    	String [] items = buildMenuItems(pos);
-    	JMenuItem item;
+		String [] items = buildMenuItems(pos);
+		JMenuItem item;
 
-    	if (ODMEEditor.toolMode == "ses") {
-    		for (int i=0; i<items.length; i++) {
-    			if (items[i]  == null)
-    				continue;
+		if (ODMEEditor.toolMode == "ses") {
+			for (int i=0; i<items.length; i++) {
+				if (items[i]  == null)
+					continue;
 				//adding the Distribution menu which containes a submenu
 				if ("Add Distribution".equals(items[i])) {
 					JMenu distributionMenu = new JMenu("Add Distribution");
@@ -104,36 +104,36 @@ public class GraphCellPopUp extends JPopupMenu {
 						}
 					});
 				}
-    		}
-    	}
+			}
+		}
 
-    	else {
-    		JMenuItem itemPrune = new JMenuItem("Prune It");
+		else {
+			JMenuItem itemPrune = new JMenuItem("Prune It");
 
-    		mxCell cell = (mxCell) pos;
-    		String cellName = (String) cell.getValue();
+			mxCell cell = (mxCell) pos;
+			String cellName = (String) cell.getValue();
 
-    		if (!cellName.endsWith("Dec"))
-    				add(itemPrune);
+			if (!cellName.endsWith("Dec"))
+				add(itemPrune);
 
-    		itemPrune.addActionListener(new ActionListener() {
-    			public void actionPerformed(ActionEvent ae) {
-    				if (cellName.endsWith("Dec")) {
-    				}
-    				else if (cellName.endsWith("MAsp")) {
+			itemPrune.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent ae) {
+					if (cellName.endsWith("Dec")) {
+					}
+					else if (cellName.endsWith("MAsp")) {
 
-    					JtreeToGraphPrune.pruneMAspNodeFromGraphPopup(pos);
-    				}
-    				else if (cellName.endsWith("Spec")) {
-    					JtreeToGraphPrune.pruneNodeFromGraphPopup(pos);
-    				}
-    				else {
-    					JtreeToGraphPrune.pruneSiblingsFromGraphPopup(pos);
-    				}
-    			}
-    		});
-    	}
-    }
+						JtreeToGraphPrune.pruneMAspNodeFromGraphPopup(pos);
+					}
+					else if (cellName.endsWith("Spec")) {
+						JtreeToGraphPrune.pruneNodeFromGraphPopup(pos);
+					}
+					else {
+						JtreeToGraphPrune.pruneSiblingsFromGraphPopup(pos);
+					}
+				}
+			});
+		}
+	}
 
 	public void addDistributionSubMenu(JMenu parentMenu, Object pos) {
 		// First-level submenu items
@@ -154,7 +154,7 @@ public class GraphCellPopUp extends JPopupMenu {
 		});
 
 		uniformDist.addActionListener(e -> {
-				JtreeToGraphAdd.addUniformDistribution(pos);
+			JtreeToGraphAdd.addUniformDistribution(pos);
 		});
 
 		// Add everything into the "Add Distribution" menu
@@ -166,43 +166,44 @@ public class GraphCellPopUp extends JPopupMenu {
 
 
 	private String[] buildMenuItems(Object pos) {
-    	mxCell cell = (mxCell) pos;
-        String cellName = (String) cell.getValue();
-        boolean connected = JtreeToGraphCheck.isConnectedToRoot(cell);
-        JtreeToGraphVariables.connectedToRoot = false; // have to assign false because isConnectedToRoot() function
-        // assign true during calling
+		mxCell cell = (mxCell) pos;
+		String cellName = (String) cell.getValue();
+		boolean connected = JtreeToGraphCheck.isConnectedToRoot(cell);
+		JtreeToGraphVariables.connectedToRoot = false; // have to assign false because isConnectedToRoot() function
+		// assign true during calling
 
-    	String[] items = new String[11];
+		String[] items = new String[13];
 
-    	if (cell.isVertex()) {
-    		if (cell.getId().startsWith("uniformity") && connected) {
-    			if (cell.getId().endsWith("RefNode"))
-    				items[0] = "Delete";
-    		}
-    		else {
-    			items[0] = "Add Variable";
-    			items[1] = "Rename";
-    			items[2] = "Delete Variable";
-    			items[3] = "Delete All Variables";
-    			items[4] = "Delete Branch";
-    			items[5] = "Add Module";
-    			items[6] = "Save Module";
-    			items[7] = "Add Behaviour";
-				items[10] = "Add Distribution";
+		if (cell.isVertex()) {
+			if (cell.getId().startsWith("uniformity") && connected) {
+				if (cell.getId().endsWith("RefNode"))
+					items[0] = "Delete";
+			}
+			else {
+				items[0] = "Add Variable";
+				items[1] = "Rename";
+				items[2] = "Delete Variable";
+				items[3] = "Delete All Variables";
+				items[4] = "Delete Branch";
+				items[5] = "Add Module";
+				items[6] = "Save Module";
+				items[7] = "Add Behaviour";
+				items[8] = "Add Intra-Entity Constraint...";
+				items[9] = "Delete All Intra-Entity Constraints";
+				items[10] = "Add Inter-Entity Constraint...";
+				items[11] = "Delete All Inter-Entity Constraints";
+				items[12] = "Add Distribution";
+
 
 				if (cellName.endsWith("Dec") || cellName.endsWith("Spec") || cellName.endsWith("MAsp")) {
-//					items[8] = "Add Inter-Entity Constraint...";
-//					items[9] = "Delete All Inter-Entity Constraints";
+// to be implemented
 				}
-				else  {
-					items[8] = "Add Intra-Entity Constraint...";
-					items[9] = "Delete All Intra-Entity Constraints";
-				}
-    		}
-    	}
-    	else
-    		items[0] = "Delete Edge";
 
-    	return items;
-    }
+			}
+		}
+		else
+			items[0] = "Delete Edge";
+
+		return items;
+	}
 }

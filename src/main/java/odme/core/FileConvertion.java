@@ -121,7 +121,7 @@ public class FileConvertion {
 
                         f0.println("<xs:attribute name=\"HasConstraint\" type=\"\" default=\"\">");
                         f0.println("<xs:simpleType>");
-                        f0.println("<xs:assert intertest=\"" + nobresult + "\"/>");
+                        f0.println("<xs:assert test=\"" + nobresult + "\"/>");
                         f0.println("</xs:simpleType>");
                         f0.println("</xs:attribute>");
 
@@ -130,103 +130,103 @@ public class FileConvertion {
 
                         f0.println("<xs:attribute name=\"HasConstraint\" type=\"\" default=\"\">");
                         f0.println("<xs:simpleType>");
-                        f0.println("<xs:assert intratest=\"" + nobresult + "\"/>");
+                        f0.println("<xs:assert  test=\"" + nobresult + "\"/>");
                         f0.println("</xs:simpleType>");
                         f0.println("</xs:attribute>");
 
                     }
                 } else //Manage other variables
-                     if (line.startsWith("<")) {
-                         if (line.endsWith("/>")) { // The original if statement becomes an else if
-                             String result = line.replaceAll("[</>]", "");
+                    if (line.startsWith("<")) {
+                        if (line.endsWith("/>")) { // The original if statement becomes an else if
+                            String result = line.replaceAll("[</>]", "");
 
-                             if (result.endsWith("Var")) {
-                                 String novarresult = result.replace("Var", "");
+                            if (result.endsWith("Var")) {
+                                String novarresult = result.replace("Var", "");
 
-                                 // variable with proper style
-                                 String[] properties = novarresult.split(",");
-                                 if (properties[1].equals("string") || properties[1].equals("boolean")) {
-                                     f0.println(
-                                             "<xs:attribute name=\"" + properties[0] + "\" type=\"" + properties[1]
-                                                     + "\" default=\"" + properties[2]
-                                                     + "\">");
-                                     f0.println("</xs:attribute>");
-                                 } else {
-                                     f0.println(
-                                             "<xs:attribute name=\"" + properties[0] + "\" type=\"" + properties[1] + "\" default=\"" + properties[2]
-                                                     + "\">");
-                                     f0.println("<xs:simpleType>");
-                                     f0.println("<xs:restriction base=\"xs:" + properties[1] + "\">");
-                                     f0.println("<xs:type value=\"" + properties[1] + "\"/>");
-                                     f0.println("<xs:minInclusive value=\"" + properties[3] + "\"/>");
-                                     f0.println("<xs:maxInclusive value=\"" + properties[4] + "\"/>");
-                                     if (properties.length > 5) {
-                                         f0.println("<xs:distributionType value=\"" + properties[5] + "\"/>");
-                                         f0.println("<xs:distributionDetails value=\"" + properties[6] + "\"/>");
-                                     }
-                                     f0.println("</xs:restriction>");
-                                     f0.println("</xs:simpleType>");
-                                     f0.println("</xs:attribute>");
-                                 }
-                             } else if (result.endsWith("Behaviour")) {
-                                 String nobresult = result.replace("Behaviour", "");
+                                // variable with proper style
+                                String[] properties = novarresult.split(",");
+                                if (properties[1].equals("string") || properties[1].equals("boolean")) {
+                                    f0.println(
+                                            "<xs:attribute name=\"" + properties[0] + "\" type=\"" + properties[1]
+                                                    + "\" default=\"" + properties[2]
+                                                    + "\">");
+                                    f0.println("</xs:attribute>");
+                                } else {
+                                    f0.println(
+                                            "<xs:attribute name=\"" + properties[0] + "\" type=\"" + properties[1] + "\" default=\"" + properties[2]
+                                                    + "\">");
+                                    f0.println("<xs:simpleType>");
+                                    f0.println("<xs:restriction base=\"xs:" + properties[1] + "\">");
+                                    f0.println("<xs:type value=\"" + properties[1] + "\"/>");
+                                    f0.println("<xs:minInclusive value=\"" + properties[3] + "\"/>");
+                                    f0.println("<xs:maxInclusive value=\"" + properties[4] + "\"/>");
+                                    if (properties.length > 5) {
+                                        f0.println("<xs:distributionType value=\"" + properties[5] + "\"/>");
+                                        f0.println("<xs:distributionDetails value=\"" + properties[6] + "\"/>");
+                                    }
+                                    f0.println("</xs:restriction>");
+                                    f0.println("</xs:simpleType>");
+                                    f0.println("</xs:attribute>");
+                                }
+                            } else if (result.endsWith("Behaviour")) {
+                                String nobresult = result.replace("Behaviour", "");
 
-                                 // behaviour with proper style
-                                 String[] properties = nobresult.split(",");
-                                 f0.println("<xs:attribute name=\"" + properties[0] + "\">");
-                                 f0.println("</xs:attribute>");
+                                // behaviour with proper style
+                                String[] properties = nobresult.split(",");
+                                f0.println("<xs:attribute name=\"" + properties[0] + "\">");
+                                f0.println("</xs:attribute>");
 
-                             }
-                             // The old "Con" block can be deleted as it's now handled by the new block above.
-                             else if (result.endsWith("RefNode")) {
-                                 String noRefNoderesult = result.replace("RefNode", "");
+                            }
+                            // The old "Con" block can be deleted as it's now handled by the new block above.
+                            else if (result.endsWith("RefNode")) {
+                                String noRefNoderesult = result.replace("RefNode", "");
 
-                                 if (noRefNoderesult.endsWith("Dec") || noRefNoderesult.endsWith("MAsp")) {
-                                     f0.println("<xs:sequence ref=\"" + noRefNoderesult + "\"/>");
-                                 } else if (noRefNoderesult.endsWith("Spec")) {
-                                     f0.println("<xs:choice ref=\"" + noRefNoderesult + "\"/>");
-                                 } else {
-                                     f0.println("<xs:element ref=\"" + noRefNoderesult + "\"/>");
-                                 }
+                                if (noRefNoderesult.endsWith("Dec") || noRefNoderesult.endsWith("MAsp")) {
+                                    f0.println("<xs:sequence ref=\"" + noRefNoderesult + "\"/>");
+                                } else if (noRefNoderesult.endsWith("Spec")) {
+                                    f0.println("<xs:choice ref=\"" + noRefNoderesult + "\"/>");
+                                } else {
+                                    f0.println("<xs:element ref=\"" + noRefNoderesult + "\"/>");
+                                }
 
-                             } else {
-                                 mod = "<xs:element name=\"" + result + "\"/>";
-                                 f0.println(mod);
-                             }
-                         } else {
-                             String result = line.replaceAll("[</>]", "");
+                            } else {
+                                mod = "<xs:element name=\"" + result + "\"/>";
+                                f0.println(mod);
+                            }
+                        } else {
+                            String result = line.replaceAll("[</>]", "");
 
-                             if (result.endsWith("Dec")) {
-                                 mod = "<xs:sequence id=\"" + result + "\">";
-                                 f0.println(mod);
+                            if (result.endsWith("Dec")) {
+                                mod = "<xs:sequence id=\"" + result + "\">";
+                                f0.println(mod);
 
-                             } else if (result.endsWith("MAsp")) {
-                                 mod = "<xs:sequence id=\"" + result + "\">";
-                                 f0.println(mod);
-                                 entiyAfterMAsp = 1;
+                            } else if (result.endsWith("MAsp")) {
+                                mod = "<xs:sequence id=\"" + result + "\">";
+                                f0.println(mod);
+                                entiyAfterMAsp = 1;
 
-                             } else if (result.endsWith("Spec")) {
-                                 mod = "<xs:choice id=\"" + result + "\">";
-                                 f0.println(mod);
-                             } else {
-                                 if (entiyAfterMAsp == 1) {
-                                     mod = "<xs:element name=\"" + result
-                                             + "\" minOccurs=\"0\" maxOccurs=\"unbounded\">";
-                                     f0.println(mod);
-                                     f0.println("<xs:complexType>");
+                            } else if (result.endsWith("Spec")) {
+                                mod = "<xs:choice id=\"" + result + "\">";
+                                f0.println(mod);
+                            } else {
+                                if (entiyAfterMAsp == 1) {
+                                    mod = "<xs:element name=\"" + result
+                                            + "\" minOccurs=\"0\" maxOccurs=\"unbounded\">";
+                                    f0.println(mod);
+                                    f0.println("<xs:complexType>");
 
-                                     entiyAfterMAsp = 0;
-                                 } else if (result.endsWith("Seq")) {
-                                     mod = "<xs:sequence>";
-                                     f0.println(mod);
-                                 } else {
-                                     mod = "<xs:element name=\"" + result + "\">";
-                                     f0.println(mod);
-                                     f0.println("<xs:complexType>");
-                                 }
-                             }
-                         }
-                     }
+                                    entiyAfterMAsp = 0;
+                                } else if (result.endsWith("Seq")) {
+                                    mod = "<xs:sequence>";
+                                    f0.println(mod);
+                                } else {
+                                    mod = "<xs:element name=\"" + result + "\">";
+                                    f0.println(mod);
+                                    f0.println("<xs:complexType>");
+                                }
+                            }
+                        }
+                    }
         }
         f0.println("</xs:schema>");
         in.close();
@@ -345,7 +345,7 @@ public class FileConvertion {
             }
             reader.close();
 
-             // Overwrite the same file with new content
+            // Overwrite the same file with new content
             BufferedWriter writer = Files.newBufferedWriter(Paths.get(inputFile));
             writer.write(contentBuilder.toString());
             writer.close();
@@ -353,7 +353,7 @@ public class FileConvertion {
             //adding distribution details to in variable tags
             fileFixerOutputgraphxmlforxsd2(inputFile);
 
-                } catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -363,7 +363,7 @@ public class FileConvertion {
 
             Path path = Paths.get(filePath);
 
-             //  Re-read for the next stage
+            //  Re-read for the next stage
             List<String> newLines = Files.readAllLines(path);
             List<String> finalLines = new ArrayList<>();
 
@@ -379,28 +379,28 @@ public class FileConvertion {
                 }
             }
 
-                    //  Modify Var lines based on Distion entries
-                    for (String line : newLines) {
-                        if (line.contains("Distion")) {
-                            // skip any line that still contains "Distion"
-                            continue;
-                        }
+            //  Modify Var lines based on Distion entries
+            for (String line : newLines) {
+                if (line.contains("Distion")) {
+                    // skip any line that still contains "Distion"
+                    continue;
+                }
 
-                        String trimmed = line.trim();
-                        if (trimmed.endsWith("Var/>")) {
-                            for (String[] entry : entries) {
-                                String varName = entry[0];
-                                if (trimmed.startsWith("<" + varName + ",")) {
-                                    // Append the distribution details before Var/>
-                                    StringBuilder sb = new StringBuilder(trimmed);
-                                    sb.insert(sb.lastIndexOf("Var/>"), "," + entry[1] + "," + entry[2]);
-                                    line = sb.toString();
-                                    break;
-                                }
-                            }
+                String trimmed = line.trim();
+                if (trimmed.endsWith("Var/>")) {
+                    for (String[] entry : entries) {
+                        String varName = entry[0];
+                        if (trimmed.startsWith("<" + varName + ",")) {
+                            // Append the distribution details before Var/>
+                            StringBuilder sb = new StringBuilder(trimmed);
+                            sb.insert(sb.lastIndexOf("Var/>"), "," + entry[1] + "," + entry[2]);
+                            line = sb.toString();
+                            break;
                         }
+                    }
+                }
 
-                        finalLines.add(line);
+                finalLines.add(line);
             }
 
             //  Write the final cleaned content
@@ -501,28 +501,28 @@ public class FileConvertion {
 
         Scanner in = null;
         try {
-        	String path = new String();
-        	if (ODMEEditor.toolMode == "ses")
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsd.xml";
-        	else
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
-        	
+            String path = new String();
+            if (ODMEEditor.toolMode == "ses")
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsd.xml";
+            else
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
+
             in = new Scanner(new File(path));
-        } 
+        }
         catch (FileNotFoundException e) {
             e.printStackTrace();
         }
 
         PrintWriter f0 = null;
         try {
-        	String path = new String();
-        	if (ODMEEditor.toolMode == "ses")
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsdvar.xml";
-        	else
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsdvar.xml";
-        	
+            String path = new String();
+            if (ODMEEditor.toolMode == "ses")
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsdvar.xml";
+            else
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsdvar.xml";
+
             f0 = new PrintWriter(new FileWriter(path));
-        } 
+        }
         catch (IOException e1) {
             e1.printStackTrace();
         }
@@ -533,10 +533,10 @@ public class FileConvertion {
 
             if (line.startsWith("<?")) { // have to solve space problem for this line
                 f0.println("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
-            } 
+            }
             else if (line.startsWith("<if(")) {
                 f0.println(backLine);
-            } 
+            }
             else if (line.startsWith("<")) {
                 String result = line.replaceAll("[</>]", "");
 
@@ -553,19 +553,19 @@ public class FileConvertion {
                         else if (line.startsWith("<")) {
                             f0.println("<" + result + ">");
                             f0.println(variableName + "Var");
-                        } 
+                        }
                         else {
                             f0.println(line);
                         }
-                    } 
+                    }
                     else {
                         f0.println(line);
                     }
-                } 
+                }
                 else {
                     f0.println(line);
                 }
-            } 
+            }
             else {
                 f0.println(line);
             }
@@ -881,7 +881,7 @@ public class FileConvertion {
             f0 = new PrintWriter(new FileWriter(
                     ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsdvar.xml"));
 
-        } 
+        }
         catch (IOException e1) {
             e1.printStackTrace();
         }
@@ -904,11 +904,11 @@ public class FileConvertion {
                 f0.println(line);
                 finishChaningLinePosition = true;
 
-            } 
+            }
             else if (line.startsWith("<xs:attribute") && !deleteExtraAtrributeLineBelowAssert
-                       && finishChaningLinePosition) {
+                    && finishChaningLinePosition) {
                 deleteExtraAtrributeLineBelowAssert = true;
-            } 
+            }
             else {
                 f0.println(line);
             }
@@ -932,7 +932,7 @@ public class FileConvertion {
         try {
             in = new Scanner(new File(
                     ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsd.xml"));
-        } 
+        }
         catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -941,7 +941,7 @@ public class FileConvertion {
         try {
             f0 = new PrintWriter(new FileWriter(
                     ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsdvar.xml"));
-        } 
+        }
         catch (IOException e1) {
             e1.printStackTrace();
         }
@@ -950,7 +950,7 @@ public class FileConvertion {
             String line = in.nextLine();
             if (line.startsWith("<?")) { // have to solve space problem for this line
                 f0.println("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
-            } 
+            }
             else if (line.startsWith("<")) {
                 String result = line.replaceAll("[</>]", "");
 
@@ -962,20 +962,20 @@ public class FileConvertion {
                         if (line.endsWith("/>")) {
                             f0.println(line);
                             f0.println(variableName + "Con");
-                        } 
+                        }
                         else {
                             f0.println(line);
                         }
 
-                    } 
+                    }
                     else {
                         f0.println(line);
                     }
-                } 
+                }
                 else {
                     f0.println(line);
                 }
-            } 
+            }
             else {
                 f0.println(line);
             }
@@ -993,7 +993,7 @@ public class FileConvertion {
         try {
             in = new Scanner(new File(
                     ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsd.xml"));
-        } 
+        }
         catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -1002,7 +1002,7 @@ public class FileConvertion {
         try {
             f0 = new PrintWriter(new FileWriter(
                     ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsdvar.xml"));
-        } 
+        }
         catch (IOException e1) {
             e1.printStackTrace();
         }
@@ -1013,13 +1013,13 @@ public class FileConvertion {
 
             if (line.startsWith("<?")) { // have to solve space problem for this line
                 f0.println("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
-            } 
+            }
             else if (line.startsWith("if")) {
                 f0.println(backline);
-            } 
+            }
             else if (line.startsWith("</")) {
                 f0.println(line);
-            } 
+            }
             else if (line.startsWith("<")) {
                 String result = line.replaceAll("[</>]", "");
 
@@ -1030,14 +1030,14 @@ public class FileConvertion {
                     if (count == len) {
                         f0.println(line);
                         f0.println("<" + cellName + "RefNode/>");
-                    } 
+                    }
                     else {
                         f0.println(line);
                     }
                 } else {
                     f0.println(line);
                 }
-            } 
+            }
             else {
                 f0.println(line);
             }
@@ -1062,7 +1062,7 @@ public class FileConvertion {
         try {
             in = new Scanner(new File(
                     ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsd.xml"));
-        } 
+        }
         catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -1071,7 +1071,7 @@ public class FileConvertion {
         try {
             f0 = new PrintWriter(new FileWriter(
                     ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsdseq.xml"));
-        } 
+        }
         catch (IOException e1) {
             e1.printStackTrace();
         }
@@ -1084,23 +1084,23 @@ public class FileConvertion {
 
             if (line.startsWith("<?")) { // have to solve space problem for this line
                 f0.println("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
-            } 
+            }
             else if (line.startsWith("if")) {
                 f0.println(backline);
 
-            } 
+            }
             else if (line.startsWith("</")) {
 
                 String result = line.replaceAll("[</>]", "");
                 if (result.equals(seqNode)) {
                     f0.println("</Seq>");
                     f0.println(line);
-                } 
+                }
                 else {
                     f0.println(line);
                 }
 
-            } 
+            }
             else if (line.startsWith("<")) {
                 String result = line.replaceAll("[</>]", "");
 
@@ -1112,15 +1112,15 @@ public class FileConvertion {
                         f0.println(line);
                         seqNode = result;
                         f0.println("<Seq>");
-                    } 
+                    }
                     else {
                         f0.println(line);
                     }
-                } 
+                }
                 else {
                     f0.println(line);
                 }
-            } 
+            }
             else {
                 f0.println(line);
             }
@@ -1132,7 +1132,7 @@ public class FileConvertion {
     }
 
     public void modifyXmlOutputForRefNode() {
-    	copyModifyHelper("/outputgraphxmlforxsd.xml", "/outputgraphxmlforxsdvar.xml", "/>");
+        copyModifyHelper("/outputgraphxmlforxsd.xml", "/outputgraphxmlforxsdvar.xml", "/>");
     }
 
     /**
@@ -1140,51 +1140,51 @@ public class FileConvertion {
      * </start> tag from the file.
      */
     public void modifyXmlOutputForXSD() {
-    	copyModifyHelper("/outputgraphxmlforxsd.xml", "/graphxmluniformity.xml", "start>");
+        copyModifyHelper("/outputgraphxmlforxsd.xml", "/graphxmluniformity.xml", "start>");
     }
 
     public void copyChangedXSDtoOldOne() {
-    	copyModifyHelper("/xsdfromxml.xsd", "/outputgraphxmlforxsdvar.xml", null);
+        copyModifyHelper("/xsdfromxml.xsd", "/outputgraphxmlforxsdvar.xml", null);
     }
-    
+
     public void copyFileToExistingOne() {
-    	copyModifyHelper("/outputgraphxmlforxsd.xml", "/outputgraphxmlforxsdvar.xml", null);
+        copyModifyHelper("/outputgraphxmlforxsd.xml", "/outputgraphxmlforxsdvar.xml", null);
     }
-    
+
     public void copyfixingSequenceFileToExistingOne() {
-    	copyModifyHelper("/outputgraphxmlforxsd.xml", "/outputgraphxmlforxsdseq.xml", null);
+        copyModifyHelper("/outputgraphxmlforxsd.xml", "/outputgraphxmlforxsdseq.xml", null);
     }
 
     public void copyxsdfromxmlToRootNodeNameXSD() {
         String rootNodeName = JtreeToGraphGeneral.rootNodeName();
         copyModifyHelper("/" + rootNodeName + ".xsd", "/outputgraphxmlforxsdvar.xml", null);
     }
-    
+
     private void copyModifyHelper(String file1, String file2, String modify) {
         PrintWriter f0 = null;
         try {
-        	String path = new String();
-        	if (ODMEEditor.toolMode == "ses")
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + file1;
-        	else
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + file1;
-        	
+            String path = new String();
+            if (ODMEEditor.toolMode == "ses")
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + file1;
+            else
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + file1;
+
             f0 = new PrintWriter(new FileWriter(path));
-        } 
+        }
         catch (IOException e1) {
             e1.printStackTrace();
         }
-        
+
         Scanner in = null;
         try {
-        	String path = new String();
-        	if (ODMEEditor.toolMode == "ses")
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + file2;
-        	else
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + file2;
-        	
+            String path = new String();
+            if (ODMEEditor.toolMode == "ses")
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + file2;
+            else
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + file2;
+
             in = new Scanner(new File(path));
-        } 
+        }
         catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -1192,8 +1192,8 @@ public class FileConvertion {
         while (in.hasNext()) { // Iterates each line in the file
             String line = in.nextLine();
             if (modify != null) {
-            	if (line.endsWith(modify))
-            		continue;
+                if (line.endsWith(modify))
+                    continue;
             }
             f0.println(line);
         }
@@ -1205,93 +1205,93 @@ public class FileConvertion {
         PrintWriter f0 = null;
         try {
             f0 = new PrintWriter(new FileWriter(path));
-        } 
+        }
         catch (IOException e1) {
             e1.printStackTrace();
         }
 
         // writing to the file
         String ses = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
-                     + "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\"\r\n"
-                     + "    xmlns:vc=\"http://www.w3.org/2007/XMLSchema-versioning\" vc:minVersion=\"1.1\">\r\n"
-                     + "    \r\n" + "        <xs:complexType name=\"aspectType\">\r\n"
-                     + "        <xs:sequence>\r\n"
-                     + "            <xs:element minOccurs=\"0\" maxOccurs=\"unbounded\" ref=\"entity\"/>\r\n"
-                     + "        </xs:sequence>\r\n"
-                     + "        <xs:attribute name=\"name\" use=\"required\"/>\r\n"
-                     + "    </xs:complexType>\r\n" + "\r\n"
-                     + "    <xs:complexType name=\"multiAspectType\">\r\n" + "        <xs:sequence>\r\n"
-                     + "            <xs:element minOccurs=\"0\" maxOccurs=\"unbounded\" ref=\"entity\"/>\r\n"
-                     + "        </xs:sequence>\r\n"
-                     + "        <xs:attribute name=\"name\" use=\"required\"/>\r\n"
-                     + "        <xs:attribute name=\"constraint\" use=\"optional\"/>\r\n"
-                     + "    </xs:complexType>\r\n" + "\r\n"
-                     + "    <xs:complexType name=\"specializationType\">\r\n" + "        <xs:sequence>\r\n"
-                     + "            <xs:element minOccurs=\"0\" maxOccurs=\"unbounded\" ref=\"entity\"/>\r\n"
-                     + "        </xs:sequence>\r\n"
-                     + "        <xs:attribute name=\"name\" use=\"required\"/>\r\n"
-                     + "    </xs:complexType>\r\n" + "\r\n" + "\r\n"
-                     + "    <xs:complexType name=\"varType\"> \r\n" + "        <xs:sequence>\r\n"
-                     + "            <xs:element minOccurs=\"0\" maxOccurs=\"unbounded\" ref=\"entity\"/>\r\n"
-                     + "        </xs:sequence>\r\n"
-                     + "        <xs:attribute name=\"name\" use=\"required\"/>\r\n"
-                     + "        <xs:attribute name=\"type\" use=\"optional\"/>\r\n"
-                     + "        <xs:attribute name=\"default\" use=\"optional\"/>\r\n"
-                     + "        <xs:attribute name=\"lower\" use=\"optional\"/>\r\n"
-                     + "        <xs:attribute name=\"upper\" use=\"optional\"/>\r\n" + "        \r\n"
-                     + "    </xs:complexType>\r\n" + "\r\n" + "\r\n"
-                     + "    <xs:complexType name=\"distionType\"> \r\n" + "        <xs:sequence>\r\n"
-                     + "            <xs:element minOccurs=\"0\" maxOccurs=\"unbounded\" ref=\"entity\"/>\r\n"
-                     + "        </xs:sequence>\r\n"
-                     + "        <xs:attribute name=\"variablename\" use=\"required\"/>\r\n"
-                     + "        <xs:attribute name=\"distributiontype\" use=\"required\"/>\r\n"
-                     + "        <xs:attribute name=\"details\" use=\"required\"/>\r\n" + "        \r\n"
-                     + "    </xs:complexType>\r\n" + "\r\n" + "\r\n"
-                     + "    <xs:complexType name=\"intracontraintType\">\r\n" + "        <xs:sequence>\r\n"
-                     + "            <xs:element minOccurs=\"0\" maxOccurs=\"unbounded\" ref=\"entity\"/>\r\n"
-                     + "        </xs:sequence>\r\n"
-                     + "        <xs:attribute name=\"name\" use=\"required\"/>\r\n"
-                     + "        <xs:attribute intratest=\"intracontraintname\"/>\r\n" + "\r\n" + "\r\n"
-                     + "    </xs:complexType>\r\n" + "\r\n" + "\r\n"
-                     + "    <xs:complexType name=\"intercontraintType\">\r\n" + "        <xs:sequence>\r\n"
-                     + "            <xs:element minOccurs=\"0\" maxOccurs=\"unbounded\" ref=\"entity\"/>\r\n"
-                     + "        </xs:sequence>\r\n"
-                     + "        <xs:attribute name=\"name\" use=\"required\"/>\r\n"
-                     + "        <xs:attribute intertest=\"intercontraintname\"/>\r\n" + "\r\n" + "\r\n"
-                     + "    </xs:complexType>\r\n" + "\r\n" + "\r\n"
-                     + "    <xs:complexType name=\"behaviourType\"> \r\n" + "        <xs:sequence>\r\n"
-                     + "            <xs:element minOccurs=\"0\" maxOccurs=\"unbounded\" ref=\"entity\"/>\r\n"
-                     + "        </xs:sequence>\r\n"
-                     + "        <xs:attribute name=\"name\" use=\"required\"/>\r\n" + "        \r\n"
-                     + "    </xs:complexType>\r\n" + "\r\n" + "\r\n" + "    <xs:element name=\"entity\">\r\n"
-                     + "        <xs:complexType>\r\n" + "            <xs:sequence>\r\n"
-                     + "                <xs:choice minOccurs=\"0\" maxOccurs=\"unbounded\">\r\n"
-                     + "                    <xs:element ref=\"aspect\"/>\r\n"
-                     + "                    <xs:element ref=\"specialization\"/>\r\n"
-                     + "                    <xs:element ref=\"multiAspect\"/>\r\n"
-                     + "                    <xs:element ref=\"var\"/>\r\n"
-                     + "                    <xs:element ref=\"distion\"/>\r\n"
-                     + "                    <xs:element ref=\"intercontraint\"/>\r\n"
-                     + "                    <xs:element ref=\"intracontraint\"/>\r\n"
-                     + "                    <xs:element ref=\"behaviour\"/>\r\n" + "                    \r\n"
-                     + "                </xs:choice>            \r\n" + "                \r\n"
-                     + "            </xs:sequence>\r\n" + "\r\n"
-                     + "            <xs:attribute name=\"name\" use=\"required\"/>\r\n"
-                     + "            <xs:attribute name=\"ref\" use=\"optional\"/>\r\n" + "          \r\n"
-                     + "            <xs:assert test=\"every $x in .//entity satisfies empty($x//*[@name = $x/@name])\"/> \r\n"
-                     + "            <xs:assert test=\"every $x in .//entity satisfies count(*[$x/@name = $x/following-sibling::*/@name]) = 0\"/>                \r\n"
-                     + "            <xs:assert test=\"every $x in .//var satisfies count(*[@name = following-sibling::*/@name]) = 0\"/>                                     \r\n"
-                     + "            \r\n" + "        </xs:complexType>      \r\n" + "        \r\n"
-                     + "      \r\n" + "    </xs:element>\r\n" + "\r\n"
-                     + "    <xs:element name=\"aspect\" type=\"aspectType\"/>\r\n"
-                     + "    <xs:element name=\"multiAspect\" type=\"multiAspectType\"/>\r\n"
-                     + "    <xs:element name=\"specialization\" type=\"specializationType\"/>\r\n"
-                     + "    <xs:element name=\"var\" type=\"varType\"/>\r\n"
-                     + "    <xs:element name=\"distion\" type=\"distionType\"/>\r\n"
-                     + "    <xs:element name=\"intercontraint\" type=\"intercontraintType\"/>\r\n"
-                     + "    <xs:element name=\"intracontraint\" type=\"intracontraintType\"/>\r\n"
-                     + "    <xs:element name=\"behaviour\" type=\"behaviourType\"/>   \r\n" + "\r\n" + "     \r\n"
-                     + "</xs:schema>\r\n" + "";
+                + "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\"\r\n"
+                + "    xmlns:vc=\"http://www.w3.org/2007/XMLSchema-versioning\" vc:minVersion=\"1.1\">\r\n"
+                + "    \r\n" + "        <xs:complexType name=\"aspectType\">\r\n"
+                + "        <xs:sequence>\r\n"
+                + "            <xs:element minOccurs=\"0\" maxOccurs=\"unbounded\" ref=\"entity\"/>\r\n"
+                + "        </xs:sequence>\r\n"
+                + "        <xs:attribute name=\"name\" use=\"required\"/>\r\n"
+                + "    </xs:complexType>\r\n" + "\r\n"
+                + "    <xs:complexType name=\"multiAspectType\">\r\n" + "        <xs:sequence>\r\n"
+                + "            <xs:element minOccurs=\"0\" maxOccurs=\"unbounded\" ref=\"entity\"/>\r\n"
+                + "        </xs:sequence>\r\n"
+                + "        <xs:attribute name=\"name\" use=\"required\"/>\r\n"
+                + "        <xs:attribute name=\"constraint\" use=\"optional\"/>\r\n"
+                + "    </xs:complexType>\r\n" + "\r\n"
+                + "    <xs:complexType name=\"specializationType\">\r\n" + "        <xs:sequence>\r\n"
+                + "            <xs:element minOccurs=\"0\" maxOccurs=\"unbounded\" ref=\"entity\"/>\r\n"
+                + "        </xs:sequence>\r\n"
+                + "        <xs:attribute name=\"name\" use=\"required\"/>\r\n"
+                + "    </xs:complexType>\r\n" + "\r\n" + "\r\n"
+                + "    <xs:complexType name=\"varType\"> \r\n" + "        <xs:sequence>\r\n"
+                + "            <xs:element minOccurs=\"0\" maxOccurs=\"unbounded\" ref=\"entity\"/>\r\n"
+                + "        </xs:sequence>\r\n"
+                + "        <xs:attribute name=\"name\" use=\"required\"/>\r\n"
+                + "        <xs:attribute name=\"type\" use=\"optional\"/>\r\n"
+                + "        <xs:attribute name=\"default\" use=\"optional\"/>\r\n"
+                + "        <xs:attribute name=\"lower\" use=\"optional\"/>\r\n"
+                + "        <xs:attribute name=\"upper\" use=\"optional\"/>\r\n" + "        \r\n"
+                + "    </xs:complexType>\r\n" + "\r\n" + "\r\n"
+                + "    <xs:complexType name=\"distionType\"> \r\n" + "        <xs:sequence>\r\n"
+                + "            <xs:element minOccurs=\"0\" maxOccurs=\"unbounded\" ref=\"entity\"/>\r\n"
+                + "        </xs:sequence>\r\n"
+                + "        <xs:attribute name=\"variablename\" use=\"required\"/>\r\n"
+                + "        <xs:attribute name=\"distributiontype\" use=\"required\"/>\r\n"
+                + "        <xs:attribute name=\"details\" use=\"required\"/>\r\n" + "        \r\n"
+                + "    </xs:complexType>\r\n" + "\r\n" + "\r\n"
+                + "    <xs:complexType name=\"intracontraintType\">\r\n" + "        <xs:sequence>\r\n"
+                + "            <xs:element minOccurs=\"0\" maxOccurs=\"unbounded\" ref=\"entity\"/>\r\n"
+                + "        </xs:sequence>\r\n"
+                + "        <xs:attribute name=\"name\" use=\"required\"/>\r\n"
+                + "        <xs:attribute intratest=\"intracontraintname\"/>\r\n" + "\r\n" + "\r\n"
+                + "    </xs:complexType>\r\n" + "\r\n" + "\r\n"
+                + "    <xs:complexType name=\"intercontraintType\">\r\n" + "        <xs:sequence>\r\n"
+                + "            <xs:element minOccurs=\"0\" maxOccurs=\"unbounded\" ref=\"entity\"/>\r\n"
+                + "        </xs:sequence>\r\n"
+                + "        <xs:attribute name=\"name\" use=\"required\"/>\r\n"
+                + "        <xs:attribute intertest=\"intercontraintname\"/>\r\n" + "\r\n" + "\r\n"
+                + "    </xs:complexType>\r\n" + "\r\n" + "\r\n"
+                + "    <xs:complexType name=\"behaviourType\"> \r\n" + "        <xs:sequence>\r\n"
+                + "            <xs:element minOccurs=\"0\" maxOccurs=\"unbounded\" ref=\"entity\"/>\r\n"
+                + "        </xs:sequence>\r\n"
+                + "        <xs:attribute name=\"name\" use=\"required\"/>\r\n" + "        \r\n"
+                + "    </xs:complexType>\r\n" + "\r\n" + "\r\n" + "    <xs:element name=\"entity\">\r\n"
+                + "        <xs:complexType>\r\n" + "            <xs:sequence>\r\n"
+                + "                <xs:choice minOccurs=\"0\" maxOccurs=\"unbounded\">\r\n"
+                + "                    <xs:element ref=\"aspect\"/>\r\n"
+                + "                    <xs:element ref=\"specialization\"/>\r\n"
+                + "                    <xs:element ref=\"multiAspect\"/>\r\n"
+                + "                    <xs:element ref=\"var\"/>\r\n"
+                + "                    <xs:element ref=\"distion\"/>\r\n"
+                + "                    <xs:element ref=\"intercontraint\"/>\r\n"
+                + "                    <xs:element ref=\"intracontraint\"/>\r\n"
+                + "                    <xs:element ref=\"behaviour\"/>\r\n" + "                    \r\n"
+                + "                </xs:choice>            \r\n" + "                \r\n"
+                + "            </xs:sequence>\r\n" + "\r\n"
+                + "            <xs:attribute name=\"name\" use=\"required\"/>\r\n"
+                + "            <xs:attribute name=\"ref\" use=\"optional\"/>\r\n" + "          \r\n"
+                + "            <xs:assert test=\"every $x in .//entity satisfies empty($x//*[@name = $x/@name])\"/> \r\n"
+                + "            <xs:assert test=\"every $x in .//entity satisfies count(*[$x/@name = $x/following-sibling::*/@name]) = 0\"/>                \r\n"
+                + "            <xs:assert test=\"every $x in .//var satisfies count(*[@name = following-sibling::*/@name]) = 0\"/>                                     \r\n"
+                + "            \r\n" + "        </xs:complexType>      \r\n" + "        \r\n"
+                + "      \r\n" + "    </xs:element>\r\n" + "\r\n"
+                + "    <xs:element name=\"aspect\" type=\"aspectType\"/>\r\n"
+                + "    <xs:element name=\"multiAspect\" type=\"multiAspectType\"/>\r\n"
+                + "    <xs:element name=\"specialization\" type=\"specializationType\"/>\r\n"
+                + "    <xs:element name=\"var\" type=\"varType\"/>\r\n"
+                + "    <xs:element name=\"distion\" type=\"distionType\"/>\r\n"
+                + "    <xs:element name=\"intercontraint\" type=\"intercontraintType\"/>\r\n"
+                + "    <xs:element name=\"intracontraint\" type=\"intracontraintType\"/>\r\n"
+                + "    <xs:element name=\"behaviour\" type=\"behaviourType\"/>   \r\n" + "\r\n" + "     \r\n"
+                + "</xs:schema>\r\n" + "";
 
         f0.println(ses);
         f0.close();

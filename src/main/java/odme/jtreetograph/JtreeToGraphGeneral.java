@@ -23,7 +23,7 @@ import java.util.Scanner;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileNameExtensionFilter; 
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
@@ -51,7 +51,7 @@ public class JtreeToGraphGeneral {
     public static void zoomIn() {
         graphComponent.zoomIn();
     }
-    
+
     public static void zoomOut() {
         graphComponent.zoomOut();
     }
@@ -64,12 +64,12 @@ public class JtreeToGraphGeneral {
             System.out.println("Cannot redo ");
         }
     }
-    
+
     public static void undo() {
         if (undoManager.canUndo())
             undoManager.undo();
     }
-    
+
     public static Element childNodes(Document thisDoc, mxCell cell) {
         Element thisElement = null;
 
@@ -139,7 +139,7 @@ public class JtreeToGraphGeneral {
                     else {
                         continue;
                     }
-                } 
+                }
                 else {
                     thisElement.appendChild(childNodesWithUniformity(thisDoc, targetCell2));
                 }
@@ -148,7 +148,7 @@ public class JtreeToGraphGeneral {
         return thisElement;
     }
 
- // for modifying the generated xml output
+    // for modifying the generated xml output
     public static void xmlOutputForXSD() {
         PrintWriter f0 = null;
         try {
@@ -160,7 +160,7 @@ public class JtreeToGraphGeneral {
 
             f0 = new PrintWriter(
                     new FileWriter(path));
-        } 
+        }
         catch (IOException e1) {
             e1.printStackTrace();
         }
@@ -175,7 +175,7 @@ public class JtreeToGraphGeneral {
 
             in = new Scanner(new File(path));
 
-        } 
+        }
         catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -198,10 +198,10 @@ public class JtreeToGraphGeneral {
                 }
                 else if (result.endsWith("MAsp")) {
                     mod = "</multiAspect>";
-                } 
+                }
                 else if (result.endsWith("Spec")) {
                     mod = "</specialization>";
-                } 
+                }
                 else {
                     if (result.endsWith("Seq")) {
                         continue;
@@ -209,13 +209,13 @@ public class JtreeToGraphGeneral {
                     mod = "</entity>";
                 }
                 f0.println(mod);
-            } 
+            }
             else //Manage Constraints
                 if (line.startsWith("<if")) {
                     String result1 = line.replaceAll("<if", "if");
                     String result = result1.replaceAll("/>", "");
 
-                     if (result.endsWith("InterCon")) {
+                    if (result.endsWith("InterCon")) {
                         String novarresult = result.replace("InterCon", "");
                         f0.println("<InterCon intercontraintname=\"" + novarresult + "\"> </InterCon>");
                     } else if (result.endsWith("IntraCon")) {
@@ -315,7 +315,7 @@ public class JtreeToGraphGeneral {
         in.close();
         f0.close();
     }
-    
+
     public static void writeSaveModuleToFileAsXML(Object obj) {
         mxCell cell = (mxCell) obj;
         String fileName = cell.getValue().toString();
@@ -332,7 +332,7 @@ public class JtreeToGraphGeneral {
             JtreeToGraphSave.saveModuleFromCurrentModelAsXML(obj, selectedFile.getAbsolutePath());
         }
     }
-    
+
     public static mxCell getRootNode() {
         Object[] cells = graph.getChildVertices(graph.getDefaultParent()); // getSelectionCells();
 
@@ -359,7 +359,7 @@ public class JtreeToGraphGeneral {
         parentPath = FindByName.path;
         return parentPath;
     }
-    
+
     /**
      * Rename node name of both graph node and jtree node. If the graph root has
      * child then it will show an message that node having child can't be renamed.
@@ -369,16 +369,16 @@ public class JtreeToGraphGeneral {
      */
     public static void renameCell(Object pos) {
         mxCell cell = (mxCell) pos;
-       
+
         if (cell.getId().equals("rootnode")) {
             Object[] outgoing = graph.getOutgoingEdges(cell);
             if (outgoing.length == 0) {
                 String newName = JOptionPane.showInputDialog(Main.frame, "New Name", "Rename Node",
                         JOptionPane.PLAIN_MESSAGE);
-                
+
                 if (newName == null)
                     return;
-                
+
                 else if (Character.isDigit(newName.trim().charAt(0))) {
                     JOptionPane.showMessageDialog(Main.frame,
                             "Node's name should not start with a number!", "Name Error", JOptionPane.ERROR_MESSAGE);
@@ -399,7 +399,7 @@ public class JtreeToGraphGeneral {
                     graph.getModel().beginUpdate();
                     try {
                         graph.getModel().setValue(cell, newName);
-                    } 
+                    }
                     finally {
                         graph.getModel().endUpdate();
                     }
@@ -410,18 +410,18 @@ public class JtreeToGraphGeneral {
                 JOptionPane.showMessageDialog(Main.frame,
                         "You can't rename a root node having child node.");
             }
-        } 
+        }
         else {
 
             String newName = JOptionPane
                     .showInputDialog(Main.frame, "New Name", "Rename Node", JOptionPane.PLAIN_MESSAGE);
-            
+
             if (newName == null)
                 return;
-            
+
             else if (Character.isDigit(newName.trim().charAt(0))) {
                 JOptionPane.showMessageDialog(Main.frame,
-                            "Node's name should not start with a number!", "Name Error", JOptionPane.ERROR_MESSAGE);
+                        "Node's name should not start with a number!", "Name Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -437,12 +437,12 @@ public class JtreeToGraphGeneral {
                     if (!newName.endsWith("Dec")) {
                         newName = newName + "Dec";
                     }
-                } 
+                }
                 else if (currentName.endsWith("Spec")) {
                     if (!newName.endsWith("Spec")) {
                         newName = newName + "Spec";
                     }
-                } 
+                }
                 else if (currentName.endsWith("MAsp")) {
                     if (!newName.endsWith("MAsp")) {
                         newName = newName + "MAsp";
@@ -482,14 +482,14 @@ public class JtreeToGraphGeneral {
                 try {
                     graph.getModel().setValue(cell, newName);
 
-                } 
+                }
                 finally {
                     graph.getModel().endUpdate();
                 }
             }
         }
     }
-    
+
     /**
      * Open existing project from disk. Read the XML file from the specified
      * location with the provided file name then according to XML file changes the
@@ -506,7 +506,7 @@ public class JtreeToGraphGeneral {
             path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/"  + filename + "Graph.xml";
         else
             path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/"  + filename + "Graph.xml";
-        
+
         ssdFileGraph =
                 new File(path);
 
@@ -518,15 +518,15 @@ public class JtreeToGraphGeneral {
                 codec.decode(xml.getDocumentElement(), graph.getModel());
                 parent = graph.getDefaultParent();
 
-            } 
+            }
             catch (Exception ex) {
                 ex.printStackTrace();
-            } 
+            }
             finally {
                 graph.getModel().endUpdate();
             }
-                     
+
             ODMEEditor.treePanel.openExistingProject(filename, oldProjectTreeProjectName);
         }
-    }   
+    }
 }

@@ -142,7 +142,7 @@ public class JtreeToGraphConvert {
 
             String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
             TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
-            
+
             DefaultMutableTreeNode currentNode =
                     (DefaultMutableTreeNode) (treePathForVariable.getLastPathComponent());
 
@@ -169,7 +169,7 @@ public class JtreeToGraphConvert {
                             if (!nodes[i].toString().equals(nodes2[i].toString())) {
                                 aa = 0;
                                 break;
-                            } 
+                            }
                         }
                         a = aa;
                     }
@@ -363,13 +363,15 @@ public class JtreeToGraphConvert {
 
             for (TreePath key : DynamicTree.interConstraintsList.keySet()) {
                 int a = 0;
+                // System.out.println(  key );
 
                 for (String value : DynamicTree.interConstraintsList.get(key)) {
-
+                    // System.out.println( value);
                     DefaultMutableTreeNode currentNode2 =
                             (DefaultMutableTreeNode) (key.getLastPathComponent());
 
                     TreeNode[] nodes2 = currentNode2.getPath();
+
 
                     if (nodes.length == nodes2.length) {
                         int aa = 1;
@@ -386,6 +388,7 @@ public class JtreeToGraphConvert {
                         nodesToSelectedNode[b] = value;
                         b++;
                     }
+
                 }
             }
 
@@ -393,9 +396,13 @@ public class JtreeToGraphConvert {
             nodesToSelectedNode =
                     Arrays.stream(nodesToSelectedNode).filter(s -> (s != null && s.length() > 0))
                             .toArray(String[]::new);
+
             for (String value : nodesToSelectedNode) {
                 variables = variables + "<" + value + "InterCon/>" + "\n";
+                //System.out.println(" value=  " + variables +   " value1 =" + value);
+
             }
+
 
             // treePathForDistribution
             FileConvertion fileConversion = new FileConvertion();
@@ -607,7 +614,7 @@ public class JtreeToGraphConvert {
         }
     }
 
- // for solving sequence problem--------------------------------------
+    // for solving sequence problem--------------------------------------
     public static void rootToEndNodeSequenceSolve() {
         Object[] cells = graph.getChildVertices(graph.getDefaultParent());
         mxCell rootcell = null;
@@ -626,8 +633,8 @@ public class JtreeToGraphConvert {
             JtreeToGraphNext.nextChild(rootcell);
         }
     }
-    
- // this function is used by other caller for inserting node in specific position
+
+    // this function is used by other caller for inserting node in specific position
     public static mxCell rootToSelectedNode(String[] nodesToSelectedNodeOrg) {
         nodesToSelectedNode = nodesToSelectedNodeOrg;
         totalNodes = nodesToSelectedNode.length;
@@ -653,12 +660,12 @@ public class JtreeToGraphConvert {
 
         if (totalNodes == 1) {
             return rootcell;
-        } 
+        }
         else {
             return lastNodeInPath;
         }
     }
-    
+
     public static void graphToXML() {
         // for sub tree generation i can use that
         // graph.getChildVertices(graph.getDefaultParent()) later
@@ -687,10 +694,10 @@ public class JtreeToGraphConvert {
 
             calendarDOMDoc = domImpl.createDocument(null, "start", null);
 
-        } 
+        }
         catch (ParserConfigurationException e1) {
             e1.printStackTrace(System.err);
-        } 
+        }
         catch (DOMException e2) {
             e2.printStackTrace(System.err);
         }
@@ -705,7 +712,7 @@ public class JtreeToGraphConvert {
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/graphxml.xml";
 
             JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, path);
-        } 
+        }
         catch (TransformerException ex) {
             Logger.getLogger(ODMEEditor.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -806,14 +813,14 @@ public class JtreeToGraphConvert {
             else
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/graphxmluniformity.xml";
             JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, path);
-        } 
+        }
         catch (TransformerException ex) {
             Logger.getLogger(ODMEEditor.class.getName()).log(Level.SEVERE, null, ex);
         }
         JtreeToGraphModify.modifyXmlOutput();
-    }  
-    
- // For saving and retrieving graph and tree now i am not using this, but now i
+    }
+
+    // For saving and retrieving graph and tree now i am not using this, but now i
     // will use this for.
     // For Retrieving project tree this below function is using
     public static void convertTreeToXML() {
@@ -823,10 +830,10 @@ public class JtreeToGraphConvert {
             DOMImplementation domImpl =
                     DocumentBuilderFactory.newInstance().newDocumentBuilder().getDOMImplementation();
             calendarDOMDoc = domImpl.createDocument(null, "start", null);
-        } 
+        }
         catch (ParserConfigurationException e1) {
             e1.printStackTrace(System.err);
-        } 
+        }
         catch (DOMException e2) {
             e2.printStackTrace(System.err);
         }
@@ -837,7 +844,7 @@ public class JtreeToGraphConvert {
             else
                 JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/projectTree.xml");
 
-        } 
+        }
         catch (TransformerException ex) {
             Logger.getLogger(ODMEEditor.class.getName()).log(Level.SEVERE, null, ex);
         }
