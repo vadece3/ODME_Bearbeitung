@@ -121,7 +121,7 @@ public class FileConvertion {
 
                         f0.println("<xs:attribute name=\"HasConstraint\" type=\"\" default=\"\">");
                         f0.println("<xs:simpleType>");
-                        f0.println("<xs:assert test=\"" + nobresult + "\"/>");
+                        f0.println("<xs:assert intertest=\"" + nobresult + "\"/>");
                         f0.println("</xs:simpleType>");
                         f0.println("</xs:attribute>");
 
@@ -130,7 +130,7 @@ public class FileConvertion {
 
                         f0.println("<xs:attribute name=\"HasConstraint\" type=\"\" default=\"\">");
                         f0.println("<xs:simpleType>");
-                        f0.println("<xs:assert  test=\"" + nobresult + "\"/>");
+                        f0.println("<xs:assert  intratest=\"" + nobresult + "\"/>");
                         f0.println("</xs:simpleType>");
                         f0.println("</xs:attribute>");
 
