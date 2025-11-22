@@ -204,11 +204,12 @@ public class GenerateSamplesPanel extends JPanel {
 
                     // --- THE ACTUAL CALL TO YOUR BACK-END MODULE ---
                     SamplingManager samplingManager = new SamplingManager();
+
                      if(notUseDistributionCheckBox.isSelected()) {
-                         samplingManager.generateSamples(yamlFilePath, numberOfSamples, outputCsvPath);
+                         samplingManager.generateSamples(yamlFilePath, numberOfSamples, outputCsvPath,0);
                      }
                      if(useDistributionCheckBox.isSelected()){
-                         samplingManager.generateSamples(yamlFilePath, numberOfSamples, outputCsvPath);
+                         samplingManager.generateSamples(yamlFilePath, numberOfSamples, outputCsvPath,1);
                      }
 
                     // --- THIS CODE ONLY RUNS IF THE ABOVE LINE SUCCEEDS ---

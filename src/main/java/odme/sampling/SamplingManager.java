@@ -1,5 +1,6 @@
 package odme.sampling;
 
+import odme.sampling.distribution.DistributionSampling;
 import odme.sampling.model.Parameter;
 import odme.sampling.model.Scenario;
 
@@ -29,7 +30,7 @@ public class SamplingManager {
      * @param outputCsvPath     The full path where the output .csv file will be saved.
      * @throws Exception        If any part of the process fails (e.g., file not found).
      */
-    public void generateSamples(String yamlFilePath, int numberOfSamples, String outputCsvPath) throws Exception {
+    public void generateSamples(String yamlFilePath, int numberOfSamples, String outputCsvPath, Integer distributionIndicator) throws Exception {
         // 1. Parse the YAML file to understand the sampling space
         Scenario scenario = parser.parse(yamlFilePath);
         List <String> constraint = scenario.getConstraint();
@@ -37,6 +38,8 @@ public class SamplingManager {
         List<Parameter> numericalParams = scenario.getParameters().stream()
                 .filter(p -> "int".equals(p.getType()) || "double".equals(p.getType()) || "float".equals(p.getType()  ))
                 .collect(Collectors.toList());
+
+        System.out.println("\n"+numericalParams+"\n");
 
         List<Parameter> categoricalParams = scenario.getParameters().stream()
                 .filter(p -> "categorical".equals(p.getType()))
@@ -57,7 +60,7 @@ public class SamplingManager {
         if (constraint == null || constraint.isEmpty()) {
             System.out.println("No constraint found. Scaling all generated samples.");
             for (double[] normalizedSample : normalizedSamples) {
-                Map<String, Double> scaledSample = scaleSample(normalizedSample, numericalParams);
+                Map<String, Double> scaledSample = scaleSample(normalizedSample, numericalParams, distributionIndicator);
                 finalSamples.add(scaledSample);
             }
         }
@@ -72,7 +75,7 @@ public class SamplingManager {
             while (finalSamples.size() < numberOfSamples && attemptCount < maxAttempts) {
                 // Generate a single new sample for this attempt
                 double[] normalizedSample = sampler.generateNormalizedSamples(numericalParams.size(), 1).get(0);
-                Map<String, Double> scaledSample = scaleSample(normalizedSample, numericalParams);
+                Map<String, Double> scaledSample = scaleSample(normalizedSample, numericalParams, distributionIndicator);
 
                 // Check if the scaled sample satisfies the constraints
                 for ( String constraints : constraint) {
@@ -97,7 +100,7 @@ public class SamplingManager {
     }
 
 
-    public void generateSamplesforDomainModel(String yamlFilePath, int numberOfSamples, String outputCsvPath) throws Exception {
+    public void generateSamplesforDomainModel(String yamlFilePath, int numberOfSamples, String outputCsvPath, Integer distributionIndicator) throws Exception {
         // 1. Parse the YAML file to understand the sampling space
         Scenario scenario = parser.parse(yamlFilePath);
         List <String> constraint = scenario.getConstraint();
@@ -125,7 +128,7 @@ public class SamplingManager {
         if (constraint == null || constraint.isEmpty()) {
             System.out.println("No constraint found. Scaling all generated samples.");
             for (double[] normalizedSample : normalizedSamples) {
-                Map<String, Double> scaledSample = scaleSample(normalizedSample, numericalParams);
+                Map<String, Double> scaledSample = scaleSample(normalizedSample, numericalParams, distributionIndicator);
                 finalSamples.add(scaledSample);
             }
         }
@@ -140,7 +143,7 @@ public class SamplingManager {
             while (finalSamples.size() < numberOfSamples && attemptCount < maxAttempts) {
                 // Generate a single new sample for this attempt
                 double[] normalizedSample = sampler.generateNormalizedSamples(numericalParams.size(), 1).get(0);
-                Map<String, Double> scaledSample = scaleSample(normalizedSample, numericalParams);
+                Map<String, Double> scaledSample = scaleSample(normalizedSample, numericalParams, distributionIndicator);
 
                 // Check if the scaled sample satisfies the constraints
                 for ( String constraints : constraint) {
@@ -167,12 +170,33 @@ public class SamplingManager {
     /**
      * Helper method to scale a normalized sample to its real-world values.
      */
-    private Map<String, Double> scaleSample(double[] normalizedSample, List<Parameter> numericalParams) {
+    private Map<String, Double> scaleSample(double[] normalizedSample, List<Parameter> numericalParams, Integer distributionIndicator) {
         Map<String, Double> scaledSample = new HashMap<>();
         for (int i = 0; i < numericalParams.size(); i++) {
             Parameter param = numericalParams.get(i);
-            double scaledValue = param.getMin() + normalizedSample[i] * (param.getMax() - param.getMin());
-            scaledSample.put(param.getName(), scaledValue);
+
+            //in case of not using distribution
+            if (distributionIndicator == 0) {
+                double scaledValue = param.getMin() + normalizedSample[i] * (param.getMax() - param.getMin());
+                scaledSample.put(param.getName(), scaledValue);
+            }
+            //in case of using distribution
+            if (distributionIndicator == 1) {
+                /*
+                 * remove negative values
+                 * */
+                if(param.getDistributionDetails() != null) {
+                    String[] meanAndStdDeviation = param.getDistributionDetails().split("___");
+                    double mean = Double.parseDouble(meanAndStdDeviation[0].split("=")[1]);
+                    double standardDeviation = Double.parseDouble(meanAndStdDeviation[1].split("=")[1]);
+                    double scaledValue = DistributionSampling.generateTestCases(mean, standardDeviation, 1);
+                    scaledSample.put(param.getName(), scaledValue);
+                }
+                if(param.getDistributionDetails() == null){
+                    double scaledValue = param.getMin() + normalizedSample[i] * (param.getMax() - param.getMin());
+                    scaledSample.put(param.getName(), scaledValue);
+                }
+            }
         }
         return scaledSample;
     }

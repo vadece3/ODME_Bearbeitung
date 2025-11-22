@@ -51,6 +51,8 @@ public class MenuBar {
 	private static JTextField numSamplesField;
 	private static String csvPath = null;
 	private static String yamlFilePath = null;
+	private static JCheckBox notUseDistributionCheckBox;
+	private static JCheckBox useDistributionCheckBox;
 
 	public MenuBar(JFrame frame) {
 		menuBar = new JMenuBar();
@@ -279,6 +281,33 @@ public class MenuBar {
 			gbc.gridy = 0;
 			dialog.add(nameField, gbc);
 
+			//Use distribution or not
+			notUseDistributionCheckBox = new JCheckBox("Use Normal Range");
+			notUseDistributionCheckBox.setSelected(true); // Use Normal Range checked by default
+			gbc.gridx = 0;
+			gbc.gridy = 1;
+			gbc.weightx = 1;
+			dialog.add(notUseDistributionCheckBox, gbc);
+
+			useDistributionCheckBox = new JCheckBox("Use Distribution");
+			gbc.gridx = 1;
+			gbc.gridy = 1;
+			gbc.weightx = 1;
+			dialog.add(useDistributionCheckBox, gbc);
+
+			// Make them mutually exclusive (if I select one, the other unselects alone)
+			useDistributionCheckBox.addActionListener(ee -> {
+				if (useDistributionCheckBox.isSelected()) {
+					notUseDistributionCheckBox.setSelected(false);
+				}
+			});
+
+			notUseDistributionCheckBox.addActionListener(ee -> {
+				if (notUseDistributionCheckBox.isSelected()) {
+					useDistributionCheckBox.setSelected(false);
+				}
+			});
+
 			// --- Buttons ---
 			JButton okButton = new JButton("OK");
 			JButton cancelButton = new JButton("Cancel");
@@ -288,13 +317,19 @@ public class MenuBar {
 			buttonPanel.add(cancelButton);
 
 			gbc.gridx = 0;
-			gbc.gridy = 2;
+			gbc.gridy = 3;
 			gbc.gridwidth = 3;
 			dialog.add(buttonPanel, gbc);
 
+			JLabel nameLabelnumber = new JLabel("Enter Number of Scenario:");
 			numSamplesField = new JTextField("100"); // Default value
+
+			gbc.gridx = 0;
+			gbc.gridy = 2;
+			gbc.weightx = 1;
+			dialog.add(nameLabelnumber, gbc);
 			gbc.gridx = 1;
-			gbc.gridy = 1;
+			gbc.gridy = 2;
 			gbc.weightx = 1;
 			dialog.add(numSamplesField, gbc);
 
@@ -423,8 +458,13 @@ public class MenuBar {
                 // --- THE ACTUAL CALL TO YOUR BACK-END MODULE ---
 				SamplingManager samplingManager = new SamplingManager();
                 try {
-                    samplingManager.generateSamplesforDomainModel(yamlFilePath, Integer.parseInt(numSamplesField.getText().trim()), csvPath);
-                } catch (Exception ex) {
+					if(notUseDistributionCheckBox.isSelected()) {
+						samplingManager.generateSamplesforDomainModel(yamlFilePath, Integer.parseInt(numSamplesField.getText().trim()), csvPath, 0);
+					}
+					if(useDistributionCheckBox.isSelected()){
+						samplingManager.generateSamplesforDomainModel(yamlFilePath, Integer.parseInt(numSamplesField.getText().trim()), csvPath, 1);
+					}
+					} catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }
 				//end

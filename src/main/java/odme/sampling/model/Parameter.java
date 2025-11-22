@@ -12,7 +12,7 @@ public class Parameter {
     private String type; // e.g., "int", "double", "float", "categorical"
 
     // For distribution parameters
-    private String distributionType;
+    private String distributionName;
     private String distributionDetails;
 
     // For numerical parameters

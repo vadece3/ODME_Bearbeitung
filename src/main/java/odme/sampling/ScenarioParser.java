@@ -198,7 +198,7 @@ public class ScenarioParser {
         if (map == null || map.isEmpty()) return false;
         // keys that indicate a parameter detail
         Set<String> indicatorKeys = new HashSet<>(Arrays.asList(
-                "type", "min", "max", "options", "IntraConstraint", "InterConstraint", "distributionType", "distributionDetails" // add any other keys you use
+                "type", "min", "max", "options", "IntraConstraint", "InterConstraint", "distributionName", "distributionDetails" // add any other keys you use
         ));
         for (String key : map.keySet()) {
             if (indicatorKeys.contains(key)) return true;
@@ -269,9 +269,9 @@ public class ScenarioParser {
             }
 
             // distribution if present
-            Object distributionTypeObj = details.get("distributionType");
-            if (distributionTypeObj instanceof String) {
-                param.setDistributionType(((String) distributionTypeObj));
+            Object distributionNameObj = details.get("distributionName");
+            if (distributionNameObj instanceof String) {
+                param.setDistributionName(((String) distributionNameObj));
             }
             Object distributionDetailsObj = details.get("distributionDetails");
             if (distributionDetailsObj instanceof String) {

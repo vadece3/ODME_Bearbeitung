@@ -243,7 +243,7 @@ public class JtreeToGraphGeneral {
                                                 + "\" default=\"" + properties[2]
                                                 + "\" lower=\"" + properties[3]
                                                 + "\" " + "upper=\"" + properties[4]
-                                                + "\" distributionType=\"" + properties[5]
+                                                + "\" distributionName=\"" + properties[5]
                                                 + "\" distributionDetails=\"" + properties[6] + "\"> </var>");
                                     } else {
                                         f0.println("<var name=\"" + properties[0] + "\" type=\"" + properties[1]
@@ -257,7 +257,7 @@ public class JtreeToGraphGeneral {
                                 String novarresult = result.replace("Distion", "");
                                 String[] properties = novarresult.split(",");
                                 f0.println("<distion variablename=\"" + properties[0]
-                                        + "\" distributiontype=\"" + properties[1]
+                                        + "\" distributionName=\"" + properties[1]
                                         + "\" details=\"" + properties[2] + "\"> </distion>");
                             } else if (result.endsWith("Con")) {
                                 String constraintText = result.replace("Con", "");

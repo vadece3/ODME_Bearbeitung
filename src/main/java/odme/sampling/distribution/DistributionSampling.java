@@ -4,6 +4,8 @@ import java.util.Random;
 
 public class DistributionSampling {
 
+    public static double thresholdValue;
+
     public static void main(String[] args) {
         double mean = 3.35;               // Example mean
         double stdDev = 5.12;             // Example standard deviation
@@ -12,7 +14,7 @@ public class DistributionSampling {
         generateTestCases(mean, stdDev, numberOfTests);
     }
 
-    public static void generateTestCases(double mean, double stdDev, int numTests) {
+    public static double generateTestCases(double mean, double stdDev, int numTests) {
         Random random = new Random();
 
         System.out.println("---- Rainfall Test Case Generator (Using SD Thresholds) ----");
@@ -25,7 +27,7 @@ public class DistributionSampling {
             // Pick a random standard deviation multiplier
             int sdLevel = random.nextInt(5);   // 0,1,2,3,4
 
-            double thresholdValue = 0;
+            thresholdValue = 0;
 
             switch (sdLevel) {
                 case 0:  thresholdValue = mean - stdDev; break;      // μ − σ
@@ -40,6 +42,7 @@ public class DistributionSampling {
             System.out.printf("Test Case %d: Rainfall = %.3f mm  → %s%n",
                     i, thresholdValue, category);
         }
+        return thresholdValue;
     }
 
     private static String getCategory(int sdLevel) {

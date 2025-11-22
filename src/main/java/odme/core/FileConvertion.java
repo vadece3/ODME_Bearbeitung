@@ -161,7 +161,7 @@ public class FileConvertion {
                                     f0.println("<xs:minInclusive value=\"" + properties[3] + "\"/>");
                                     f0.println("<xs:maxInclusive value=\"" + properties[4] + "\"/>");
                                     if (properties.length > 5) {
-                                        f0.println("<xs:distributionType value=\"" + properties[5] + "\"/>");
+                                        f0.println("<xs:distributionName value=\"" + properties[5] + "\"/>");
                                         f0.println("<xs:distributionDetails value=\"" + properties[6] + "\"/>");
                                     }
                                     f0.println("</xs:restriction>");
@@ -1244,7 +1244,7 @@ public class FileConvertion {
                 + "            <xs:element minOccurs=\"0\" maxOccurs=\"unbounded\" ref=\"entity\"/>\r\n"
                 + "        </xs:sequence>\r\n"
                 + "        <xs:attribute name=\"variablename\" use=\"required\"/>\r\n"
-                + "        <xs:attribute name=\"distributiontype\" use=\"required\"/>\r\n"
+                + "        <xs:attribute name=\"distributionName\" use=\"required\"/>\r\n"
                 + "        <xs:attribute name=\"details\" use=\"required\"/>\r\n" + "        \r\n"
                 + "    </xs:complexType>\r\n" + "\r\n" + "\r\n"
                 + "    <xs:complexType name=\"intracontraintType\">\r\n" + "        <xs:sequence>\r\n"

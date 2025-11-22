@@ -758,7 +758,7 @@ public class ODDManager extends JPanel{
 						break;
 
 					//adding Distribution
-					case "xs:distributionType":
+					case "xs:distributionName":
 						r[6] = temp.getAttribute("value");
 						break;
 					case "xs:distributionDetails":
