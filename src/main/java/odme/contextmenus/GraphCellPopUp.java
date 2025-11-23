@@ -139,6 +139,7 @@ public class GraphCellPopUp extends JPopupMenu {
 		// First-level submenu items
 		JMenuItem normalDist = new JMenuItem("Normal Distribution");
 		JMenuItem uniformDist = new JMenuItem("Uniform Distribution");
+		JMenuItem deleteDist = new JMenuItem("DELETE Distribution");
 
 //		// Example of a nested submenu
 //		JMenu advancedMenu = new JMenu("Advanced");
@@ -157,9 +158,14 @@ public class GraphCellPopUp extends JPopupMenu {
 			JtreeToGraphAdd.addUniformDistribution(pos);
 		});
 
+		deleteDist.addActionListener(e -> {
+			JtreeToGraphAdd.deleteDistribution(pos);
+		});
+
 		// Add everything into the "Add Distribution" menu
 		parentMenu.add(normalDist);
 		parentMenu.add(uniformDist);
+		parentMenu.add(deleteDist);
 		parentMenu.addSeparator();
 //		parentMenu.add(advancedMenu); // submenu inside submenu
 	}

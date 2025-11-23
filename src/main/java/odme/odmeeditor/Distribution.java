@@ -96,7 +96,11 @@ public class Distribution extends JPanel{
         int a = 0;
 
         for (String value : distributionDetails) {
-            if (a == 0) {
+            if (value == null){
+
+                model.addRow(new Object[]{"", "", "", "" });
+
+            } else if (a == 0) {
                     properties = value.split(",");
 
 

@@ -889,6 +889,133 @@ public class JtreeToGraphAdd {
 
     }
 
+    public static void deleteDistribution(Object pos) {
+        variableComboList = new String[100];
+        pathToRoot.clear();
+
+        // Add textfields for mean and variance
+        JTextField meanField, varianceTypeField;
+
+        // Create the dialog
+        JDialog dialog = new JDialog((Frame) null, "Delete Distribution", true);
+        dialog.setLayout(new GridBagLayout());
+        dialog.setSize(600, 300);
+        dialog.setLocationRelativeTo(null); // center on screen
+
+        // Layout helper
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(9, 9, 9, 9);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1;
+
+        variableComboList = new String[100];
+        pathToRoot.clear();
+
+        // Create combo box with variableName options
+        mxCell cellForAddingVariable1 = (mxCell) pos;
+        pathToRoot.add((String) cellForAddingVariable1.getValue());
+        JtreeToGraphConvert.nodeToRootPathVar(cellForAddingVariable1);
+        String[] stringArray1 = pathToRoot.toArray(new String[0]);
+        ArrayList<String> pathToRootRev1 = new ArrayList<String>();
+
+        for (int i = stringArray1.length - 1; i >= 0; i--) {
+            pathToRootRev1.add(stringArray1[i]);
+        }
+        String[] stringArrayRev1 = pathToRootRev1.toArray(new String[0]);
+        TreePath treePathForVariable1 = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev1);
+        getDistributionList(treePathForVariable1);
+
+        JComboBox<String> variableNameComboBox;
+
+        variableNameComboBox = new JComboBox<>(variableComboList);
+        pathToRoot.clear();
+        variableComboList = new String[0];
+
+        //  Number of Samples Input
+        JLabel variableLabel = new JLabel("Select Variable (Distribution):");
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1;
+        dialog.add(variableLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.weightx = 1;
+        dialog.add(variableNameComboBox, gbc);
+
+        // --- Buttons ---
+        JButton okButton = new JButton("Delete");
+        JButton cancelButton = new JButton("Cancel");
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.add(okButton);
+        buttonPanel.add(cancelButton);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 3;
+        dialog.add(buttonPanel, gbc);
+
+
+
+        // --- OK button action ---
+        okButton.addActionListener(ee -> {
+
+            String variableVerification= (String) variableNameComboBox.getSelectedItem();
+            if(variableVerification != null) {
+
+                mxCell cellForAddingVariable = (mxCell) pos;
+                pathToRoot.add((String) cellForAddingVariable.getValue());
+                JtreeToGraphConvert.nodeToRootPathVar(cellForAddingVariable);
+                String[] stringArray = pathToRoot.toArray(new String[0]);
+                ArrayList<String> pathToRootRev = new ArrayList<String>();
+
+                for (int i = stringArray.length - 1; i >= 0; i--) {
+                    pathToRootRev.add(stringArray[i]);
+                }
+                String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
+                TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
+
+                DefaultMutableTreeNode currentNode =
+                        (DefaultMutableTreeNode) (treePathForVariable.getLastPathComponent());
+
+                int sizeAr = DynamicTree.distributionMap.size();
+                for (TreePath key : DynamicTree.distributionMap.keySet()) {
+
+                    for (String value : DynamicTree.distributionMap.get(key)) {
+                        DefaultMutableTreeNode currentNode1 =
+                                (DefaultMutableTreeNode) (key.getLastPathComponent());
+
+                        String[] properties = value.split(",");
+                        String variableNameComboBoxValue = (String) variableNameComboBox.getSelectedItem();
+                        System.out.println("\n" + currentNode.toString() + "--" + currentNode1.toString() + "-----" + properties[0] + "--" + variableNameComboBoxValue + "\n");
+                        if (currentNode.toString().equals(currentNode1.toString()) && properties[0].equals(variableNameComboBoxValue)) {
+
+                            DynamicTree.distributionMap.remove(key, value);
+                            break;
+                        }
+                    }
+                    int newSizeAr = DynamicTree.distributionMap.size();
+                    if (sizeAr != newSizeAr) {
+                        break;
+                    }
+
+                }
+                // have to call a function to refresh the table view
+                ODMEEditor.treePanel.refreshDistributionTable(treePathForVariable);
+                System.out.println(DynamicTree.distributionMap);
+                pathToRoot.clear();
+
+                dialog.dispose(); // close dialog
+            }
+        });
+        // --- Cancel button action ---
+        cancelButton.addActionListener(ee -> dialog.dispose());
+
+        dialog.setVisible(true);
+
+    }
+
     public static void getVariableList(TreePath treePathForVariable) {
         DefaultMutableTreeNode currentNode =
                 (DefaultMutableTreeNode) (treePathForVariable.getLastPathComponent());
@@ -898,6 +1025,29 @@ public class JtreeToGraphAdd {
         for (TreePath key : DynamicTree.varMap.keySet()) {
 
             for (String value : DynamicTree.varMap.get(key)) {
+                DefaultMutableTreeNode currentNode1 =
+                        (DefaultMutableTreeNode) (key.getLastPathComponent());
+
+                String[] properties = value.split(",");
+                if (currentNode.toString().equals(currentNode1.toString()) && properties[0] != null) {
+
+                    variableComboList[a] = properties[0];
+                    a++;
+                }
+            }
+
+        }
+    }
+
+    public static void getDistributionList(TreePath treePathForVariable) {
+        DefaultMutableTreeNode currentNode =
+                (DefaultMutableTreeNode) (treePathForVariable.getLastPathComponent());
+
+        int a = 0;
+
+        for (TreePath key : DynamicTree.distributionMap.keySet()) {
+
+            for (String value : DynamicTree.distributionMap.get(key)) {
                 DefaultMutableTreeNode currentNode1 =
                         (DefaultMutableTreeNode) (key.getLastPathComponent());
 
