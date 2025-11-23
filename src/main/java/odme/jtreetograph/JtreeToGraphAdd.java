@@ -2,7 +2,7 @@ package odme.jtreetograph;
 
 import static odme.jtreetograph.JtreeToGraphVariables.*;
 
-import java.awt.Color;
+import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
@@ -14,12 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
@@ -574,11 +569,24 @@ public class JtreeToGraphAdd {
     public static void addNormalDistribution(Object pos) {
         variableComboList = new String[100];
         pathToRoot.clear();
-        String distributionNameAndDetails, mean, variance, variableNameComboBoxValue, distributionName;
 
         // Add textfields for mean and variance
         JTextField meanField, varianceTypeField;
 
+        // Create the dialog
+        JDialog dialog = new JDialog((Frame) null, "Create Normal Distribution", true);
+        dialog.setLayout(new GridBagLayout());
+        dialog.setSize(600, 300);
+        dialog.setLocationRelativeTo(null); // center on screen
+
+        // Layout helper
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(9, 9, 9, 9);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1;
+
+        variableComboList = new String[100];
+        pathToRoot.clear();
 
         // Create combo box with variableName options
         mxCell cellForAddingVariable1 = (mxCell) pos;
@@ -600,71 +608,146 @@ public class JtreeToGraphAdd {
         pathToRoot.clear();
         variableComboList = new String[0];
 
+        //  Number of Samples Input
+        JLabel variableLabel = new JLabel("Select Variable:");
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1;
+        dialog.add(variableLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.weightx = 1;
+        dialog.add(variableNameComboBox, gbc);
+
+        //  Number of Samples Input
+        JLabel meanLabel = new JLabel("Enter Mean:");
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.weightx = 1;
+        dialog.add(meanLabel, gbc);
 
         meanField = new JTextField();
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.weightx = 1;
+        dialog.add(meanField, gbc);
+
+        //  Number of Samples Input
+        JLabel standardDeviationLabel = new JLabel("Enter Standard Deviation:");
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.weightx = 1;
+        dialog.add(standardDeviationLabel, gbc);
+
         varianceTypeField = new JTextField();
-        distributionName = "normalDistribution";
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        gbc.weightx = 1;
+        dialog.add(varianceTypeField, gbc);
 
-        Object[] message =
-                {"Variable Name:", variableNameComboBox, "Mean:", meanField, "Variance:", varianceTypeField};
 
-        int option = JOptionPane
-                .showConfirmDialog(Main.frame, message, "NORMAL DISTRIBUTION", JOptionPane.OK_CANCEL_OPTION,
-                        JOptionPane.PLAIN_MESSAGE);
-        if (option == JOptionPane.OK_OPTION) {
-            variableNameComboBoxValue = (String) variableNameComboBox.getSelectedItem();
-            mean = meanField.getText();
-            variance = varianceTypeField.getText();
+        // --- Buttons ---
+        JButton okButton = new JButton("OK");
+        JButton cancelButton = new JButton("Cancel");
 
-            // added inside IF block so that if variable window closed without adding then
-            // nothing will happen.
-            distributionNameAndDetails =
-                    variableNameComboBoxValue + "," + distributionName + ",mean="+mean+"___variance="+variance;
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.add(okButton);
+        buttonPanel.add(cancelButton);
 
-            mxCell cellForAddingVariable = (mxCell) pos;
-            pathToRoot.add((String) cellForAddingVariable.getValue());
-            JtreeToGraphConvert.nodeToRootPathVar(cellForAddingVariable);
-            String[] stringArray = pathToRoot.toArray(new String[0]);
-            ArrayList<String> pathToRootRev = new ArrayList<String>();
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 3;
+        dialog.add(buttonPanel, gbc);
 
-            for (int i = stringArray.length - 1; i >= 0; i--) {
-                pathToRootRev.add(stringArray[i]);
-            }
-            String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
-            TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
+        JLabel errorField = new JLabel("________________________");
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.weightx = 1;
+        dialog.add(errorField, gbc);
 
-            boolean validInput =
-                    (variableNameComboBoxValue != null) && (!mean.isEmpty()) && (
-                            variance != null);
 
-            if (!validInput) {
-                JOptionPane.showMessageDialog(Main.frame, "Please input all values correctly.");
-            }
 
-            if (validInput) {
-                // added Distribution in a list
+        // --- OK button action ---
+        okButton.addActionListener(ee -> {
+            String distributionNameAndDetails, mean, variance, variableNameComboBoxValue, distributionName;
 
-                if (variableNameComboBoxValue != null) {
+            distributionName = "normalDistribution";
+
+            String meanInput = meanField.getText().trim();
+            String varianceInput = varianceTypeField.getText().trim();
+
+            // Check if the input is numeric
+            if (!meanInput.matches("\\d+(\\.\\d+)?")) {  // integer or decimal
+                errorField.setText("mean: Please enter a number!");
+                errorField.setForeground(Color.RED);
+            } else if (!varianceInput.matches("\\d+(\\.\\d+)?")) {  // integer or decimal
+                errorField.setText("Standard Deviation: Please enter a number!");
+                errorField.setForeground(Color.RED);
+            } else{
+                variableNameComboBoxValue = (String) variableNameComboBox.getSelectedItem();
+                mean = meanField.getText();
+                variance = varianceTypeField.getText();
+                if ( variableNameComboBoxValue != null ) {
+                    // added inside IF block so that if variable window closed without adding then
+                    // nothing will happen.
+                    distributionNameAndDetails =
+                            variableNameComboBoxValue + "," + distributionName + ",mean=" + mean + "___variance=" + variance;
+
+                    mxCell cellForAddingVariable = (mxCell) pos;
+                    pathToRoot.add((String) cellForAddingVariable.getValue());
+                    JtreeToGraphConvert.nodeToRootPathVar(cellForAddingVariable);
+                    String[] stringArray = pathToRoot.toArray(new String[0]);
+                    ArrayList<String> pathToRootRev = new ArrayList<String>();
+
+                    for (int i = stringArray.length - 1; i >= 0; i--) {
+                        pathToRootRev.add(stringArray[i]);
+                    }
+                    String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
+                    TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
+
+
                     DynamicTree.distributionMap.put(treePathForVariable, distributionNameAndDetails);
 
                     pathToRoot.clear();
                     variableComboList = new String[0];
-
                     // have to call a function to refresh the table view
                     ODMEEditor.treePanel.refreshDistributionTable(treePathForVariable);
+
+                    dialog.dispose(); // close dialog
                 }
             }
-        }
+
+
+        });
+        // --- Cancel button action ---
+        cancelButton.addActionListener(ee -> dialog.dispose());
+
+        dialog.setVisible(true);
+
     }
 
     public static void addUniformDistribution(Object pos) {
         variableComboList = new String[100];
         pathToRoot.clear();
-        String distributionNameAndDetails, minVal, maxVal, variableNameComboBoxValue, distributionName;
 
         // Add textfields for minVal and maxVal
         JTextField minValTypeField, maxValTypeField;
 
+        // Create the dialog
+        JDialog dialog = new JDialog((Frame) null, "Create Normal Distribution", true);
+        dialog.setLayout(new GridBagLayout());
+        dialog.setSize(600, 300);
+        dialog.setLocationRelativeTo(null); // center on screen
+
+        // Layout helper
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(9, 9, 9, 9);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1;
+
+        variableComboList = new String[100];
+        pathToRoot.clear();
 
         // Create combo box with variableName options
         mxCell cellForAddingVariable1 = (mxCell) pos;
@@ -686,52 +769,105 @@ public class JtreeToGraphAdd {
         pathToRoot.clear();
         variableComboList = new String[0];
 
+        //  Number of Samples Input
+        JLabel variableLabel = new JLabel("Select Variable:");
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1;
+        dialog.add(variableLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.weightx = 1;
+        dialog.add(variableNameComboBox, gbc);
+
+        //  Number of Samples Input
+        JLabel minValLabel = new JLabel("Enter Minimum Value:");
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.weightx = 1;
+        dialog.add(minValLabel, gbc);
 
         minValTypeField = new JTextField();
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.weightx = 1;
+        dialog.add(minValTypeField, gbc);
+
+        //  Number of Samples Input
+        JLabel maxValLabel = new JLabel("Enter Maximum Value:");
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.weightx = 1;
+        dialog.add(maxValLabel, gbc);
+
         maxValTypeField = new JTextField();
-        distributionName = "uniformDistribution";
-
-        Object[] message =
-                {"Variable Name:", variableNameComboBox, "Minimum Value:", minValTypeField, "Maximum Value:", maxValTypeField};
-
-        int option = JOptionPane
-                .showConfirmDialog(Main.frame, message, "UNIFORM DISTRIBUTION", JOptionPane.OK_CANCEL_OPTION,
-                        JOptionPane.PLAIN_MESSAGE);
-        if (option == JOptionPane.OK_OPTION) {
-            variableNameComboBoxValue = (String) variableNameComboBox.getSelectedItem();
-            minVal = minValTypeField.getText();
-            maxVal = maxValTypeField.getText();
-
-            // added inside IF block so that if variable window closed without adding then
-            // nothing will happen.
-            distributionNameAndDetails =
-                    variableNameComboBoxValue + "," + distributionName + ",minVal="+minVal+"___maxVal="+maxVal;
-
-            mxCell cellForAddingVariable = (mxCell) pos;
-            pathToRoot.add((String) cellForAddingVariable.getValue());
-            JtreeToGraphConvert.nodeToRootPathVar(cellForAddingVariable);
-            String[] stringArray = pathToRoot.toArray(new String[0]);
-            ArrayList<String> pathToRootRev = new ArrayList<String>();
-
-            for (int i = stringArray.length - 1; i >= 0; i--) {
-                pathToRootRev.add(stringArray[i]);
-            }
-            String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
-            TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
-
-            boolean validInput =
-                    (variableNameComboBoxValue != null) && (!minVal.isEmpty()) && (
-                            maxVal != null);
-
-            if (!validInput) {
-                JOptionPane.showMessageDialog(Main.frame, "Please input all values correctly.");
-            }
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        gbc.weightx = 1;
+        dialog.add(maxValTypeField, gbc);
 
 
-            if (validInput) {
-                // added Distribution in a list
+        // --- Buttons ---
+        JButton okButton = new JButton("OK");
+        JButton cancelButton = new JButton("Cancel");
 
-                if (variableNameComboBoxValue != null) {
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.add(okButton);
+        buttonPanel.add(cancelButton);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 3;
+        dialog.add(buttonPanel, gbc);
+
+        JLabel errorField = new JLabel("________________________");
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.weightx = 1;
+        dialog.add(errorField, gbc);
+
+
+
+        // --- OK button action ---
+        okButton.addActionListener(ee -> {
+            String distributionNameAndDetails, minVal, maxVal, variableNameComboBoxValue, distributionName;
+
+            distributionName = "uniformDistribution";
+
+            String minValInput = minValTypeField.getText().trim();
+            String maxValueInput = maxValTypeField.getText().trim();
+
+            // Check if the input is numeric
+            if (!minValInput.matches("\\d+(\\.\\d+)?")) {  // integer or decimal
+                errorField.setText("Minimal Value: Please enter a number!");
+                errorField.setForeground(Color.RED);
+            } else if (!maxValueInput.matches("\\d+(\\.\\d+)?")) {  // integer or decimal
+                errorField.setText("Maximum Value: Please enter a number!");
+                errorField.setForeground(Color.RED);
+            } else{
+                variableNameComboBoxValue = (String) variableNameComboBox.getSelectedItem();
+                minVal = minValTypeField.getText();
+                maxVal = maxValTypeField.getText();
+                if ( variableNameComboBoxValue != null ) {
+                    // added inside IF block so that if variable window closed without adding then
+                    // nothing will happen.
+                    distributionNameAndDetails =
+                            variableNameComboBoxValue + "," + distributionName + ",minVal=" + minVal + "___maxVal=" + maxVal;
+
+                    mxCell cellForAddingVariable = (mxCell) pos;
+                    pathToRoot.add((String) cellForAddingVariable.getValue());
+                    JtreeToGraphConvert.nodeToRootPathVar(cellForAddingVariable);
+                    String[] stringArray = pathToRoot.toArray(new String[0]);
+                    ArrayList<String> pathToRootRev = new ArrayList<String>();
+
+                    for (int i = stringArray.length - 1; i >= 0; i--) {
+                        pathToRootRev.add(stringArray[i]);
+                    }
+                    String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
+                    TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
+
+
                     DynamicTree.distributionMap.put(treePathForVariable, distributionNameAndDetails);
 
 //                    variableComboList = new String[0];
@@ -739,9 +875,18 @@ public class JtreeToGraphAdd {
 
                     // have to call a function to refresh the table view
                     ODMEEditor.treePanel.refreshDistributionTable(treePathForVariable);
+
+                    dialog.dispose(); // close dialog
                 }
             }
-        }
+
+
+        });
+        // --- Cancel button action ---
+        cancelButton.addActionListener(ee -> dialog.dispose());
+
+        dialog.setVisible(true);
+
     }
 
     public static void getVariableList(TreePath treePathForVariable) {
