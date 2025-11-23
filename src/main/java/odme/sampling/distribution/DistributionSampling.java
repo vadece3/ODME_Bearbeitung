@@ -11,10 +11,10 @@ public class DistributionSampling {
         double stdDev = 5.12;             // Example standard deviation
         int numberOfTests = 10;           // How many test cases?
 
-        generateTestCases(mean, stdDev, numberOfTests);
+        normalDistributionSample(mean, stdDev, numberOfTests);
     }
 
-    public static double generateTestCases(double mean, double stdDev, int numTests) {
+    public static double normalDistributionSample(double mean, double stdDev, int numTests) {
         Random random = new Random();
 
         System.out.println("---- Rainfall Test Case Generator (Using SD Thresholds) ----");
@@ -48,6 +48,22 @@ public class DistributionSampling {
         }
         return value;
     }
+
+    public static double uniformDistributionSample(double a, double b) {
+        Random random = new Random();
+
+        //Generate U(0,1)
+        double u = random.nextDouble();       // value between 0 and 1
+
+        //Convert to uniform in [a, b]
+        double value = a + (b - a) * u;
+
+        //print result in consol
+        System.out.println("value = " + value);
+
+        return value;
+    }
+
 
     private static String getCategory(int sdLevel) {
         switch (sdLevel) {

@@ -182,15 +182,23 @@ public class SamplingManager {
             }
             //in case of using distribution
             if (distributionIndicator == 1) {
-                /*
-                 * remove negative values
-                 * */
+
                 if(param.getDistributionDetails() != null) {
-                    String[] meanAndStdDeviation = param.getDistributionDetails().split("___");
-                    double mean = Double.parseDouble(meanAndStdDeviation[0].split("=")[1]);
-                    double standardDeviation = Double.parseDouble(meanAndStdDeviation[1].split("=")[1]);
-                    double scaledValue = DistributionSampling.generateTestCases(mean, standardDeviation, 1);
-                    scaledSample.put(param.getName(), scaledValue);
+
+                    if (param.getDistributionName().equals("normalDistribution")) {
+                        String[] meanAndStdDeviation = param.getDistributionDetails().split("___");
+                        double mean = Double.parseDouble(meanAndStdDeviation[0].split("=")[1]);
+                        double standardDeviation = Double.parseDouble(meanAndStdDeviation[1].split("=")[1]);
+                        double scaledValue = DistributionSampling.normalDistributionSample(mean, standardDeviation, 1);
+                        scaledSample.put(param.getName(), scaledValue);
+                    }
+                    if(param.getDistributionName().equals("uniformDistribution")){
+                        String[] meanAndStdDeviation = param.getDistributionDetails().split("___");
+                        double minValue = Double.parseDouble(meanAndStdDeviation[0].split("=")[1]);
+                        double maxValue = Double.parseDouble(meanAndStdDeviation[1].split("=")[1]);
+                        double scaledValue = DistributionSampling.uniformDistributionSample(minValue, maxValue);
+                        scaledSample.put(param.getName(), scaledValue);
+                    }
                 }
                 if(param.getDistributionDetails() == null){
                     double scaledValue = param.getMin() + normalizedSample[i] * (param.getMax() - param.getMin());

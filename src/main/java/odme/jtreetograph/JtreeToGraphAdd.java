@@ -735,7 +735,7 @@ public class JtreeToGraphAdd {
         JTextField minValTypeField, maxValTypeField;
 
         // Create the dialog
-        JDialog dialog = new JDialog((Frame) null, "Create Normal Distribution", true);
+        JDialog dialog = new JDialog((Frame) null, "Create Uniform Distribution", true);
         dialog.setLayout(new GridBagLayout());
         dialog.setSize(600, 300);
         dialog.setLocationRelativeTo(null); // center on screen
