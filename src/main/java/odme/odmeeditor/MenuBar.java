@@ -258,236 +258,270 @@ public class MenuBar {
 		});
 
 		oddGenScen.addActionListener(e -> {
-			// Create the dialog
-			JDialog dialog = new JDialog((Frame) null, "Generate Scenarios From Domain Model", true);
-			dialog.setLayout(new GridBagLayout());
-			dialog.setSize(500, 200);
-			dialog.setLocationRelativeTo(null); // center on screen
+			if(btnMode.getText().equals("Domain Modelling")) {
+				// Create the dialog
+				JDialog dialog = new JDialog((Frame) null, "Generate Scenarios From Domain Model", true);
+				dialog.setLayout(new GridBagLayout());
+				dialog.setSize(500, 200);
+				dialog.setLocationRelativeTo(null); // center on screen
 
-			// Layout helper
-			GridBagConstraints gbc = new GridBagConstraints();
-			gbc.insets = new Insets(8, 8, 8, 8);
-			gbc.fill = GridBagConstraints.HORIZONTAL;
-			gbc.weightx = 1;
+				// Layout helper
+				GridBagConstraints gbc = new GridBagConstraints();
+				gbc.insets = new Insets(8, 8, 8, 8);
+				gbc.fill = GridBagConstraints.HORIZONTAL;
+				gbc.weightx = 1;
 
-			// --- Scenario Name ---
-			JLabel nameLabel = new JLabel("Enter Scenario Name:");
-			JTextField nameField = new JTextField();
+				// --- Scenario Name ---
+				JLabel nameLabel = new JLabel("Enter Scenario Name:");
+				JTextField nameField = new JTextField();
 
-			gbc.gridx = 0;
-			gbc.gridy = 0;
-			dialog.add(nameLabel, gbc);
-			gbc.gridx = 1;
-			gbc.gridy = 0;
-			dialog.add(nameField, gbc);
+				gbc.gridx = 0;
+				gbc.gridy = 0;
+				dialog.add(nameLabel, gbc);
+				gbc.gridx = 1;
+				gbc.gridy = 0;
+				dialog.add(nameField, gbc);
 
-			//Use distribution or not
-			notUseDistributionCheckBox = new JCheckBox("Use Normal Range");
-			notUseDistributionCheckBox.setSelected(true); // Use Normal Range checked by default
-			gbc.gridx = 0;
-			gbc.gridy = 1;
-			gbc.weightx = 1;
-			dialog.add(notUseDistributionCheckBox, gbc);
+				//Use distribution or not
+				notUseDistributionCheckBox = new JCheckBox("Use Normal Range");
+				notUseDistributionCheckBox.setSelected(true); // Use Normal Range checked by default
+				gbc.gridx = 0;
+				gbc.gridy = 1;
+				gbc.weightx = 1;
+				dialog.add(notUseDistributionCheckBox, gbc);
 
-			useDistributionCheckBox = new JCheckBox("Use Distribution");
-			gbc.gridx = 1;
-			gbc.gridy = 1;
-			gbc.weightx = 1;
-			dialog.add(useDistributionCheckBox, gbc);
+				useDistributionCheckBox = new JCheckBox("Use Distribution");
+				gbc.gridx = 1;
+				gbc.gridy = 1;
+				gbc.weightx = 1;
+				dialog.add(useDistributionCheckBox, gbc);
 
-			// Make them mutually exclusive (if I select one, the other unselects alone)
-			useDistributionCheckBox.addActionListener(ee -> {
-				if (useDistributionCheckBox.isSelected()) {
-					notUseDistributionCheckBox.setSelected(false);
-				}
-			});
+				// Make them mutually exclusive (if I select one, the other unselects alone)
+				useDistributionCheckBox.addActionListener(ee -> {
+					if (useDistributionCheckBox.isSelected()) {
+						notUseDistributionCheckBox.setSelected(false);
+					}
+				});
 
-			notUseDistributionCheckBox.addActionListener(ee -> {
-				if (notUseDistributionCheckBox.isSelected()) {
-					useDistributionCheckBox.setSelected(false);
-				}
-			});
+				notUseDistributionCheckBox.addActionListener(ee -> {
+					if (notUseDistributionCheckBox.isSelected()) {
+						useDistributionCheckBox.setSelected(false);
+					}
+				});
 
-			// --- Buttons ---
-			JButton okButton = new JButton("OK");
-			JButton cancelButton = new JButton("Cancel");
+				// --- Buttons ---
+				JButton okButton = new JButton("OK");
+				JButton cancelButton = new JButton("Cancel");
 
-			JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-			buttonPanel.add(okButton);
-			buttonPanel.add(cancelButton);
+				JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+				buttonPanel.add(okButton);
+				buttonPanel.add(cancelButton);
 
-			gbc.gridx = 0;
-			gbc.gridy = 3;
-			gbc.gridwidth = 3;
-			dialog.add(buttonPanel, gbc);
+				gbc.gridx = 0;
+				gbc.gridy = 3;
+				gbc.gridwidth = 3;
+				dialog.add(buttonPanel, gbc);
 
-			JLabel nameLabelnumber = new JLabel("Enter Number of Scenario:");
-			numSamplesField = new JTextField("100"); // Default value
+				JLabel nameLabelnumber = new JLabel("Enter Number of Scenario:");
+				numSamplesField = new JTextField("100"); // Default value
 
-			gbc.gridx = 0;
-			gbc.gridy = 2;
-			gbc.weightx = 1;
-			dialog.add(nameLabelnumber, gbc);
-			gbc.gridx = 1;
-			gbc.gridy = 2;
-			gbc.weightx = 1;
-			dialog.add(numSamplesField, gbc);
+				gbc.gridx = 0;
+				gbc.gridy = 2;
+				gbc.weightx = 1;
+				dialog.add(nameLabelnumber, gbc);
+				gbc.gridx = 1;
+				gbc.gridy = 2;
+				gbc.weightx = 1;
+				dialog.add(numSamplesField, gbc);
 
-			// --- OK button action ---
-			okButton.addActionListener(ee -> {
-				String scenarioName = nameField.getText().trim();
-				//check if the scenario name is empty
-				if (scenarioName.isEmpty()) {
-					JOptionPane.showMessageDialog(dialog, "Please enter a scenario name.", "Missing Name", JOptionPane.WARNING_MESSAGE);
-					return;
-				}
-				//accept only numbers in Number of samples
-				if (!numSamplesField
-						.getText().trim().matches("^[0-9]+")) {
-					JOptionPane.showMessageDialog(dialog, "Number of samples should be a whole number", "Wrong Number", JOptionPane.WARNING_MESSAGE);
-					return;
-				}
+				// --- OK button action ---
+				okButton.addActionListener(ee -> {
+					String scenarioName = nameField.getText().trim();
+					//check if the scenario name is empty
+					if (scenarioName.isEmpty()) {
+						JOptionPane.showMessageDialog(dialog, "Please enter a scenario name.", "Missing Name", JOptionPane.WARNING_MESSAGE);
+						return;
+					}
+					//accept only numbers in Number of samples
+					if (!numSamplesField
+							.getText().trim().matches("^[0-9]+")) {
+						JOptionPane.showMessageDialog(dialog, "Number of samples should be a whole number", "Wrong Number", JOptionPane.WARNING_MESSAGE);
+						return;
+					}
 
-				//begin: Save Current
-				ODMEEditor.treePanel.saveTreeModel();
+					//begin: Save Current
+					ODMEEditor.treePanel.saveTreeModel();
 
-				JtreeToGraphConvert.convertTreeToXML();
-				JtreeToGraphConvert.graphToXML();
-				JtreeToGraphConvert.graphToXMLWithUniformity();
-				//end
+					JtreeToGraphConvert.convertTreeToXML();
+					JtreeToGraphConvert.graphToXML();
+					JtreeToGraphConvert.graphToXMLWithUniformity();
+					//end
 
-				//begin saving to the XSD-file
-				// the new properties (e.g variables, distributions, behaviours) added to the nodes
-				fileConversion.modifyXmlOutputForXSD();
+					//begin saving to the XSD-file
+					// the new properties (e.g variables, distributions, behaviours) added to the nodes
+					fileConversion.modifyXmlOutputForXSD();
 
-				JtreeToGraphConvert.rootToEndNodeSequenceSolve();
-				JtreeToGraphConvert
-						.rootToEndNodeVariable(); // have to try using saving keys in a list like i did in
-				JtreeToGraphConvert
-						.rootToEndNodeDistribution();
-				JtreeToGraphConvert
-						.rootToEndNodeInterConstraint();
-				JtreeToGraphConvert
-						.rootToEndNodeIntraConstraint();
-				JtreeToGraphModify.modifyXmlOutputFixForSameNameNode();
+					JtreeToGraphConvert.rootToEndNodeSequenceSolve();
+					JtreeToGraphConvert
+							.rootToEndNodeVariable(); // have to try using saving keys in a list like i did in
+					JtreeToGraphConvert
+							.rootToEndNodeDistribution();
+					JtreeToGraphConvert
+							.rootToEndNodeInterConstraint();
+					JtreeToGraphConvert
+							.rootToEndNodeIntraConstraint();
+					JtreeToGraphModify.modifyXmlOutputFixForSameNameNode();
 
-				fileConversion.xmlToXSDConversion();
-				//end
+					fileConversion.xmlToXSDConversion();
+					//end
 
-				// begin Save
+					// begin Save
 //				fileLocation = fileLocation+"/"+projName;
-				JtreeToGraphVariables.newFileName = currentScenario;
-				JtreeToGraphVariables.projectFileNameGraph = currentScenario;
+					JtreeToGraphVariables.newFileName = currentScenario;
+					JtreeToGraphVariables.projectFileNameGraph = currentScenario;
 
-				JtreeToGraphVariables.ssdFileGraph = new File(String.format("%s/%s/%sGraph.xml",
-						fileLocation, currentScenario, projName));
-				treePanel.ssdFile = new File(String.format("%s/%s/%s.xml",
-						fileLocation, currentScenario, projName));
-				treePanel.ssdFileVar = new File(String.format("%s/%s/%s.ssdvar",
-						fileLocation, currentScenario, projName));
-				treePanel.ssdFileDis = new File(String.format("%s/%s/%s.ssddis",
-						fileLocation, currentScenario, projName));
-				treePanel.ssdFileInterCon = new File(String.format("%s/%s/%s.ssdcon",
-						fileLocation, currentScenario, projName));
+					JtreeToGraphVariables.ssdFileGraph = new File(String.format("%s/%s/%sGraph.xml",
+							fileLocation, currentScenario, projName));
+					treePanel.ssdFile = new File(String.format("%s/%s/%s.xml",
+							fileLocation, currentScenario, projName));
+					treePanel.ssdFileVar = new File(String.format("%s/%s/%s.ssdvar",
+							fileLocation, currentScenario, projName));
+					treePanel.ssdFileDis = new File(String.format("%s/%s/%s.ssddis",
+							fileLocation, currentScenario, projName));
+					treePanel.ssdFileInterCon = new File(String.format("%s/%s/%s.ssdcon",
+							fileLocation, currentScenario, projName));
 
-				treePanel.ssdFileBeh = new File(String.format("%s/%s/%s.ssdbeh",
-						fileLocation, currentScenario, projName));
+					treePanel.ssdFileBeh = new File(String.format("%s/%s/%s.ssdbeh",
+							fileLocation, currentScenario, projName));
 
-				treePanel.ssdFileFlag = new File(String.format("%s/%s/%s.ssdflag",
-						fileLocation, currentScenario, projName));
+					treePanel.ssdFileFlag = new File(String.format("%s/%s/%s.ssdflag",
+							fileLocation, currentScenario, projName));
 
-				File f = new File(fileLocation + "/" + projName + "/" + currentScenario);
-				f.mkdirs();
+					File f = new File(fileLocation + "/" + projName + "/" + currentScenario);
+					f.mkdirs();
 
-				treePanel.saveTreeModel();
+					treePanel.saveTreeModel();
 
-				JtreeToGraphConvert.convertTreeToXML();
-				JtreeToGraphConvert.graphToXML();
-				JtreeToGraphConvert.graphToXMLWithUniformity();
+					JtreeToGraphConvert.convertTreeToXML();
+					JtreeToGraphConvert.graphToXML();
+					JtreeToGraphConvert.graphToXMLWithUniformity();
 
-				tabbedPane.removeAll();
-				tabbedPane.addTab("XML", XmlUtils.sesview);
-				changePruneColor();
-				ToolBar.btnScenario.setVisible(true);
-				ODMEEditor.graphWindow.setTitle(currentScenario);
-				nodeAddDetector = "";
+					tabbedPane.removeAll();
+					tabbedPane.addTab("XML", XmlUtils.sesview);
+					changePruneColor();
+					ToolBar.btnScenario.setVisible(true);
+					ODMEEditor.graphWindow.setTitle(currentScenario);
+					nodeAddDetector = "";
 
-				JTableHeader th = Variable.table.getTableHeader();
-				TableColumnModel tcm = th.getColumnModel();
-				TableColumn tc = tcm.getColumn(3);
-				tc.setHeaderValue( "Value" );
-				th.repaint();
+					JTableHeader th = Variable.table.getTableHeader();
+					TableColumnModel tcm = th.getColumnModel();
+					TableColumn tc = tcm.getColumn(3);
+					tc.setHeaderValue("Value");
+					th.repaint();
 
-				JtreeToGraphPrune.behMapTransfer = ArrayListMultimap.create();
-				JtreeToGraphPrune.varMapTransfer = ArrayListMultimap.create();
-				JtreeToGraphPrune.distributionMapTransfer = ArrayListMultimap.create();
-				//end
+					JtreeToGraphPrune.behMapTransfer = ArrayListMultimap.create();
+					JtreeToGraphPrune.varMapTransfer = ArrayListMultimap.create();
+					JtreeToGraphPrune.distributionMapTransfer = ArrayListMultimap.create();
+					//end
 
-				//begin: set YAML File
-				String xsdPath = ODMEEditor.fileLocation + "/" + projName + "/xsdfromxml.xsd";
-				yamlFilePath= ODMEEditor.fileLocation + "/" + projName + "Temp.yaml";
-				File yamlFile = new File(yamlFilePath);
-				try {
-					yamlFile.createNewFile();
-				} catch (IOException ex) {
-					throw new RuntimeException(ex);
-				}//Delete at the end of the operation
-				ODMEEditor.saveFunc(false);
-				ODMEEditor.updateState();
-				JtreeToGraphConvert.convertTreeToXML();
-				String yamlContent=currentXsdToYamlTemp(xsdPath);
-				ODMEEditor.saveYamlTempFile(yamlContent,yamlFilePath, null);
-				//end
+					//begin: set YAML File
+					String xsdPath = ODMEEditor.fileLocation + "/" + projName + "/xsdfromxml.xsd";
+					yamlFilePath = ODMEEditor.fileLocation + "/" + projName + "Temp.yaml";
+					File yamlFile = new File(yamlFilePath);
+					try {
+						yamlFile.createNewFile();
+					} catch (IOException ex) {
+						throw new RuntimeException(ex);
+					}//Delete at the end of the operation
+					ODMEEditor.saveFunc(false);
+					ODMEEditor.updateState();
+					JtreeToGraphConvert.convertTreeToXML();
+					String yamlContent = currentXsdToYamlTemp(xsdPath);
+					ODMEEditor.saveYamlTempFile(yamlContent, yamlFilePath, null);
+					//end
 
 
-				//begin: set CSV File
-				String outputCsvPath = new String();
-				if (ODMEEditor.toolMode == "ses")
-					outputCsvPath = ODMEEditor.fileLocation + "/" + projName ;
-				else
-					outputCsvPath = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario ;
+					//begin: set CSV File
+					String outputCsvPath = new String();
+					if (ODMEEditor.toolMode == "ses")
+						outputCsvPath = ODMEEditor.fileLocation + "/" + projName;
+					else
+						outputCsvPath = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario;
 
-				csvPath = outputCsvPath + "/CSVTemp.csv"; //Delete at the end of the operation
-				File csvFile = new File(csvPath);
-                try {
-					csvFile.createNewFile();
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
-
-                // --- THE ACTUAL CALL TO YOUR BACK-END MODULE ---
-				SamplingManager samplingManager = new SamplingManager();
-                try {
-					if(notUseDistributionCheckBox.isSelected()) {
-						samplingManager.generateSamplesforDomainModel(yamlFilePath, Integer.parseInt(numSamplesField.getText().trim()), csvPath, 0);
+					csvPath = outputCsvPath + "/CSVTemp.csv"; //Delete at the end of the operation
+					File csvFile = new File(csvPath);
+					try {
+						csvFile.createNewFile();
+					} catch (IOException ex) {
+						throw new RuntimeException(ex);
 					}
-					if(useDistributionCheckBox.isSelected()){
-						samplingManager.generateSamplesforDomainModel(yamlFilePath, Integer.parseInt(numSamplesField.getText().trim()), csvPath, 1);
-					}
+
+					// --- THE ACTUAL CALL TO YOUR BACK-END MODULE ---
+					SamplingManager samplingManager = new SamplingManager();
+					try {
+						if (notUseDistributionCheckBox.isSelected()) {
+							samplingManager.generateSamplesforDomainModel(yamlFilePath, Integer.parseInt(numSamplesField.getText().trim()), csvPath, 0);
+						}
+						if (useDistributionCheckBox.isSelected()) {
+							samplingManager.generateSamplesforDomainModel(yamlFilePath, Integer.parseInt(numSamplesField.getText().trim()), csvPath, 1);
+						}
 					} catch (Exception ex) {
-                    throw new RuntimeException(ex);
-                }
-				//end
+						throw new RuntimeException(ex);
+					}
+					//end
 
 
-				System.out.println(" Scenario Name: " + scenarioName);
-				System.out.println(" CSV File: " + csvPath);
-				// Show confirmation dialog with the folder path where the Scenarios are saved
-				JOptionPane.showMessageDialog(dialog,
-						"You entered:\n\n" + ScenarioGeneration.generateScenarios(csvPath , scenarioName),
-						"Your Message",
-						JOptionPane.INFORMATION_MESSAGE);
+					System.out.println(" Scenario Name: " + scenarioName);
+					System.out.println(" CSV File: " + csvPath);
+					// Show confirmation dialog with the folder path where the Scenarios are saved
+					JOptionPane.showMessageDialog(dialog,
+							"You entered:\n\n" + ScenarioGeneration.generateScenarios(csvPath, scenarioName),
+							"Your Message",
+							JOptionPane.INFORMATION_MESSAGE);
 
-				dialog.dispose(); // close dialog
+					dialog.dispose(); // close dialog
 
-				csvFile.delete();
-				yamlFile.delete();
-			});
+					csvFile.delete();
+					yamlFile.delete();
+				});
 
-			// --- Cancel button action ---
-			cancelButton.addActionListener(ee -> dialog.dispose());
+				// --- Cancel button action ---
+				cancelButton.addActionListener(ee -> dialog.dispose());
 
-			dialog.setVisible(true);
+				dialog.setVisible(true);
+			}else {
+				// Create the dialog
+				JDialog dialog = new JDialog((Frame) null, "MUST DO", true);
+				dialog.setLayout(new GridBagLayout());
+				dialog.setSize(500, 200);
+				dialog.setLocationRelativeTo(null); // center on screen
+
+				// Layout helper
+				GridBagConstraints gbc = new GridBagConstraints();
+				gbc.insets = new Insets(8, 8, 8, 8);
+				gbc.fill = GridBagConstraints.HORIZONTAL;
+				gbc.weightx = 1;
+
+				JLabel nameLabel = new JLabel("Change to Domain Modelling mode");
+				gbc.gridx = 0;
+				gbc.gridy = 0;
+				dialog.add(nameLabel, gbc);
+
+				// --- Buttons ---
+				JButton okButton = new JButton("OK");
+
+				JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+				buttonPanel.add(okButton);
+
+				gbc.gridx = 0;
+				gbc.gridy = 1;
+				gbc.gridwidth = 3;
+				dialog.add(buttonPanel, gbc);
+
+				// --- OK button action ---
+				okButton.addActionListener(ee -> dialog.dispose());
+				dialog.setVisible(true);
+			}
 		});
 
 		// Add everything into the "Add Distribution" menu

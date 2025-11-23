@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class DistributionSampling {
 
-    public static double thresholdValue;
+    public static double value;
 
     public static void main(String[] args) {
         double mean = 3.35;               // Example mean
@@ -24,25 +24,29 @@ public class DistributionSampling {
         System.out.println("------------------------------------------------------------");
 
         for (int i = 1; i <= numTests; i++) {
-            // Pick a random standard deviation multiplier
-            int sdLevel = random.nextInt(5);   // 0,1,2,3,4
+            value = -1;  // start with an invalid (negative) value
+            int sdLevel = -1;
 
-            thresholdValue = 0;
+            // Keep generating until the rain value is >= 0
+            while (value < 0) {
 
-            switch (sdLevel) {
-                case 0:  thresholdValue = mean - stdDev; break;      // μ − σ
-                case 1:  thresholdValue = mean; break;               // μ
-                case 2:  thresholdValue = mean + stdDev; break;      // μ + σ
-                case 3:  thresholdValue = mean + 2 * stdDev; break;  // μ + 2σ
-                case 4:  thresholdValue = mean + 3 * stdDev; break;  // μ + 3σ
+                sdLevel = random.nextInt(5);  // 0,1,2,3,4 → SD category
+
+                switch (sdLevel) {
+                    case 0: value = mean - stdDev; break;      // μ − σ
+                    case 1: value = mean; break;               // μ
+                    case 2: value = mean + stdDev; break;      // μ + σ
+                    case 3: value = mean + 2 * stdDev; break;  // μ + 2σ
+                    case 4: value = mean + 3 * stdDev; break;  // μ + 3σ
+                }
             }
 
             String category = getCategory(sdLevel);
 
-            System.out.printf("Test Case %d: Rainfall = %.3f mm  → %s%n",
-                    i, thresholdValue, category);
+            System.out.printf("Test Case %d: Rainfall = %.1f mm  → %s%n",
+                    i, value, category);
         }
-        return thresholdValue;
+        return value;
     }
 
     private static String getCategory(int sdLevel) {
