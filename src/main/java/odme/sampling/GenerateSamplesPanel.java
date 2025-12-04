@@ -22,8 +22,6 @@ public class GenerateSamplesPanel extends JPanel {
     private final JButton browseButtonyaml;
     private final JButton generateButton;
     private final JButton cancelButton;
-    private final JCheckBox notUseDistributionCheckBox;
-    private final JCheckBox useDistributionCheckBox;
 
     public GenerateSamplesPanel() {
         // Use GridBagLayout for flexible component placement
@@ -65,33 +63,6 @@ public class GenerateSamplesPanel extends JPanel {
         gbc.gridy = 1;
         gbc.weightx = 1;
         add(numSamplesField, gbc);
-
-        //Use distribution or not
-        notUseDistributionCheckBox = new JCheckBox("Use Normal Range");
-        notUseDistributionCheckBox.setSelected(true); // Use Normal Range checked by default
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.weightx = 1;
-        add(notUseDistributionCheckBox, gbc);
-
-        useDistributionCheckBox = new JCheckBox("Use Distribution");
-        gbc.gridx = 1;
-        gbc.gridy = 2;
-        gbc.weightx = 1;
-        add(useDistributionCheckBox, gbc);
-
-        // Make them mutually exclusive (if I select one, the other unselects alone)
-        useDistributionCheckBox.addActionListener(e -> {
-            if (useDistributionCheckBox.isSelected()) {
-                notUseDistributionCheckBox.setSelected(false);
-            }
-        });
-
-        notUseDistributionCheckBox.addActionListener(e -> {
-            if (notUseDistributionCheckBox.isSelected()) {
-                useDistributionCheckBox.setSelected(false);
-            }
-        });
 
         //  Output File Path Input
         JLabel filePathLabel = new JLabel("Save As:");
@@ -205,12 +176,7 @@ public class GenerateSamplesPanel extends JPanel {
                     // --- THE ACTUAL CALL TO YOUR BACK-END MODULE ---
                     SamplingManager samplingManager = new SamplingManager();
 
-                     if(notUseDistributionCheckBox.isSelected()) {
-                         samplingManager.generateSamples(yamlFilePath, numberOfSamples, outputCsvPath,0);
-                     }
-                     if(useDistributionCheckBox.isSelected()){
-                         samplingManager.generateSamples(yamlFilePath, numberOfSamples, outputCsvPath,1);
-                     }
+                         samplingManager.generateSamples(yamlFilePath, numberOfSamples, outputCsvPath);
 
                     // --- THIS CODE ONLY RUNS IF THE ABOVE LINE SUCCEEDS ---
                     JOptionPane.showMessageDialog(GenerateSamplesPanel.this,

@@ -27,7 +27,7 @@ public class DistributionSampling {
             value = -1;  // start with an invalid (negative) value
             int sdLevel = -1;
 
-            // Keep generating until the rain value is >= 0
+            // Keep generating until the variable value is >= 0
             while (value < 0) {
 
                 sdLevel = random.nextInt(5);  // 0,1,2,3,4 → SD category
