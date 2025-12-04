@@ -36,7 +36,7 @@ public class SamplingManager {
         List <String> constraint = scenario.getConstraint();
 
         List<Parameter> numericalParams = scenario.getParameters().stream()
-                .filter(p -> "int".equals(p.getType()) || "double".equals(p.getType()) || "float".equals(p.getType()  ))
+                .filter(p -> "int".equals(p.getType()) || "double".equals(p.getType()) || "float".equals(p.getType()) || "distribution".equals(p.getType()  ))
                 .collect(Collectors.toList());
 
         System.out.println("\n"+numericalParams+"\n");
@@ -196,7 +196,6 @@ public class SamplingManager {
                 double scaledValue = param.getMin() + normalizedSample[i] * (param.getMax() - param.getMin());
                 scaledSample.put(param.getName(), scaledValue);
             }
-
         }
         return scaledSample;
     }

@@ -237,28 +237,19 @@ public class JtreeToGraphGeneral {
                                             + "\" default=\"" + properties[2]
                                             + "\"> </var>");
                                 } else {
-
-                                    if (properties.length > 5) {
-                                        f0.println("<var name=\"" + properties[0] + "\" type=\"" + properties[1]
-                                                + "\" default=\"" + properties[2]
-                                                + "\" lower=\"" + properties[3]
-                                                + "\" " + "upper=\"" + properties[4]
-                                                + "\" distributionName=\"" + properties[5]
-                                                + "\" distributionDetails=\"" + properties[6] + "\"> </var>");
-                                    } else {
-                                        f0.println("<var name=\"" + properties[0] + "\" type=\"" + properties[1]
-                                                + "\" default=\"" + properties[2]
-                                                + "\" lower=\"" + properties[3] + "\" " + "upper=\""
-                                                + properties[4] + "\"> </var>");
-                                    }
+                                    f0.println("<var name=\"" + properties[0] + "\" type=\"" + properties[1]
+                                            + "\" default=\"" + properties[2]
+                                            + "\" lower=\"" + properties[3] + "\" " + "upper=\""
+                                            + properties[4] + "\"> </var>");
                                 }
 
                             } else if (result.endsWith("Distion")) { // Author : Vadece Kamdem
                                 String novarresult = result.replace("Distion", "");
                                 String[] properties = novarresult.split(",");
-                                f0.println("<distion variablename=\"" + properties[0]
+                                String type = "distribution";
+                                f0.println("<var name=\"" + properties[0] + "\" type=\"" + type
                                         + "\" distributionName=\"" + properties[1]
-                                        + "\" details=\"" + properties[2] + "\"> </distion>");
+                                        + "\" details=\"" + properties[2] + "\"> </var>");
                             } else if (result.endsWith("Con")) {
                                 String constraintText = result.replace("Con", "");
                                 f0.println("    <constraint>" + escapeXml(constraintText) + "</constraint>");

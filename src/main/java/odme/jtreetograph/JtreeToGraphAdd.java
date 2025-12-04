@@ -31,6 +31,7 @@ public class JtreeToGraphAdd {
 
     public static String selectedType = "byte";
     static String[] variableComboList = new String[100];
+    static String[] distributionVariableComboList = new String[100];
 
     public static void addNodeIntoJtreeWithNewModuleAddition(mxCell lastAddedCell) {
         mxCell addedCell = null;
@@ -228,7 +229,7 @@ public class JtreeToGraphAdd {
 
         String[] typeList = {" ", "boolean", "int", "float", "double", "string"};
 
-        String variableFieldRegEx = "^[a-zA-Z]+$"; // just alphanumeric
+        String variableFieldRegEx = "^[a-zA-Z]+$"; // just alphabets
 
         JComboBox<String> variableTypeField = new JComboBox<String>(typeList);
 
@@ -567,11 +568,9 @@ public class JtreeToGraphAdd {
 
 
     public static void addNormalDistribution(Object pos) {
-        variableComboList = new String[100];
-        pathToRoot.clear();
 
         // Add textfields for mean and variance
-        JTextField meanField, varianceTypeField;
+        JTextField meanField, standardDeviationTypeField, variableField;
 
         // Create the dialog
         JDialog dialog = new JDialog((Frame) null, "Create Normal Distribution", true);
@@ -585,42 +584,19 @@ public class JtreeToGraphAdd {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1;
 
-        variableComboList = new String[100];
-        pathToRoot.clear();
 
-        // Create combo box with variableName options
-        mxCell cellForAddingVariable1 = (mxCell) pos;
-        pathToRoot.add((String) cellForAddingVariable1.getValue());
-        JtreeToGraphConvert.nodeToRootPathVar(cellForAddingVariable1);
-        String[] stringArray1 = pathToRoot.toArray(new String[0]);
-        ArrayList<String> pathToRootRev1 = new ArrayList<String>();
-
-        for (int i = stringArray1.length - 1; i >= 0; i--) {
-            pathToRootRev1.add(stringArray1[i]);
-        }
-        String[] stringArrayRev1 = pathToRootRev1.toArray(new String[0]);
-        TreePath treePathForVariable1 = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev1);
-        getVariableList(treePathForVariable1);
-
-        JComboBox<String> variableNameComboBox;
-
-        variableNameComboBox = new JComboBox<>(variableComboList);
-        pathToRoot.clear();
-        variableComboList = new String[0];
-
-        //  Number of Samples Input
-        JLabel variableLabel = new JLabel("Select Variable:");
+        JLabel variableLabel = new JLabel("Enter Variable:");
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.weightx = 1;
         dialog.add(variableLabel, gbc);
 
+        variableField = new JTextField();
         gbc.gridx = 1;
         gbc.gridy = 0;
         gbc.weightx = 1;
-        dialog.add(variableNameComboBox, gbc);
+        dialog.add(variableField, gbc);
 
-        //  Number of Samples Input
         JLabel meanLabel = new JLabel("Enter Mean:");
         gbc.gridx = 0;
         gbc.gridy = 1;
@@ -633,18 +609,17 @@ public class JtreeToGraphAdd {
         gbc.weightx = 1;
         dialog.add(meanField, gbc);
 
-        //  Number of Samples Input
         JLabel standardDeviationLabel = new JLabel("Enter Standard Deviation:");
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.weightx = 1;
         dialog.add(standardDeviationLabel, gbc);
 
-        varianceTypeField = new JTextField();
+        standardDeviationTypeField = new JTextField();
         gbc.gridx = 1;
         gbc.gridy = 2;
         gbc.weightx = 1;
-        dialog.add(varianceTypeField, gbc);
+        dialog.add(standardDeviationTypeField, gbc);
 
 
         // --- Buttons ---
@@ -670,29 +645,70 @@ public class JtreeToGraphAdd {
 
         // --- OK button action ---
         okButton.addActionListener(ee -> {
-            String distributionNameAndDetails, mean, variance, variableNameComboBoxValue, distributionName;
+            variableComboList = new String[100];
+            distributionVariableComboList = new String[100];
+            pathToRoot.clear();
+
+            //START Get existing variableNames
+            mxCell cellForAddingVariable1 = (mxCell) pos;
+            pathToRoot.add((String) cellForAddingVariable1.getValue());
+            JtreeToGraphConvert.nodeToRootPathVar(cellForAddingVariable1);
+            String[] stringArray1 = pathToRoot.toArray(new String[0]);
+            ArrayList<String> pathToRootRev1 = new ArrayList<String>();
+
+            for (int i = stringArray1.length - 1; i >= 0; i--) {
+                pathToRootRev1.add(stringArray1[i]);
+            }
+            String[] stringArrayRev1 = pathToRootRev1.toArray(new String[0]);
+            TreePath treePathForVariable1 = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev1);
+            getVariableList(treePathForVariable1);
+            getDistributionVariableList(treePathForVariable1);
+
+            String[] variableList = variableComboList;
+            String[] distributionVariableList = distributionVariableComboList;
+
+
+            pathToRoot.clear();
+            variableComboList = new String[0];
+            distributionVariableComboList = new String[0];
+            //START Get existing variableNames
+
+            //check if variable already exist: return 1 if exist and 0 if not exist
+            int variableExistChecker = variableExistChecker(variableList, distributionVariableList, variableField.getText().trim());
+
+
+            String distributionNameAndDetails, mean, standardDeviation, variableName, distributionName;
 
             distributionName = "normalDistribution";
 
-            String meanInput = meanField.getText().trim();
-            String varianceInput = varianceTypeField.getText().trim();
-
-            // Check if the input is numeric
-            if (!meanInput.matches("\\d+(\\.\\d+)?")) {  // integer or decimal
-                errorField.setText("mean: Please enter a number!");
+            if(variableField.getText().isEmpty() || meanField.getText().isEmpty() || standardDeviationTypeField.getText().isEmpty()){
+                errorField.setText("FIELDS: No field should be empty");
                 errorField.setForeground(Color.RED);
-            } else if (!varianceInput.matches("\\d+(\\.\\d+)?")) {  // integer or decimal
+            }
+            else if(!variableField.getText().trim().matches("^[a-zA-Z]+$" )){ // just alphabets
+                errorField.setText("Variable: Please enter only alphabets!");
+                errorField.setForeground(Color.RED);
+            }
+            else if(variableExistChecker == 1){
+                errorField.setText("Variable: Variable already exist");
+                errorField.setForeground(Color.RED);
+            }
+            // Check if the input is numeric
+            else if (!meanField.getText().trim().matches("\\d+(\\.\\d+)?")) {  // integer or decimal
+                errorField.setText("Mean: Please enter a number!");
+                errorField.setForeground(Color.RED);
+            } else if (!standardDeviationTypeField.getText().matches("\\d+(\\.\\d+)?")) {  // integer or decimal
                 errorField.setText("Standard Deviation: Please enter a number!");
                 errorField.setForeground(Color.RED);
             } else{
-                variableNameComboBoxValue = (String) variableNameComboBox.getSelectedItem();
+                variableName = variableField.getText();
                 mean = meanField.getText();
-                variance = varianceTypeField.getText();
-                if ( variableNameComboBoxValue != null ) {
+                standardDeviation = standardDeviationTypeField.getText();
+                if ( variableName != null ) {
                     // added inside IF block so that if variable window closed without adding then
                     // nothing will happen.
                     distributionNameAndDetails =
-                            variableNameComboBoxValue + "," + distributionName + ",mean=" + mean + "___variance=" + variance;
+                            variableName + "," + distributionName + ",mean=" + mean + "___standardDeviation=" + standardDeviation;
 
                     mxCell cellForAddingVariable = (mxCell) pos;
                     pathToRoot.add((String) cellForAddingVariable.getValue());
@@ -710,7 +726,6 @@ public class JtreeToGraphAdd {
                     DynamicTree.distributionMap.put(treePathForVariable, distributionNameAndDetails);
 
                     pathToRoot.clear();
-                    variableComboList = new String[0];
                     // have to call a function to refresh the table view
                     ODMEEditor.treePanel.refreshDistributionTable(treePathForVariable);
 
@@ -728,11 +743,9 @@ public class JtreeToGraphAdd {
     }
 
     public static void addUniformDistribution(Object pos) {
-        variableComboList = new String[100];
-        pathToRoot.clear();
 
         // Add textfields for minVal and maxVal
-        JTextField minValTypeField, maxValTypeField;
+        JTextField minValTypeField, maxValTypeField, variableField;
 
         // Create the dialog
         JDialog dialog = new JDialog((Frame) null, "Create Uniform Distribution", true);
@@ -746,42 +759,18 @@ public class JtreeToGraphAdd {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1;
 
-        variableComboList = new String[100];
-        pathToRoot.clear();
-
-        // Create combo box with variableName options
-        mxCell cellForAddingVariable1 = (mxCell) pos;
-        pathToRoot.add((String) cellForAddingVariable1.getValue());
-        JtreeToGraphConvert.nodeToRootPathVar(cellForAddingVariable1);
-        String[] stringArray1 = pathToRoot.toArray(new String[0]);
-        ArrayList<String> pathToRootRev1 = new ArrayList<String>();
-
-        for (int i = stringArray1.length - 1; i >= 0; i--) {
-            pathToRootRev1.add(stringArray1[i]);
-        }
-        String[] stringArrayRev1 = pathToRootRev1.toArray(new String[0]);
-        TreePath treePathForVariable1 = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev1);
-        getVariableList(treePathForVariable1);
-
-        JComboBox<String> variableNameComboBox;
-
-        variableNameComboBox = new JComboBox<>(variableComboList);
-        pathToRoot.clear();
-        variableComboList = new String[0];
-
-        //  Number of Samples Input
         JLabel variableLabel = new JLabel("Select Variable:");
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.weightx = 1;
         dialog.add(variableLabel, gbc);
 
+        variableField = new JTextField();
         gbc.gridx = 1;
         gbc.gridy = 0;
         gbc.weightx = 1;
-        dialog.add(variableNameComboBox, gbc);
+        dialog.add(variableField, gbc);
 
-        //  Number of Samples Input
         JLabel minValLabel = new JLabel("Enter Minimum Value:");
         gbc.gridx = 0;
         gbc.gridy = 1;
@@ -794,7 +783,6 @@ public class JtreeToGraphAdd {
         gbc.weightx = 1;
         dialog.add(minValTypeField, gbc);
 
-        //  Number of Samples Input
         JLabel maxValLabel = new JLabel("Enter Maximum Value:");
         gbc.gridx = 0;
         gbc.gridy = 2;
@@ -831,29 +819,69 @@ public class JtreeToGraphAdd {
 
         // --- OK button action ---
         okButton.addActionListener(ee -> {
-            String distributionNameAndDetails, minVal, maxVal, variableNameComboBoxValue, distributionName;
+            variableComboList = new String[100];
+            distributionVariableComboList = new String[100];
+            pathToRoot.clear();
+
+            //START Get existing variableNames
+            mxCell cellForAddingVariable1 = (mxCell) pos;
+            pathToRoot.add((String) cellForAddingVariable1.getValue());
+            JtreeToGraphConvert.nodeToRootPathVar(cellForAddingVariable1);
+            String[] stringArray1 = pathToRoot.toArray(new String[0]);
+            ArrayList<String> pathToRootRev1 = new ArrayList<String>();
+
+            for (int i = stringArray1.length - 1; i >= 0; i--) {
+                pathToRootRev1.add(stringArray1[i]);
+            }
+            String[] stringArrayRev1 = pathToRootRev1.toArray(new String[0]);
+            TreePath treePathForVariable1 = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev1);
+            getVariableList(treePathForVariable1);
+            getDistributionVariableList(treePathForVariable1);
+
+            String[] variableList = variableComboList;
+            String[] distributionVariableList = distributionVariableComboList;
+
+
+            pathToRoot.clear();
+            variableComboList = new String[0];
+            distributionVariableComboList = new String[0];
+            //START Get existing variableNames
+
+            //check if variable already exist: return 1 if exist and 0 if not exist
+            int variableExistChecker = variableExistChecker(variableList, distributionVariableList, variableField.getText().trim());
+
+            String distributionNameAndDetails, minVal, maxVal, variableName, distributionName;
 
             distributionName = "uniformDistribution";
 
-            String minValInput = minValTypeField.getText().trim();
-            String maxValueInput = maxValTypeField.getText().trim();
-
+            if(variableField.getText().isEmpty() || minValTypeField.getText().isEmpty() || maxValTypeField.getText().isEmpty()){
+                errorField.setText("FIELDS: No field should be empty");
+                errorField.setForeground(Color.RED);
+            }
+            else if(!variableField.getText().trim().matches("^[a-zA-Z]+$" )){ // just alphabets
+                errorField.setText("Variable: Please enter only alphabets!");
+                errorField.setForeground(Color.RED);
+            }
+            else if(variableExistChecker == 1){
+                errorField.setText("Variable: Variable already exist");
+                errorField.setForeground(Color.RED);
+            }
             // Check if the input is numeric
-            if (!minValInput.matches("\\d+(\\.\\d+)?")) {  // integer or decimal
+            else if (!minValTypeField.getText().trim().matches("\\d+(\\.\\d+)?")) {  // integer or decimal
                 errorField.setText("Minimal Value: Please enter a number!");
                 errorField.setForeground(Color.RED);
-            } else if (!maxValueInput.matches("\\d+(\\.\\d+)?")) {  // integer or decimal
+            } else if (!maxValTypeField.getText().matches("\\d+(\\.\\d+)?")) {  // integer or decimal
                 errorField.setText("Maximum Value: Please enter a number!");
                 errorField.setForeground(Color.RED);
             } else{
-                variableNameComboBoxValue = (String) variableNameComboBox.getSelectedItem();
+                variableName = variableField.getText();
                 minVal = minValTypeField.getText();
                 maxVal = maxValTypeField.getText();
-                if ( variableNameComboBoxValue != null ) {
+                if ( variableName != null ) {
                     // added inside IF block so that if variable window closed without adding then
                     // nothing will happen.
                     distributionNameAndDetails =
-                            variableNameComboBoxValue + "," + distributionName + ",minVal=" + minVal + "___maxVal=" + maxVal;
+                            variableName + "," + distributionName + ",minVal=" + minVal + "___maxVal=" + maxVal;
 
                     mxCell cellForAddingVariable = (mxCell) pos;
                     pathToRoot.add((String) cellForAddingVariable.getValue());
@@ -870,7 +898,6 @@ public class JtreeToGraphAdd {
 
                     DynamicTree.distributionMap.put(treePathForVariable, distributionNameAndDetails);
 
-//                    variableComboList = new String[0];
                     pathToRoot.clear();
 
                     // have to call a function to refresh the table view
@@ -887,6 +914,20 @@ public class JtreeToGraphAdd {
 
         dialog.setVisible(true);
 
+    }
+
+    private static int variableExistChecker(String[] variableList, String[] distributionvariableList, String newVariable) {
+        for (String variable : variableList){
+            if(newVariable.equals(variable) ){
+                return 1;
+            }
+        }
+        for (String variable : distributionvariableList){
+            if(newVariable.equals(variable) ){
+                return 1;
+            }
+        }
+        return 0;
     }
 
     public static void deleteDistribution(Object pos) {
@@ -1032,6 +1073,29 @@ public class JtreeToGraphAdd {
                 if (currentNode.toString().equals(currentNode1.toString()) && properties[0] != null) {
 
                     variableComboList[a] = properties[0];
+                    a++;
+                }
+            }
+
+        }
+    }
+
+    public static void getDistributionVariableList(TreePath treePathForVariable) {
+        DefaultMutableTreeNode currentNode =
+                (DefaultMutableTreeNode) (treePathForVariable.getLastPathComponent());
+
+        int a = 0;
+
+        for (TreePath key : DynamicTree.distributionMap.keySet()) {
+
+            for (String value : DynamicTree.distributionMap.get(key)) {
+                DefaultMutableTreeNode currentNode1 =
+                        (DefaultMutableTreeNode) (key.getLastPathComponent());
+
+                String[] properties = value.split(",");
+                if (currentNode.toString().equals(currentNode1.toString()) && properties[0] != null) {
+
+                    distributionVariableComboList[a] = properties[0];
                     a++;
                 }
             }
