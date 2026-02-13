@@ -1,13 +1,10 @@
 package odeme.behaviour;
 
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
-
 import odme.odmeeditor.GraphWindow;
 import odme.odmeeditor.ProjectTree;
 
-import java.awt.Component;
+import javax.swing.*;
+import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 

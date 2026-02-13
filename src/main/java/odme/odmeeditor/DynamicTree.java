@@ -43,6 +43,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <h1>DynamicTree</h1>
@@ -66,6 +68,8 @@ public class DynamicTree extends JPanel implements MouseListener {
     public static Multimap<TreePath, String> behavioursList = ArrayListMultimap.create();
     public static Variable scenarioVariable = new Variable();
     public static String projectFileName;
+
+    public static Map<TreePath, String> limitsMAspec = new HashMap<>();
 
     private DefaultMutableTreeNode rootNode;
     public static UndoableTreeModel treeModel;
@@ -470,11 +474,93 @@ public class DynamicTree extends JPanel implements MouseListener {
 
     public void saveTreeModel() {
         try {
+
+            //for limits of MultiAspect in file
+            if(ODMEEditor.toolMode == "ses"){
+
+                // Define the file location
+                File ssdFileLimit = new File(String.format("%s.ssdLimit",
+                        ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.projName));
+
+                // Map to hold the data (existing + new)
+                Map<TreePath, String> limits;
+
+                // Check if the file exists
+                if (ssdFileLimit.exists()) {
+                    // File exists, read existing data
+                    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ssdFileLimit))) {
+                        limits = (Map<TreePath, String>) ois.readObject();
+                        System.out.println("Existing data loaded from file.");
+                    } catch (Exception e) {
+                        System.err.println("Failed to read existing file " + e.getMessage());
+                        limits = new HashMap<>();  // Initialize an empty map in case of failure
+                    }
+                } else {
+                    // File does not exist, initialize a new map
+                    limits = new HashMap<>();
+                    System.out.println("File does not exist starting with an empty map.");
+                }
+
+                if (limits.isEmpty()  && !DynamicTree.limitsMAspec.isEmpty()){
+
+                    // Write the updated map back to the file
+                    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ssdFileLimit))) {
+                        oos.writeObject(DynamicTree.limitsMAspec);
+                        System.out.println("Updated data written to file.");
+                    } catch (Exception e) {
+                        System.err.println("Failed to write updated data to file: " + e.getMessage());
+                    }
+                }
+                else if (!limits.isEmpty() && !DynamicTree.limitsMAspec.isEmpty()
+                ){
+                    //now compare the values in the Map
+                    // Step 2: Compare and update `limits` with `DynamicTree.limitsMAspec`
+                    for (Map.Entry<TreePath, String> entry : DynamicTree.limitsMAspec.entrySet()) {
+                        TreePath key = entry.getKey();
+                        String value = entry.getValue();
+//                        System.out.println("Key = " + key);
+//                        System.out.println("Value = " + value);
+
+                        boolean keyMatched = false;
+                        for (Map.Entry<TreePath, String> limitEntry : limits.entrySet()) {
+                            if (limitEntry.getKey().toString().equals(key.toString())
+                            ) {
+                                keyMatched = true;
+//                                System.out.println("Key matched: " + key);
+                                limits.put(limitEntry.getKey(), value);
+                                break;
+                            }
+                        }
+                        if (!keyMatched) {
+//                            System.out.println("Key not matched: " + key);
+                            limits.put(key, value);
+                        }
+                    }
+                    // Write the updated map back to the file
+                    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ssdFileLimit))) {
+                        oos.writeObject(limits);
+//                        System.out.println("Updated data written to file.");
+                    } catch (Exception e) {
+                        System.err.println("Failed to write updated data to file: " + e.getMessage());
+                    }
+                }
+                else {
+                    System.out.println("Both Maps are empty ");
+                }
+
+
+                for (Map.Entry<TreePath, String> entry : limits.entrySet()) {
+                    System.out.println("After update Key: " + entry.getKey() + ", Value: " + entry.getValue());
+                }
+
+            }
             // for variable
 
-            String path = new String();
-            if (ODMEEditor.toolMode == "ses")
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.projName;
+            String path;
+            if (ODMEEditor.toolMode == "ses"){
+                path =ODMEEditor.fileLocation +"/"+ODMEEditor.projName +"/"+ODMEEditor.projName;
+                System.out.println("path ses = "+path);
+            }
             else
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + ODMEEditor.projName;
 
@@ -635,7 +721,7 @@ public class DynamicTree extends JPanel implements MouseListener {
                         }
                     }
                 }
-                ODMEEditor.scenarioBehaviour.showBehaviourInTable(currentNode.getUserObject().toString(),nodesToSelectedNode2);
+                ODMEEditor.scenarioBehaviour.showBehavioursInTable(currentNode.getUserObject().toString(),nodesToSelectedNode2);
 
             }
 
@@ -726,7 +812,7 @@ public class DynamicTree extends JPanel implements MouseListener {
                 }
             }
         }
-        ODMEEditor.scenarioBehaviour.showBehaviourInTable(currentNode2.getUserObject().toString(),nodesToSelectedNode2);
+        ODMEEditor.scenarioBehaviour.showBehavioursInTable(currentNode2.getUserObject().toString(),nodesToSelectedNode2);
 
     }
 
@@ -904,7 +990,7 @@ public class DynamicTree extends JPanel implements MouseListener {
                     nodesToSelectedNode[b] = value;
                     nodeName = currentNode2.getUserObject().toString();
                     b++;
-                    ODMEEditor.scenarioBehaviour.showBehaviourInTable(currentNode2.getUserObject().toString(),nodesToSelectedNode);
+                    ODMEEditor.scenarioBehaviour.showBehavioursInTable(currentNode2.getUserObject().toString(),nodesToSelectedNode);
                 }
             }
         }

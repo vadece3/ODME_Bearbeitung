@@ -498,6 +498,46 @@ public class MenuBar {
 //		parentMenu.add(advancedMenu); // submenu inside submenu
 	}
 
+	static public List<String[]> getScenarioJsonData() {
+		JSONParser jsonParser = new JSONParser();
+		List<String[]> dataList = new ArrayList<String[]>();
+		System.out.println("ODMEEditor.fileLocation  = " + ODMEEditor.fileLocation );
+//		System.out.println(" ODMEEditor.projName  = " +  ODMEEditor.projName );
+		try (FileReader reader = new FileReader(ODMEEditor.fileLocation +  "/scenarios.json")){
+			Object obj = null;
+			try {
+				obj = jsonParser.parse(reader);
+			} catch (org.json.simple.parser.ParseException e) {
+				e.printStackTrace();
+			}
+
+			JSONArray data = (JSONArray) obj;
+
+			for (Object dtObj:data) {
+				dataList.add(parseObject((JSONObject)dtObj));
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		return dataList;
+	}
+	static public String[] parseObject(JSONObject obj) {
+		JSONObject dataObject = (JSONObject) obj.get("scenario");
+
+		String name = (String) dataObject.get("name");
+		String risk = (String) dataObject.get("risk");
+		String remarks = (String) dataObject.get("remarks");
+
+		String[] arr = {name, risk, remarks};
+
+		return arr;
+	}
+
 	public static void openGenerateScenarioWithCsvWindow() {
 		// Create the dialog
 		JDialog dialog = new JDialog((Frame) null, "Generate Scenario Using CSV File", true);

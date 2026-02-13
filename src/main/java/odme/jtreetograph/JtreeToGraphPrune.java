@@ -161,12 +161,12 @@ public class JtreeToGraphPrune {
         ODMEEditor.changePruneColor();
     }
 
-    public static void pruneMAspNodeFromGraphPopup(Object pos) {
+    public static void pruneMAspNodeFromGraphPopup(Object pos, int limit) {
         // Also read the  behaviour List  and update that according to the selection of node.
 //        read behaviour file
         mxCell maspcell = (mxCell) pos;
         String maspcellName = maspcell.getValue().toString().replaceAll("MAsp", "");
-        
+
         JTextField nodeListTf = new JTextField("1");
         nodeListTf.addKeyListener(new KeyListener() {
             @Override
@@ -180,7 +180,11 @@ public class JtreeToGraphPrune {
                 } catch(NumberFormatException ex){
                     nodeListTf.setText("");
                 }
-
+                if(n> limit){
+                    JOptionPane.showMessageDialog(null,
+                            "Number of Entities should be between 1 and " + limit);
+                    nodeListTf.setText("");
+                }
                 if (n>1000 || n<1) {
                     JOptionPane.showMessageDialog(null, "Number of Entities should be between 1 and 1000");
                     nodeListTf.setText("");
@@ -213,7 +217,7 @@ public class JtreeToGraphPrune {
             JtreeToGraphDelete.deleteNodeFromGraphPopup(maspcell);
 
             addNodeFromConsolePES(maspcellName + "Dec");
-            
+
             JtreeToGraphConvert.nodeToRootPath(currentSelectedCell);
             String[] stringArray = path.toArray(new String[0]);
             ArrayList<String> pathRev = new ArrayList<String>();
@@ -284,7 +288,7 @@ public class JtreeToGraphPrune {
                     }
                 }
             }
-        
+
             catch (ConcurrentModificationException e) {
                 System.out.println(e.getMessage());
             }

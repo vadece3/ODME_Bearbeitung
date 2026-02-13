@@ -410,7 +410,7 @@ public class JtreeToGraphCreate {
 
                                     //onclick on a node => shows it's behaviors
                                     ODMEEditor.scenarioBehaviour
-                                            .showBehaviourInTable(currentNode.toString(),
+                                            .showBehavioursInTable(currentNode.toString(),
                                                     nodesToSelectedNodeBehaviour);
 
                                     //onclick on a node => shows it's distribution properties
@@ -628,7 +628,7 @@ public class JtreeToGraphCreate {
                                             nodesToSelectedNode);
 
                             ODMEEditor.scenarioBehaviour
-                                    .showBehaviourInTable(currentNode.toString(),
+                                    .showBehavioursInTable(currentNode.toString(),
                                             nodesToSelectedNodeBehaviour);
 
                             ODMEEditor.scenarioDistribution

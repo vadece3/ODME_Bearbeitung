@@ -1,6 +1,7 @@
 package odme.odmeeditor;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -20,13 +21,14 @@ public class ScenarioGeneration {
     public static String generateScenarios ( String csvPath, String nameScenarioList) {
 
         scenarioName = nameScenarioList;
-        String pathParent = ODMEEditor.fileLocation + "/Scenarios/" + nameScenarioList ;
+        Path path = Path.of("").toAbsolutePath();
+        String pathParent = path + "\\GeneratedScenarios\\" + ODMEEditor.projName + "_Scenarios\\" + nameScenarioList ;
         File folder = new File(pathParent);
 
         // Check if folder exists
         if (folder.exists()) {
             fileExistValidator = 1;
-            String newPathParent = ODMEEditor.fileLocation + "/Scenarios/" + nameScenarioList + "1" ;
+            String newPathParent = ODMEEditor.fileLocation + "/GeneratedScenarios/" + ODMEEditor.projName + "_Scenarios/" + nameScenarioList + "1" ;
             folder = new File(newPathParent);
         }
 

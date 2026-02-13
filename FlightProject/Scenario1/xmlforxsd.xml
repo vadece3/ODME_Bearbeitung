@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<entity xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ses.xsd" name="Thing">
+<aspect name="node3Dec">
+<entity name="DomainEnvironment">
+<aspect name="DomainEnvironmentDec">
+<entity name="RainFall_Weather">
+<var name="QuantityInPercentage" type="int" default="20" lower="0" upper="100"> </var>
+</entity>
+<entity name="Illumination">
+<IntraCon intracontraintname="if(@SnowFall_SnowFallPercentage &lt; 70) then (@RainFall_RainFallPercentage &lt; 60) else true"> </IntraCon>
+<var name="IlluminationPercentage" type="distribution" distributionName="uniformDistribution" details="minVal=1___maxVal=100"> </var>
+<var name="BrigthnessInPercentage" type="int" default="30" lower="10" upper="80"> </var>
+</entity>
+</aspect>
+</entity>
+<entity name="StaticEntity">
+<aspect name="StaticEntityDec">
+<entity name="LandingPad">
+</entity>
+<entity name="AirSpace">
+</entity>
+</aspect>
+</entity>
+<entity name="IntruderDrone_DynamicEntity">
+</entity>
+</aspect>
+</entity>

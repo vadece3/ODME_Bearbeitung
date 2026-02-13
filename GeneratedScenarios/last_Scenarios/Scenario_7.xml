@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<entity xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ses.xsd" name="Scenario">
+<aspect name="scenarioDec">
+<entity name="node2">
+<var name="a" default="4.306495284884374"> </var>
+<var name="b" default="4.5290666103362405"> </var>
+</entity>
+<entity name="node3">
+<var name="aa" default="68.70663298405663"> </var>
+<var name="bb" default="39.23460322268775"> </var>
+</entity>
+</aspect>
+</entity>

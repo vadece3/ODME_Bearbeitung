@@ -7,12 +7,11 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -198,6 +197,132 @@ public class JtreeToGraphAdd {
         // have to call a function to refresh the table view
 //        ODMEEditor.treePanel.showBehavioursInTable(treePathForVariable);
 
+    }
+
+    public static void addLimitToMAspecNode(Object pos) {
+        mxCell varCell = (mxCell) pos;
+        selectedNodeCellForVariableUpdate = varCell;
+
+        // Get limit input from the user
+        JTextField limitField = new JTextField();
+        Object[] message = {"Enter Limit:", limitField};
+        int option = JOptionPane.showConfirmDialog(
+                Main.frame, message, "Set Limit for MAsp Node", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (option == JOptionPane.OK_OPTION) {
+            String limitValue = limitField.getText();
+
+            // Validate input
+            if (limitValue != null && !limitValue.trim().isEmpty()) {
+                // Build path to the root for the selected MAsp node
+                pathToRoot.add((String) varCell.getValue());
+                JtreeToGraphConvert.nodeToRootPathVar(varCell);
+
+                String[] stringArray = pathToRoot.toArray(new String[0]);
+                ArrayList<String> pathToRootRev = new ArrayList<>();
+
+                for (int i = stringArray.length - 1; i >= 0; i--) {
+                    pathToRootRev.add(stringArray[i]);
+                }
+
+                String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
+                TreePath treePathForLimit = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
+                pathToRoot.clear();
+
+                // Add the limit to the Multimap
+                DynamicTree.limitsMAspec.put(treePathForLimit, limitValue);
+
+                System.out.println("Limit added to Multimap for path: " + treePathForLimit + ", Limit: " + limitValue);
+
+            } else {
+                JOptionPane.showMessageDialog(Main.frame, "Please enter a valid limit value.");
+            }
+        }
+    }
+
+
+    public static Map<TreePath, String> readLimitFile(){
+
+//        File ssdFileLimit = new File(String.format("%s/%s.txt", ODMEEditor.fileLocation, "ssdLimit"));
+        File ssdFileLimit = new File(String.format("%s.ssdLimit",
+//                ODMEEditor.fileLocation,ODMEEditor.projName, projectFileName)
+                ODMEEditor.fileLocation + "/" + ODMEEditor.projName)
+        );
+
+        Map<TreePath, String> limitsMAspec = new HashMap<>();
+
+        System.out.println("readLimitFile = " + ssdFileLimit);
+
+        // Check if the file exists before attempting to read
+        if (!ssdFileLimit.exists()) {
+            System.out.println("No limit file found. No limits to load.");
+            return null;
+        }else {
+            try  {
+                // Read the Multimap from the file
+
+                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ssdFileLimit));
+
+                limitsMAspec = (Map<TreePath, String>) ois.readObject();
+
+                System.out.println("Limits loaded successfully from limit");
+                System.out.println("Keys = "+limitsMAspec.keySet());
+                System.out.println("Values = "+limitsMAspec.values());
+
+                ois.close();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Error loading limits from file.");
+            }
+        }
+
+        return limitsMAspec;
+    }
+
+    public static int checkLimitForNodeName(String nodeName) {
+
+
+        Map<TreePath, String> limits = readLimitFile();
+
+        // Check if any TreePath in limits contains the nodeName
+        for (TreePath path : limits.keySet()) {
+            if (path.toString().contains(nodeName)) {
+                // Directly get the limit string for the TreePath
+                String limitStr = limits.get(path);
+
+                try {
+                    int limit = Integer.parseInt(limitStr);
+                    System.out.println("Limit for " + nodeName + ": " + limit);
+                    return limit;
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid limit format for node " + nodeName + ": " + limitStr);
+                    return 0;
+                }
+            }
+        }
+
+        // Check if any TreePath in limits contains the nodeName
+
+//        for (TreePath path : limits.keySet()) {
+//            if (path.toString().contains(nodeName)) {
+//                Collection<String> nodeLimits = limits.get(path);
+//
+//                // Assuming there's only one limit per node, get the first limit
+//                String limitStr = nodeLimits.iterator().next();
+//                try {
+//                    int limit = Integer.parseInt(limitStr);
+//                    System.out.println("Limit for " + nodeName + ": " + limit);
+//                    return limit;
+//                } catch (NumberFormatException e) {
+//                    System.err.println("Invalid limit format for node " + nodeName + ": " + limitStr);
+//                    return 0;
+//                }
+//            }
+//        }
+
+        System.out.println("No limit found for node: " + nodeName);
+        return 0; // Default value if no limit is found
     }
 
     public static void addVariableFromGraphPopup(Object pos) {
