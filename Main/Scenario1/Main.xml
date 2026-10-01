@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Scenario>
+<node13Dec>
+<Clear_Environment>
+</Clear_Environment>
+<Obstacles>
+<node21Dec>
+<Obtacle_1>
+</Obtacle_1>
+<Obtacle_2>
+</Obtacle_2>
+</node21Dec>
+</Obstacles>
+<Drone>
+</Drone>
+</node13Dec>
+</Scenario>

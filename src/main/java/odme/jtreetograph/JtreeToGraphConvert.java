@@ -709,7 +709,7 @@ public class JtreeToGraphConvert {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/graphxml.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/graphxml.xml";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/graphxml.xml";
 
             JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, path);
         }
@@ -811,7 +811,7 @@ public class JtreeToGraphConvert {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/graphxmluniformity.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/graphxmluniformity.xml";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/graphxmluniformity.xml";
             JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, path);
         }
         catch (TransformerException ex) {
@@ -842,7 +842,7 @@ public class JtreeToGraphConvert {
             if (ODMEEditor.toolMode == "ses")
                 JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/projectTree.xml");
             else
-                JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/projectTree.xml");
+                JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/projectTree.xml");
 
         }
         catch (TransformerException ex) {

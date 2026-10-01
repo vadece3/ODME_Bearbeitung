@@ -201,7 +201,7 @@ public class ToolBar {
     	if (ODMEEditor.toolMode == "ses")
     		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName  + "/ses.xsd";
     	else
-    		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario  + "/ses.xsd";
+    		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario  + "/ses.xsd";
     	
         fileConversion.createSES(path);
         

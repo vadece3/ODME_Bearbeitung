@@ -1,0 +1,7 @@
+Requirement;Scenario1;Covered
+REQ-01;X;yes
+REQ-02;X;yes
+REQ-03;X;yes
+REQ-04;;NO
+REQ-05;X;yes
+Orphan (no requirement);;

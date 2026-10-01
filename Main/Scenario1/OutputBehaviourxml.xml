@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<root main_tree_to_execute='MainTree'><BehaviourTree ID= 'MainTree'><RootNode name='Events' ><Sequence>
+<Action name = 'TakeOff'  >
+</Action>
+<Loop>
+<Parallel>
+<Action name = 'ObstacleDetection'  >
+</Action>
+<Selector>
+<Action name = 'MoveNextPoint'  >
+</Action>
+<Action name = 'ObstacleAvoidance'  >
+</Action>
+</Selector>
+</Parallel>
+</Loop>
+<Loop>
+<Sequence>
+<Action name = 'Rotate'  >
+</Action>
+<Action name = 'MarkerDetection'  >
+</Action>
+</Sequence>
+</Loop>
+<Action name = 'Land'  >
+</Action>
+</Sequence>
+</RootNode></BehaviourTree></root>

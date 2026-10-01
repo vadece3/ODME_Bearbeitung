@@ -156,7 +156,7 @@ public class JtreeToGraphGeneral {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/xmlforxsd.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/xmlforxsd.xml";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/xmlforxsd.xml";
 
             f0 = new PrintWriter(
                     new FileWriter(path));
@@ -171,7 +171,7 @@ public class JtreeToGraphGeneral {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsd.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
 
             in = new Scanner(new File(path));
 
@@ -505,7 +505,7 @@ public class JtreeToGraphGeneral {
         if (ODMEEditor.toolMode == "ses")
             path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/"  + filename + "Graph.xml";
         else
-            path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/"  + filename + "Graph.xml";
+            path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/"  + filename + "Graph.xml";
 
         ssdFileGraph =
                 new File(path);

@@ -1,4 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <start>
-<Thing/>
+<Scenario>
+<node13Dec>
+<Environment>
+<node18Spec>
+<Clear/>
+<Fog/>
+</node18Spec>
+</Environment>
+<Obstacles>
+<node21MAsp>
+<Obtacle/>
+</node21MAsp>
+</Obstacles>
+<Drone/>
+</node13Dec>
+</Scenario>
 </start>

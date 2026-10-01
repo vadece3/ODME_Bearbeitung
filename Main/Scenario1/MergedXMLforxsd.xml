@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<entity xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Scenario" xsi:noNamespaceSchemaLocation="ses.xsd">
+    <TracedRequirements>
+        <Requirement id="REQ-03" source="OS-1"/>
+        <Requirement id="REQ-05" source="OS-1"/>
+        <Requirement id="REQ-04" source="OS-1"/>
+        <Requirement id="REQ-02" source="OS-1"/>
+        <Requirement id="REQ-01" source="OS-1"/>
+    </TracedRequirements>
+    <aspect name="node13Dec">
+        <entity name="Clear_Environment"/>
+        <entity name="Obstacles">
+            <aspect name="node21Dec">
+                <entity name="Obtacle_1"/>
+                <entity name="Obtacle_2"/>
+            </aspect>
+        </entity>
+        <entity name="Drone">
+            <behaviour name="ObstacleAvoidance"> </behaviour>
+            <behaviour name="TakeOff"> </behaviour>
+            <behaviour name="MoveNextPoint"> </behaviour>
+            <behaviour name="ObstacleDetection"> </behaviour>
+            <behaviour name="Rotate"> </behaviour>
+            <behaviour name="MarkerDetection"> </behaviour>
+            <behaviour name="Land"> </behaviour>
+            <var default="300" lower="200.0" name="cruiseAltitude" type="float" upper="1300.0"> </var>
+            <var default="550" lower="200.0" name="speed" type="float" upper="700.0"> </var>
+        </entity>
+    </aspect>
+    <root main_tree_to_execute="MainTree">
+        <BehaviourTree ID="MainTree">
+            <RootNode name="Events">
+                <Sequence>
+                    <Action name="TakeOff"/>
+                    <Loop>
+                        <Parallel>
+                            <Action name="ObstacleDetection"/>
+                            <Selector>
+                                <Action name="MoveNextPoint"/>
+                                <Action name="ObstacleAvoidance"/>
+                            </Selector>
+                        </Parallel>
+                    </Loop>
+                    <Loop>
+                        <Sequence>
+                            <Action name="Rotate"/>
+                            <Action name="MarkerDetection"/>
+                        </Sequence>
+                    </Loop>
+                    <Action name="Land"/>
+                </Sequence>
+            </RootNode>
+        </BehaviourTree>
+    </root>
+</entity>

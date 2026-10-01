@@ -42,6 +42,8 @@ import static odme.odmeeditor.ODDManager.currentXsdToYamlTemp;
 import static odme.odmeeditor.ODMEEditor.*;
 import static odme.odmeeditor.XmlUtils.sesview;
 
+import odme.requirements.RequirementsEditor;
+
 public class MenuBar {
 	
 	private JMenuBar menuBar;
@@ -109,6 +111,13 @@ public class MenuBar {
 		final String[] images_scenario_manager = {"list"          ,"executionIcon"      ,"feedbackLoopIcon"    , "list"   };
 
 		addMenu("Scenario Manager", 0, items_scenario_manager, keyevents_scenario_manager, keys_scenario_manager, images_scenario_manager);
+		// Requirements menu (traceability extension)
+		JMenu reqMenu = new JMenu("Requirements");
+		reqMenu.setBorder(new EmptyBorder(10, 20, 10, 20));
+		JMenuItem reqEditorItem = new JMenuItem("Requirements Editor");
+		reqEditorItem.addActionListener(e -> new RequirementsEditor().open());
+		reqMenu.add(reqEditorItem);
+		menuBar.add(reqMenu);
 
 		// Help Menu
 		final String[] items_help =  {"Manual"     , "About"   };
@@ -118,7 +127,10 @@ public class MenuBar {
 
 		addMenu("Help", KeyEvent.VK_H, items_help, keyevents_help, keys_help, images_help);
 
+
 	}
+
+
 
 	private void addMenu(String name, int key_event, String[] items, int[] keyevents, String[] keys, String[] images) {
 		JMenu menu = new JMenu(name);
@@ -207,6 +219,7 @@ public class MenuBar {
 						case "Sync Behaviour":
 							BehaviourList b = new BehaviourList();
 							b.createScenarioListWindow();
+							break;
 						case "Save as Template":
 							exportFunc();
 							break;
@@ -344,22 +357,19 @@ public class MenuBar {
 				JtreeToGraphVariables.newFileName = currentScenario;
 				JtreeToGraphVariables.projectFileNameGraph = currentScenario;
 
-				JtreeToGraphVariables.ssdFileGraph = new File(String.format("%s/%s/%sGraph.xml",
-						fileLocation, currentScenario, projName));
-				treePanel.ssdFile = new File(String.format("%s/%s/%s.xml",
-						fileLocation, currentScenario, projName));
-				treePanel.ssdFileVar = new File(String.format("%s/%s/%s.ssdvar",
-						fileLocation, currentScenario, projName));
-				treePanel.ssdFileDis = new File(String.format("%s/%s/%s.ssddis",
-						fileLocation, currentScenario, projName));
-				treePanel.ssdFileInterCon = new File(String.format("%s/%s/%s.ssdcon",
-						fileLocation, currentScenario, projName));
+				JtreeToGraphVariables.ssdFileGraph = new File(String.format("%s/%s/%s/%sGraph.xml",
+						fileLocation,projName, currentScenario, projName));
+				treePanel.ssdFile = new File(String.format("%s/%s/%s/%s.xml",
+						fileLocation, projName, currentScenario, projName));
+				treePanel.ssdFileVar = new File(String.format("%s/%s/%s/%s.ssdvar",
+						fileLocation, projName, currentScenario, projName));
+				treePanel.ssdFileDis = new File(String.format("%s/%s/%s/%s.ssddis",
+						fileLocation, projName, currentScenario, projName));
+				treePanel.ssdFileInterCon = new File(String.format("%s/%s/%s/%s.ssdcon",
+						fileLocation, projName, currentScenario, projName));
 
-				treePanel.ssdFileBeh = new File(String.format("%s/%s/%s.ssdbeh",
-						fileLocation, currentScenario, projName));
-
-				treePanel.ssdFileFlag = new File(String.format("%s/%s/%s.ssdflag",
-						fileLocation, currentScenario, projName));
+				treePanel.ssdFileBeh = new File(String.format("%s/%s/%s/%s.ssdbeh",
+						fileLocation, projName, currentScenario, projName));
 
 				File f = new File(fileLocation + "/" + projName + "/" + currentScenario);
 				f.mkdirs();
@@ -390,7 +400,7 @@ public class MenuBar {
 
 				//begin: set YAML File
 				String xsdPath = ODMEEditor.fileLocation + "/" + projName + "/xsdfromxml.xsd";
-				yamlFilePath= ODMEEditor.fileLocation + "/" + projName + "Temp.yaml";
+				yamlFilePath= ODMEEditor.fileLocation + "/" + projName + "/" + projName + "Temp.yaml";
 				File yamlFile = new File(yamlFilePath);
 				try {
 					yamlFile.createNewFile();
@@ -410,7 +420,7 @@ public class MenuBar {
 				if (ODMEEditor.toolMode == "ses")
 					outputCsvPath = ODMEEditor.fileLocation + "/" + projName ;
 				else
-					outputCsvPath = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario ;
+					outputCsvPath = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario ;
 
 				csvPath = outputCsvPath + "/CSVTemp.csv"; //Delete at the end of the operation
 				File csvFile = new File(csvPath);
@@ -595,8 +605,8 @@ public class MenuBar {
     @SuppressWarnings("unchecked")
 	private void saveScenario() {
     	JSONParser jsonParser = new JSONParser();
-        
-        try (FileReader reader = new FileReader(ODMEEditor.fileLocation + "/scenarios.json")){
+
+		try (FileReader reader = new FileReader(ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/scenarios.json")){
             Object obj = null;
 			try {
 				obj = jsonParser.parse(reader);
@@ -633,7 +643,7 @@ public class MenuBar {
         		return;
         	
         	try {
-		         FileWriter file = new FileWriter(ODMEEditor.fileLocation + "/scenarios.json");
+		         FileWriter file = new FileWriter(ODMEEditor.fileLocation +"/" + ODMEEditor.projName + "/scenarios.json");
 		         file.write(data.toJSONString());
 		         file.close();
 		         ODMEEditor.graphWindow.setTitle(nameField.getText());
@@ -657,23 +667,23 @@ public class MenuBar {
     private void createScenario(String ScenarioName) {
         ODMEEditor.currentScenario = ScenarioName;
         
-        JtreeToGraphVariables.ssdFileGraph = new File(String.format("%s/%s/%sGraph.xml",
-    			 ODMEEditor.fileLocation, ScenarioName, projName));
-    	 ODMEEditor.treePanel.ssdFile = new File(String.format("%s/%s/%s.xml",
-    			 ODMEEditor.fileLocation,  ScenarioName, projName));
-    	 ODMEEditor.treePanel.ssdFileVar = new File(String.format("%s/%s/%s.ssdvar",
-    			 ODMEEditor.fileLocation,  ScenarioName, projName));
-		 ODMEEditor.treePanel.ssdFileDis = new File(String.format("%s/%s/%s.ssddis",
-				ODMEEditor.fileLocation,  ScenarioName, projName));
-    	 ODMEEditor.treePanel.ssdFileInterCon = new File(String.format("%s/%s/%s.ssdcon",
-    			 ODMEEditor.fileLocation,  ScenarioName, projName));
-    	 ODMEEditor.treePanel.ssdFileFlag = new File(String.format("%s/%s/%s.ssdflag",
-    			 ODMEEditor.fileLocation,  ScenarioName, projName));
+        JtreeToGraphVariables.ssdFileGraph = new File(String.format("%s/%s/%s/%sGraph.xml",
+    			 ODMEEditor.fileLocation, projName, ScenarioName, projName));
+    	 ODMEEditor.treePanel.ssdFile = new File(String.format("%s/%s/%s/%s.xml",
+    			 ODMEEditor.fileLocation, projName, ScenarioName, projName));
+    	 ODMEEditor.treePanel.ssdFileVar = new File(String.format("%s/%s/%s/%s.ssdvar",
+    			 ODMEEditor.fileLocation, projName, ScenarioName, projName));
+		 ODMEEditor.treePanel.ssdFileDis = new File(String.format("%s/%s/%s/%s.ssddis",
+				ODMEEditor.fileLocation, projName, ScenarioName, projName));
+    	 ODMEEditor.treePanel.ssdFileInterCon = new File(String.format("%s/%s/%s/%s.ssdcon",
+    			 ODMEEditor.fileLocation, projName, ScenarioName, projName));
+    	 ODMEEditor.treePanel.ssdFileFlag = new File(String.format("%s/%s/%s/%s.ssdflag",
+    			 ODMEEditor.fileLocation, projName, ScenarioName, projName));
 
-		ODMEEditor.treePanel.ssdFileBeh = new File(String.format("%s/%s/%s.ssdbeh",
-				ODMEEditor.fileLocation,  ScenarioName, projName));
+		ODMEEditor.treePanel.ssdFileBeh = new File(String.format("%s/%s/%s/%s.ssdbeh",
+				ODMEEditor.fileLocation, projName, ScenarioName, projName));
 
-        File f = new File(ODMEEditor.fileLocation + "/" +  ScenarioName);
+        File f = new File(ODMEEditor.fileLocation + "/" + projName + "/" + ScenarioName);
         f.mkdirs();
         
         ODMEEditor.updateState();
@@ -708,6 +718,12 @@ public class MenuBar {
             String fileName = selectedFile.getName();
             System.out.println("Selected file: " + selectedFile.getName());
 
+            int confirmSwitch = JOptionPane.showConfirmDialog(null,
+                "Switch project to '" + fileName + "' in\n"
+                + selectedFile.getParentFile().getAbsolutePath()
+                + " ?\n(Cancel keeps the current project '" + projName + "'.)",
+                "Confirm project switch", JOptionPane.OK_CANCEL_OPTION);
+            if (confirmSwitch != JOptionPane.OK_OPTION) return;
             String oldProjectTreeProjectName = projName;
             projName = fileName;
             ODMEEditor.fileLocation = selectedFile.getParentFile().getAbsolutePath();
@@ -730,7 +746,12 @@ public class MenuBar {
         int result = fileChooser.showSaveDialog(Main.frame);
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
-            
+			int confirmSaveAs = JOptionPane.showConfirmDialog(null,
+					"Save project as '" + selectedFile.getName() + "' in\n"
+							+ selectedFile.getParentFile().getAbsolutePath()
+							+ " ?\n(This changes the active project name and location.)",
+					"Confirm Save As", JOptionPane.OK_CANCEL_OPTION);
+			if (confirmSaveAs != JOptionPane.OK_OPTION) return;
             ODMEEditor.fileLocation = selectedFile.getParentFile().getAbsolutePath();
 
             String newProjectName = selectedFile.getName();
@@ -786,7 +807,7 @@ public class MenuBar {
         	if (ODMEEditor.toolMode == "ses")
         		path = ODMEEditor.fileLocation + "/" + projName  + "/graph.png";
         	else
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/graph.png";
+        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/graph.png";
         		
             ImageIO.write(image, "PNG", new File(path));
             JOptionPane.showMessageDialog(Main.frame, "Saved Successfully.", "Save PNG",

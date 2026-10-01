@@ -155,7 +155,7 @@ public class TypeInfoWriter extends DefaultHandler {
         	if (ODMEEditor.toolMode == "ses")
         		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/xmlforxsd.xml";
         	else
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/xmlforxsd.xml";
+        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/xmlforxsd.xml";
         	
             instances.add(path);
             ODMEEditor.sesValidationControl = 0;
@@ -166,7 +166,7 @@ public class TypeInfoWriter extends DefaultHandler {
         	if (ODMEEditor.toolMode == "ses")
         		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + rootNodeName + ".xml";
         	else
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + rootNodeName + ".xml";
+        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/" + rootNodeName + ".xml";
         	
             instances.add(path);
         }

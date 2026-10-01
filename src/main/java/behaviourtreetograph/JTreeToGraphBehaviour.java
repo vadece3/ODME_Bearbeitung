@@ -138,6 +138,8 @@ public class JTreeToGraphBehaviour {
 		behaviourGraphComponent = new mxGraphComponent(benhaviourGraph);
 		behaviourGraphComponent.getViewport().setBackground(Color.WHITE);
 
+		loadSavedBehaviourGraphIfExists();
+
 		// undo redo settings
 		mxEventSource.mxIEventListener listener = new mxEventSource.mxIEventListener() {
 
@@ -210,8 +212,8 @@ public class JTreeToGraphBehaviour {
 								if(ODMEBehaviourEditor.nodeBehaviour.contains("Dec")) {
 								}else if (ODMEBehaviourEditor.nodeBehaviour.contains("MAsp")) {}
 								else
-									if (ODMEBehaviourEditor.nodeBehaviour.contains("Spec")) {}
-									else {
+								if (ODMEBehaviourEditor.nodeBehaviour.contains("Spec")) {}
+								else {
 									benhaviourGraph.insertVertex(behaviourParent, ODMEBehaviourEditor.nodeBehaviour, ODMEBehaviourEditor.nodeBehaviour, e.getX() - 40, e.getY(),
 											80, 30, "Entity");
 									behaviourNodeNumber++;
@@ -335,5 +337,38 @@ public class JTreeToGraphBehaviour {
 
 		public void treeStructureChanged(TreeModelEvent e) {}
 	}
-}
 
+	/** Loads a previously saved behaviour graph of the open scenario into the
+	 * canvas, if one exists (supervisor request: reuse existing BT models
+	 * instead of rebuilding them every session). Export keeps working because
+	 * mxCodec preserves the cell ids, including "rootnode". */
+	public static void loadSavedBehaviourGraphIfExists() {
+		try {
+			String scen = odeme.behaviour.BehaviourToTree.selectedScenario;
+			java.io.File dir = new java.io.File(ODMEEditor.fileLocation + "/"
+					+ ODMEEditor.projName + "/" + scen);
+			java.io.File graphFile = new java.io.File(dir, scen + "behaviourGraph.xml");
+			if (!graphFile.exists() && dir.isDirectory()) {
+				java.io.File[] candidates = dir.listFiles(
+						(d, n) -> n.endsWith("behaviourGraph.xml"));
+				if (candidates != null && candidates.length > 0) graphFile = candidates[0];
+			}
+			if (!graphFile.exists()) {
+				System.out.println("No saved behaviour graph for " + scen
+						+ " - starting with an empty canvas.");
+				return;
+			}
+			org.w3c.dom.Document doc = com.mxgraph.util.mxXmlUtils.parseXml(
+					com.mxgraph.util.mxUtils.readFile(graphFile.getAbsolutePath()));
+			com.mxgraph.io.mxCodec codec = new com.mxgraph.io.mxCodec(doc);
+			codec.decode(doc.getDocumentElement(), benhaviourGraph.getModel());
+			behaviourParent = benhaviourGraph.getDefaultParent();
+			benhaviourGraph.refresh();
+			System.out.println("Behaviour graph loaded from " + graphFile.getName());
+		} catch (Exception e) {
+			System.out.println("Behaviour graph load failed - starting with an empty canvas.");
+			e.printStackTrace();
+		}
+	}
+
+}

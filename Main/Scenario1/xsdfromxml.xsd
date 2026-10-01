@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+ xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" 
+ elementFormDefault="qualified" vc:minVersion="1.1" >
+
+<xs:element name="Scenario">
+<xs:complexType>
+<xs:sequence id="node13Dec">
+<xs:element name="Clear_Environment">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="Obstacles">
+<xs:complexType>
+<xs:sequence id="node21Dec">
+<xs:element name="Obtacle_1">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="Obtacle_2">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="Drone">
+<xs:complexType>
+<xs:attribute name="ObstacleAvoidance">
+</xs:attribute>
+<xs:attribute name="TakeOff">
+</xs:attribute>
+<xs:attribute name="MoveNextPoint">
+</xs:attribute>
+<xs:attribute name="ObstacleDetection">
+</xs:attribute>
+<xs:attribute name="Rotate">
+</xs:attribute>
+<xs:attribute name="MarkerDetection">
+</xs:attribute>
+<xs:attribute name="Land">
+</xs:attribute>
+<xs:attribute name="cruiseAltitude" type="float" default="300">
+<xs:simpleType>
+<xs:restriction base="xs:float">
+<xs:type value="float"/>
+<xs:minInclusive value="200.0"/>
+<xs:maxInclusive value="1300.0"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="speed" type="float" default="550">
+<xs:simpleType>
+<xs:restriction base="xs:float">
+<xs:type value="float"/>
+<xs:minInclusive value="200.0"/>
+<xs:maxInclusive value="700.0"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:schema>

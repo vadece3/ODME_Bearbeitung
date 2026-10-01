@@ -20,13 +20,13 @@ public class ScenarioGeneration {
     public static String generateScenarios ( String csvPath, String nameScenarioList) {
 
         scenarioName = nameScenarioList;
-        String pathParent = ODMEEditor.fileLocation + "/Scenarios/" + nameScenarioList ;
+        String pathParent = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/Scenarios/" + nameScenarioList ;
         File folder = new File(pathParent);
 
         // Check if folder exists
         if (folder.exists()) {
             fileExistValidator = 1;
-            String newPathParent = ODMEEditor.fileLocation + "/Scenarios/" + nameScenarioList + "1" ;
+            String newPathParent = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/Scenarios/" + nameScenarioList + "1" ;
             folder = new File(newPathParent);
         }
 

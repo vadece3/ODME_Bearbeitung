@@ -21,6 +21,7 @@ public class Main {
     private static ToolBar toolBar;
 
     public static void main(String[] args) {
+		System.out.println("Working dir: " + new java.io.File("").getAbsolutePath());
         // Create the folder of the Main project if it doesn't exist
         File f = new File("Main");
         f.mkdirs();
@@ -106,3 +107,4 @@ public class Main {
         }
     }
 }
+

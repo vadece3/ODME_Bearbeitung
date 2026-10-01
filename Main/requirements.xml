@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<requirements>
+  <requirement id="REQ-01" source="OS-1">The drone shall take off to its cruise altitude.</requirement>
+  <requirement id="REQ-02" source="OS-1">While flying to the delivery point, the drone shall continuously detect obstacles.</requirement>
+  <requirement id="REQ-03" source="OS-1">If an obstacle is detected, the drone shall avoid it; otherwise it shall continue to the next waypoint.</requirement>
+  <requirement id="REQ-04" source="OS-1">The drone shall search for the delivery marker by rotating until the marker is detected.</requirement>
+  <requirement id="REQ-05" source="OS-1">Once the marker is detected, the drone shall land on it.</requirement>
+</requirements>

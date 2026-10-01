@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<entity xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ses.xsd" name="Scenario">
+<aspect name="node13Dec">
+<entity name="Clear_Environment">
+</entity>
+<entity name="Obstacles">
+<aspect name="node21Dec">
+<entity name="Obtacle_1">
+</entity>
+<entity name="Obtacle_2">
+</entity>
+</aspect>
+</entity>
+<entity name="Drone">
+<behaviour name="ObstacleAvoidance"> </behaviour>
+<behaviour name="TakeOff"> </behaviour>
+<behaviour name="MoveNextPoint"> </behaviour>
+<behaviour name="ObstacleDetection"> </behaviour>
+<behaviour name="Rotate"> </behaviour>
+<behaviour name="MarkerDetection"> </behaviour>
+<behaviour name="Land"> </behaviour>
+<var name="cruiseAltitude" type="float" default="300" lower="200.0" upper="1300.0"> </var>
+<var name="speed" type="float" default="550" lower="200.0" upper="700.0"> </var>
+</entity>
+</aspect>
+</entity>

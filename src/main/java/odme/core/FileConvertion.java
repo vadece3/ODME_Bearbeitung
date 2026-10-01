@@ -38,7 +38,7 @@ public class FileConvertion {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/xsdfromxml.xsd";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/xsdfromxml.xsd";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/xsdfromxml.xsd";
 
             f0 = new PrintWriter(
                     new FileWriter(path));
@@ -54,7 +54,7 @@ public class FileConvertion {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsd.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
 
 
             in = new Scanner(new File(path));
@@ -139,6 +139,7 @@ public class FileConvertion {
                     if (line.startsWith("<")) {
                         if (line.endsWith("/>")) { // The original if statement becomes an else if
                             String result = line.replaceAll("[</>]", "");
+
 
                             if (result.endsWith("Var")) {
                                 String novarresult = result.replace("Var", "");
@@ -246,7 +247,7 @@ public class FileConvertion {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsd.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
 
             in = new Scanner(new File(path));
         }
@@ -260,7 +261,7 @@ public class FileConvertion {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsdvar.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsdvar.xml";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsdvar.xml";
 
             f0 = new PrintWriter(new FileWriter(path));
         }
@@ -319,8 +320,8 @@ public class FileConvertion {
             fileFixerOutputgraphxmlforxsd(ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsd.xml");
         }
         else {
-            fileFixerOutputgraphxmlforxsd(ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsdvar.xml");
-            fileFixerOutputgraphxmlforxsd(ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml");
+            fileFixerOutputgraphxmlforxsd(ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsdvar.xml");
+            fileFixerOutputgraphxmlforxsd(ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml");
         }
 
         copyFileToExistingOne();
@@ -423,7 +424,7 @@ public class FileConvertion {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsd.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
 
             in = new Scanner(new File(path));
         }
@@ -437,7 +438,7 @@ public class FileConvertion {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsdvar.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsdvar.xml";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsdvar.xml";
 
             f0 = new PrintWriter(new FileWriter(path));
         }
@@ -505,7 +506,7 @@ public class FileConvertion {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsd.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
 
             in = new Scanner(new File(path));
         }
@@ -519,7 +520,7 @@ public class FileConvertion {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsdvar.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsdvar.xml";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsdvar.xml";
 
             f0 = new PrintWriter(new FileWriter(path));
         }
@@ -588,7 +589,7 @@ public class FileConvertion {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsd.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
 
             in = new Scanner(new File(path));
         }
@@ -602,7 +603,7 @@ public class FileConvertion {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsdvar.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsdvar.xml";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsdvar.xml";
 
             f0 = new PrintWriter(new FileWriter(path));
         }
@@ -667,7 +668,7 @@ public class FileConvertion {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsd.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
 
             in = new Scanner(new File(path));
         }
@@ -681,7 +682,7 @@ public class FileConvertion {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsdvar.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsdvar.xml";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsdvar.xml";
 
             f0 = new PrintWriter(new FileWriter(path));
         }
@@ -1167,7 +1168,7 @@ public class FileConvertion {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + file1;
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + file1;
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + file1;
 
             f0 = new PrintWriter(new FileWriter(path));
         }
@@ -1181,7 +1182,7 @@ public class FileConvertion {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + file2;
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + file2;
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + file2;
 
             in = new Scanner(new File(path));
         }

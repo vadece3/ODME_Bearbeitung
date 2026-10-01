@@ -75,7 +75,7 @@ public class JtreeToGraphModify {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + projectFileNameGraph + ".xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + ODMEEditor.projName + ".xml";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/" + ODMEEditor.projName + ".xml";
 
             f0 = new PrintWriter(new FileWriter(path));
         } 
@@ -89,7 +89,7 @@ public class JtreeToGraphModify {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/graphxml.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/graphxml.xml";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/graphxml.xml";
 
             in = new Scanner(new File(path));
         } 
@@ -130,7 +130,7 @@ public class JtreeToGraphModify {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + newFileName + "Project.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + ODMEEditor.projName + "Project.xml";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/" + ODMEEditor.projName + "Project.xml";
 
             f0 = new PrintWriter(new FileWriter(path));
 
@@ -145,7 +145,7 @@ public class JtreeToGraphModify {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/projectTree.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/projectTree.xml";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/projectTree.xml";
 
             in = new Scanner(new File(path));
         } 
@@ -186,7 +186,7 @@ public class JtreeToGraphModify {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsdvar.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsdvar.xml";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsdvar.xml";
 
             f0 = new PrintWriter(new FileWriter(path));
         } 
@@ -200,7 +200,7 @@ public class JtreeToGraphModify {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsd.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
 
             in = new Scanner(new File(path));
         } 
@@ -260,7 +260,7 @@ public class JtreeToGraphModify {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsd.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
 
             f0 = new PrintWriter(new FileWriter(path));
         } 
@@ -274,7 +274,7 @@ public class JtreeToGraphModify {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsdvar.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsdvar.xml";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsdvar.xml";
 
             in = new Scanner(new File(path));
         } 

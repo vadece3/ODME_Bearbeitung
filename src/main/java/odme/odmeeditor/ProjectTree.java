@@ -60,12 +60,12 @@ public class ProjectTree extends JPanel implements MouseListener {
         
         toolkit = Toolkit.getDefaultToolkit();
         clickControl = 0;
-        ssdFileProject = new File(String.format("%s/%sProject.xml", ODMEEditor.projName, JtreeToGraphVariables.newFileName));
+        ssdFileProject = new File(String.format("%s/%s/%sProject.xml", ODMEEditor.fileLocation, ODMEEditor.projName, JtreeToGraphVariables.newFileName));
 
         if (ssdFileProject.exists()) {
             // restoring jtree from xml
             XmlJTree myTree =
-                    new XmlJTree(ODMEEditor.projName + "/" + JtreeToGraphVariables.newFileName + "Project.xml");
+                    new XmlJTree(ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + JtreeToGraphVariables.newFileName + "Project.xml");
             projectTreeModel = myTree.dtModel;
             projectTreeModel.addTreeModelListener(new ProjectTreeModelListener());
             projectTree = new JTree(projectTreeModel);

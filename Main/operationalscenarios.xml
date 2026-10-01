@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<operationalScenarios>
+  <operationalScenario id="OS-1">A delivery drone shall take off, fly to a delivery point while avoiding obstacles along its path, search for the delivery marker at the destination, and land on the marker.</operationalScenario>
+</operationalScenarios>

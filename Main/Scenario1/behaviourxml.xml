@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<start>
+<Events>
+<Sequence>
+<TakeOff/>
+<Loop>
+<Parallel>
+<ObstacleDetection/>
+<Selector>
+<MoveNextPoint/>
+<ObstacleAvoidance/>
+</Selector>
+</Parallel>
+</Loop>
+<Loop>
+<Sequence>
+<Rotate/>
+<MarkerDetection/>
+</Sequence>
+</Loop>
+<Land/>
+</Sequence>
+</Events>
+</start>

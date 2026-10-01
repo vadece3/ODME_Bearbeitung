@@ -218,7 +218,7 @@ public class DynamicTree extends JPanel implements MouseListener {
         if (ODMEEditor.toolMode == "ses")
             path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + filename + ".xml";
         else
-            path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + filename + ".xml";
+            path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/" + filename + ".xml";
 
         XmlJTree myTree =
                 new XmlJTree(path);
@@ -243,7 +243,7 @@ public class DynamicTree extends JPanel implements MouseListener {
         if (ODMEEditor.toolMode == "ses")
             path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + newProjectName + "Graph.xml";
         else
-            path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + newProjectName + "Graph.xml";
+            path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/" + newProjectName + "Graph.xml";
 
         JtreeToGraphVariables.ssdFileGraph = new File(path);
         ODMEEditor.treePanel.ssdFile =
@@ -253,7 +253,7 @@ public class DynamicTree extends JPanel implements MouseListener {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + newProjectName + ".ssdvar";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + newProjectName + ".ssdvar";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/" + newProjectName + ".ssdvar";
 
             ObjectInputStream oisvar;
             oisvar = new ObjectInputStream(new FileInputStream(path));
@@ -263,7 +263,7 @@ public class DynamicTree extends JPanel implements MouseListener {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + newProjectName + ".ssddis";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + newProjectName + ".ssddis";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/" + newProjectName + ".ssddis";
 
             ObjectInputStream oisdis;
             oisdis = new ObjectInputStream(new FileInputStream(path));
@@ -273,7 +273,7 @@ public class DynamicTree extends JPanel implements MouseListener {
             if (ODMEEditor.toolMode == "ses")  // Author:Vadece Kamdem
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + newProjectName + ".ssdbeh";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + newProjectName + ".ssdbeh";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/" + newProjectName + ".ssdbeh";
 
             ObjectInputStream oisbehaviour;
             oisbehaviour = new ObjectInputStream(new FileInputStream(path));
@@ -284,7 +284,7 @@ public class DynamicTree extends JPanel implements MouseListener {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + newProjectName + ".ssdcon";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + newProjectName + ".ssdcon";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/" + newProjectName + ".ssdcon";
             File interCon = new File(path);
             if (interCon.exists()) {
                 ObjectInputStream oiscon = new ObjectInputStream(new FileInputStream(interCon));
@@ -296,7 +296,7 @@ public class DynamicTree extends JPanel implements MouseListener {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + newProjectName + ".ssdintracons";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + newProjectName + ".ssdintracons";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/" + newProjectName + ".ssdintracons";
             File intraCon = new File(path);
             if (intraCon.exists()) {
                 ObjectInputStream oisintracon = new ObjectInputStream(new FileInputStream(intraCon));
@@ -311,7 +311,7 @@ public class DynamicTree extends JPanel implements MouseListener {
                 if (ODMEEditor.toolMode == "ses")
                     path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName +  "/" + newProjectName + ".ssdflag";
                 else
-                    path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario +  "/" + newProjectName + ".ssdflag";
+                    path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario +  "/" + newProjectName + ".ssdflag";
 
                 ObjectInputStream oisflag = new ObjectInputStream(new FileInputStream(path));
                 FlagVariables flags = new FlagVariables();
@@ -476,7 +476,8 @@ public class DynamicTree extends JPanel implements MouseListener {
             if (ODMEEditor.toolMode == "ses")
                 path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.projName;
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + ODMEEditor.projName;
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.currentScenario + "/" + ODMEEditor.projName;
+            new File(path).getParentFile().mkdirs();
 
             ssdFileVar = new File(String.format("%s.ssdvar", path));
             ObjectOutputStream oosvar = new ObjectOutputStream(new FileOutputStream(ssdFileVar));

@@ -367,6 +367,8 @@ public class JtreeToGraphConvert {
                 in.close();
                 beh.close();
                 f0.close();
+
+                odme.requirements.RequirementTagger.retagMergedFile(selectedScenario);
             }catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {

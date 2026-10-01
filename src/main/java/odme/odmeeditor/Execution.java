@@ -667,7 +667,7 @@ public class Execution extends JFrame {
         progressBar.setValue(0);
         SwingUtilities.invokeLater(() -> {
             try {
-                File scriptFile = new File("temp_script.py");
+                File scriptFile = new File(ODMEEditor.fileLocation + "/" + ODMEEditor.projName, "temp_script.py");
                 try (BufferedWriter writer = new BufferedWriter(new FileWriter(scriptFile))) {
                     writer.write(pythonEditor.getText());
                 }
