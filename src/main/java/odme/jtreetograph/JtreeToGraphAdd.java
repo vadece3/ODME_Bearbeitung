@@ -2,24 +2,18 @@ package odme.jtreetograph;
 
 import static odme.jtreetograph.JtreeToGraphVariables.*;
 
-import java.awt.Color;
+import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
@@ -36,6 +30,7 @@ public class JtreeToGraphAdd {
 
     public static String selectedType = "byte";
     static String[] variableComboList = new String[100];
+    static String[] distributionVariableComboList = new String[100];
 
     public static void addNodeIntoJtreeWithNewModuleAddition(mxCell lastAddedCell) {
         mxCell addedCell = null;
@@ -204,6 +199,132 @@ public class JtreeToGraphAdd {
 
     }
 
+    public static void addLimitToMAspecNode(Object pos) {
+        mxCell varCell = (mxCell) pos;
+        selectedNodeCellForVariableUpdate = varCell;
+
+        // Get limit input from the user
+        JTextField limitField = new JTextField();
+        Object[] message = {"Enter Limit:", limitField};
+        int option = JOptionPane.showConfirmDialog(
+                Main.frame, message, "Set Limit for MAsp Node", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (option == JOptionPane.OK_OPTION) {
+            String limitValue = limitField.getText();
+
+            // Validate input
+            if (limitValue != null && !limitValue.trim().isEmpty()) {
+                // Build path to the root for the selected MAsp node
+                pathToRoot.add((String) varCell.getValue());
+                JtreeToGraphConvert.nodeToRootPathVar(varCell);
+
+                String[] stringArray = pathToRoot.toArray(new String[0]);
+                ArrayList<String> pathToRootRev = new ArrayList<>();
+
+                for (int i = stringArray.length - 1; i >= 0; i--) {
+                    pathToRootRev.add(stringArray[i]);
+                }
+
+                String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
+                TreePath treePathForLimit = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
+                pathToRoot.clear();
+
+                // Add the limit to the Multimap
+                DynamicTree.limitsMAspec.put(treePathForLimit, limitValue);
+
+                System.out.println("Limit added to Multimap for path: " + treePathForLimit + ", Limit: " + limitValue);
+
+            } else {
+                JOptionPane.showMessageDialog(Main.frame, "Please enter a valid limit value.");
+            }
+        }
+    }
+
+
+    public static Map<TreePath, String> readLimitFile(){
+
+//        File ssdFileLimit = new File(String.format("%s/%s.txt", ODMEEditor.fileLocation, "ssdLimit"));
+        File ssdFileLimit = new File(String.format("%s.ssdLimit",
+//                ODMEEditor.fileLocation,ODMEEditor.projName, projectFileName)
+                ODMEEditor.fileLocation + "/" + ODMEEditor.projName)
+        );
+
+        Map<TreePath, String> limitsMAspec = new HashMap<>();
+
+        System.out.println("readLimitFile = " + ssdFileLimit);
+
+        // Check if the file exists before attempting to read
+        if (!ssdFileLimit.exists()) {
+            System.out.println("No limit file found. No limits to load.");
+            return null;
+        }else {
+            try  {
+                // Read the Multimap from the file
+
+                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ssdFileLimit));
+
+                limitsMAspec = (Map<TreePath, String>) ois.readObject();
+
+                System.out.println("Limits loaded successfully from limit");
+                System.out.println("Keys = "+limitsMAspec.keySet());
+                System.out.println("Values = "+limitsMAspec.values());
+
+                ois.close();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Error loading limits from file.");
+            }
+        }
+
+        return limitsMAspec;
+    }
+
+    public static int checkLimitForNodeName(String nodeName) {
+
+
+        Map<TreePath, String> limits = readLimitFile();
+
+        // Check if any TreePath in limits contains the nodeName
+        for (TreePath path : limits.keySet()) {
+            if (path.toString().contains(nodeName)) {
+                // Directly get the limit string for the TreePath
+                String limitStr = limits.get(path);
+
+                try {
+                    int limit = Integer.parseInt(limitStr);
+                    System.out.println("Limit for " + nodeName + ": " + limit);
+                    return limit;
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid limit format for node " + nodeName + ": " + limitStr);
+                    return 0;
+                }
+            }
+        }
+
+        // Check if any TreePath in limits contains the nodeName
+
+//        for (TreePath path : limits.keySet()) {
+//            if (path.toString().contains(nodeName)) {
+//                Collection<String> nodeLimits = limits.get(path);
+//
+//                // Assuming there's only one limit per node, get the first limit
+//                String limitStr = nodeLimits.iterator().next();
+//                try {
+//                    int limit = Integer.parseInt(limitStr);
+//                    System.out.println("Limit for " + nodeName + ": " + limit);
+//                    return limit;
+//                } catch (NumberFormatException e) {
+//                    System.err.println("Invalid limit format for node " + nodeName + ": " + limitStr);
+//                    return 0;
+//                }
+//            }
+//        }
+
+        System.out.println("No limit found for node: " + nodeName);
+        return 0; // Default value if no limit is found
+    }
+
     public static void addVariableFromGraphPopup(Object pos) {
         mxCell varCell = (mxCell) pos;
         selectedNodeCellForVariableUpdate = varCell;
@@ -233,7 +354,7 @@ public class JtreeToGraphAdd {
 
         String[] typeList = {" ", "boolean", "int", "float", "double", "string"};
 
-        String variableFieldRegEx = "^[a-zA-Z]+$"; // just alphanumeric
+        String variableFieldRegEx = "^[a-zA-Z]+$"; // just alphabets
 
         JComboBox<String> variableTypeField = new JComboBox<String>(typeList);
 
@@ -572,99 +693,389 @@ public class JtreeToGraphAdd {
 
 
     public static void addNormalDistribution(Object pos) {
+
+        // Add textfields for mean and variance
+        JTextField meanField, standardDeviationTypeField, variableField;
+
+        // Create the dialog
+        JDialog dialog = new JDialog((Frame) null, "Create Normal Distribution", true);
+        dialog.setLayout(new GridBagLayout());
+        dialog.setSize(600, 300);
+        dialog.setLocationRelativeTo(null); // center on screen
+
+        // Layout helper
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(9, 9, 9, 9);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1;
+
+
+        JLabel variableLabel = new JLabel("Enter Variable:");
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1;
+        dialog.add(variableLabel, gbc);
+
+        variableField = new JTextField();
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.weightx = 1;
+        dialog.add(variableField, gbc);
+
+        JLabel meanLabel = new JLabel("Enter Mean:");
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.weightx = 1;
+        dialog.add(meanLabel, gbc);
+
+        meanField = new JTextField();
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.weightx = 1;
+        dialog.add(meanField, gbc);
+
+        JLabel standardDeviationLabel = new JLabel("Enter Standard Deviation:");
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.weightx = 1;
+        dialog.add(standardDeviationLabel, gbc);
+
+        standardDeviationTypeField = new JTextField();
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        gbc.weightx = 1;
+        dialog.add(standardDeviationTypeField, gbc);
+
+
+        // --- Buttons ---
+        JButton okButton = new JButton("OK");
+        JButton cancelButton = new JButton("Cancel");
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.add(okButton);
+        buttonPanel.add(cancelButton);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 3;
+        dialog.add(buttonPanel, gbc);
+
+        JLabel errorField = new JLabel("________________________");
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.weightx = 1;
+        dialog.add(errorField, gbc);
+
+
+
+        // --- OK button action ---
+        okButton.addActionListener(ee -> {
+            variableComboList = new String[100];
+            distributionVariableComboList = new String[100];
+            pathToRoot.clear();
+
+            //START Get existing variableNames
+            mxCell cellForAddingVariable1 = (mxCell) pos;
+            pathToRoot.add((String) cellForAddingVariable1.getValue());
+            JtreeToGraphConvert.nodeToRootPathVar(cellForAddingVariable1);
+            String[] stringArray1 = pathToRoot.toArray(new String[0]);
+            ArrayList<String> pathToRootRev1 = new ArrayList<String>();
+
+            for (int i = stringArray1.length - 1; i >= 0; i--) {
+                pathToRootRev1.add(stringArray1[i]);
+            }
+            String[] stringArrayRev1 = pathToRootRev1.toArray(new String[0]);
+            TreePath treePathForVariable1 = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev1);
+            getVariableList(treePathForVariable1);
+            getDistributionVariableList(treePathForVariable1);
+
+            String[] variableList = variableComboList;
+            String[] distributionVariableList = distributionVariableComboList;
+
+
+            pathToRoot.clear();
+            variableComboList = new String[0];
+            distributionVariableComboList = new String[0];
+            //START Get existing variableNames
+
+            //check if variable already exist: return 1 if exist and 0 if not exist
+            int variableExistChecker = variableExistChecker(variableList, distributionVariableList, variableField.getText().trim());
+
+
+            String distributionNameAndDetails, mean, standardDeviation, variableName, distributionName;
+
+            distributionName = "normalDistribution";
+
+            if(variableField.getText().isEmpty() || meanField.getText().isEmpty() || standardDeviationTypeField.getText().isEmpty()){
+                errorField.setText("FIELDS: No field should be empty");
+                errorField.setForeground(Color.RED);
+            }
+            else if(!variableField.getText().trim().matches("^[a-zA-Z]+$" )){ // just alphabets
+                errorField.setText("Variable: Please enter only alphabets!");
+                errorField.setForeground(Color.RED);
+            }
+            else if(variableExistChecker == 1){
+                errorField.setText("Variable: Variable already exist");
+                errorField.setForeground(Color.RED);
+            }
+            // Check if the input is numeric
+            else if (!meanField.getText().trim().matches("\\d+(\\.\\d+)?")) {  // integer or decimal
+                errorField.setText("Mean: Please enter a number!");
+                errorField.setForeground(Color.RED);
+            } else if (!standardDeviationTypeField.getText().matches("\\d+(\\.\\d+)?")) {  // integer or decimal
+                errorField.setText("Standard Deviation: Please enter a number!");
+                errorField.setForeground(Color.RED);
+            } else{
+                variableName = variableField.getText();
+                mean = meanField.getText();
+                standardDeviation = standardDeviationTypeField.getText();
+                if ( variableName != null ) {
+                    // added inside IF block so that if variable window closed without adding then
+                    // nothing will happen.
+                    distributionNameAndDetails =
+                            variableName + "," + distributionName + ",mean=" + mean + "___standardDeviation=" + standardDeviation;
+
+                    mxCell cellForAddingVariable = (mxCell) pos;
+                    pathToRoot.add((String) cellForAddingVariable.getValue());
+                    JtreeToGraphConvert.nodeToRootPathVar(cellForAddingVariable);
+                    String[] stringArray = pathToRoot.toArray(new String[0]);
+                    ArrayList<String> pathToRootRev = new ArrayList<String>();
+
+                    for (int i = stringArray.length - 1; i >= 0; i--) {
+                        pathToRootRev.add(stringArray[i]);
+                    }
+                    String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
+                    TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
+
+
+                    DynamicTree.distributionMap.put(treePathForVariable, distributionNameAndDetails);
+
+                    pathToRoot.clear();
+                    // have to call a function to refresh the table view
+                    ODMEEditor.treePanel.refreshDistributionTable(treePathForVariable);
+
+                    dialog.dispose(); // close dialog
+                }
+            }
+
+
+        });
+        // --- Cancel button action ---
+        cancelButton.addActionListener(ee -> dialog.dispose());
+
+        dialog.setVisible(true);
+
+    }
+
+    public static void addUniformDistribution(Object pos) {
+
+        // Add textfields for minVal and maxVal
+        JTextField minValTypeField, maxValTypeField, variableField;
+
+        // Create the dialog
+        JDialog dialog = new JDialog((Frame) null, "Create Uniform Distribution", true);
+        dialog.setLayout(new GridBagLayout());
+        dialog.setSize(600, 300);
+        dialog.setLocationRelativeTo(null); // center on screen
+
+        // Layout helper
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(9, 9, 9, 9);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1;
+
+        JLabel variableLabel = new JLabel("Select Variable:");
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1;
+        dialog.add(variableLabel, gbc);
+
+        variableField = new JTextField();
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.weightx = 1;
+        dialog.add(variableField, gbc);
+
+        JLabel minValLabel = new JLabel("Enter Minimum Value:");
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.weightx = 1;
+        dialog.add(minValLabel, gbc);
+
+        minValTypeField = new JTextField();
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.weightx = 1;
+        dialog.add(minValTypeField, gbc);
+
+        JLabel maxValLabel = new JLabel("Enter Maximum Value:");
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.weightx = 1;
+        dialog.add(maxValLabel, gbc);
+
+        maxValTypeField = new JTextField();
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        gbc.weightx = 1;
+        dialog.add(maxValTypeField, gbc);
+
+
+        // --- Buttons ---
+        JButton okButton = new JButton("OK");
+        JButton cancelButton = new JButton("Cancel");
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.add(okButton);
+        buttonPanel.add(cancelButton);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 3;
+        dialog.add(buttonPanel, gbc);
+
+        JLabel errorField = new JLabel("________________________");
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.weightx = 1;
+        dialog.add(errorField, gbc);
+
+
+
+        // --- OK button action ---
+        okButton.addActionListener(ee -> {
+            variableComboList = new String[100];
+            distributionVariableComboList = new String[100];
+            pathToRoot.clear();
+
+            //START Get existing variableNames
+            mxCell cellForAddingVariable1 = (mxCell) pos;
+            pathToRoot.add((String) cellForAddingVariable1.getValue());
+            JtreeToGraphConvert.nodeToRootPathVar(cellForAddingVariable1);
+            String[] stringArray1 = pathToRoot.toArray(new String[0]);
+            ArrayList<String> pathToRootRev1 = new ArrayList<String>();
+
+            for (int i = stringArray1.length - 1; i >= 0; i--) {
+                pathToRootRev1.add(stringArray1[i]);
+            }
+            String[] stringArrayRev1 = pathToRootRev1.toArray(new String[0]);
+            TreePath treePathForVariable1 = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev1);
+            getVariableList(treePathForVariable1);
+            getDistributionVariableList(treePathForVariable1);
+
+            String[] variableList = variableComboList;
+            String[] distributionVariableList = distributionVariableComboList;
+
+
+            pathToRoot.clear();
+            variableComboList = new String[0];
+            distributionVariableComboList = new String[0];
+            //START Get existing variableNames
+
+            //check if variable already exist: return 1 if exist and 0 if not exist
+            int variableExistChecker = variableExistChecker(variableList, distributionVariableList, variableField.getText().trim());
+
+            String distributionNameAndDetails, minVal, maxVal, variableName, distributionName;
+
+            distributionName = "uniformDistribution";
+
+            if(variableField.getText().isEmpty() || minValTypeField.getText().isEmpty() || maxValTypeField.getText().isEmpty()){
+                errorField.setText("FIELDS: No field should be empty");
+                errorField.setForeground(Color.RED);
+            }
+            else if(!variableField.getText().trim().matches("^[a-zA-Z]+$" )){ // just alphabets
+                errorField.setText("Variable: Please enter only alphabets!");
+                errorField.setForeground(Color.RED);
+            }
+            else if(variableExistChecker == 1){
+                errorField.setText("Variable: Variable already exist");
+                errorField.setForeground(Color.RED);
+            }
+            // Check if the input is numeric
+            else if (!minValTypeField.getText().trim().matches("\\d+(\\.\\d+)?")) {  // integer or decimal
+                errorField.setText("Minimal Value: Please enter a number!");
+                errorField.setForeground(Color.RED);
+            } else if (!maxValTypeField.getText().matches("\\d+(\\.\\d+)?")) {  // integer or decimal
+                errorField.setText("Maximum Value: Please enter a number!");
+                errorField.setForeground(Color.RED);
+            } else{
+                variableName = variableField.getText();
+                minVal = minValTypeField.getText();
+                maxVal = maxValTypeField.getText();
+                if ( variableName != null ) {
+                    // added inside IF block so that if variable window closed without adding then
+                    // nothing will happen.
+                    distributionNameAndDetails =
+                            variableName + "," + distributionName + ",minVal=" + minVal + "___maxVal=" + maxVal;
+
+                    mxCell cellForAddingVariable = (mxCell) pos;
+                    pathToRoot.add((String) cellForAddingVariable.getValue());
+                    JtreeToGraphConvert.nodeToRootPathVar(cellForAddingVariable);
+                    String[] stringArray = pathToRoot.toArray(new String[0]);
+                    ArrayList<String> pathToRootRev = new ArrayList<String>();
+
+                    for (int i = stringArray.length - 1; i >= 0; i--) {
+                        pathToRootRev.add(stringArray[i]);
+                    }
+                    String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
+                    TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
+
+
+                    DynamicTree.distributionMap.put(treePathForVariable, distributionNameAndDetails);
+
+                    pathToRoot.clear();
+
+                    // have to call a function to refresh the table view
+                    ODMEEditor.treePanel.refreshDistributionTable(treePathForVariable);
+
+                    dialog.dispose(); // close dialog
+                }
+            }
+
+
+        });
+        // --- Cancel button action ---
+        cancelButton.addActionListener(ee -> dialog.dispose());
+
+        dialog.setVisible(true);
+
+    }
+
+    private static int variableExistChecker(String[] variableList, String[] distributionvariableList, String newVariable) {
+        for (String variable : variableList){
+            if(newVariable.equals(variable) ){
+                return 1;
+            }
+        }
+        for (String variable : distributionvariableList){
+            if(newVariable.equals(variable) ){
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    public static void deleteDistribution(Object pos) {
         variableComboList = new String[100];
         pathToRoot.clear();
-        String distributionNameAndDetails, mean, variance, variableNameComboBoxValue, distributionName;
 
         // Add textfields for mean and variance
         JTextField meanField, varianceTypeField;
 
+        // Create the dialog
+        JDialog dialog = new JDialog((Frame) null, "Delete Distribution", true);
+        dialog.setLayout(new GridBagLayout());
+        dialog.setSize(600, 300);
+        dialog.setLocationRelativeTo(null); // center on screen
 
-        // Create combo box with variableName options
-        mxCell cellForAddingVariable1 = (mxCell) pos;
-        pathToRoot.add((String) cellForAddingVariable1.getValue());
-        JtreeToGraphConvert.nodeToRootPathVar(cellForAddingVariable1);
-        String[] stringArray1 = pathToRoot.toArray(new String[0]);
-        ArrayList<String> pathToRootRev1 = new ArrayList<String>();
+        // Layout helper
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(9, 9, 9, 9);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1;
 
-        for (int i = stringArray1.length - 1; i >= 0; i--) {
-            pathToRootRev1.add(stringArray1[i]);
-        }
-        String[] stringArrayRev1 = pathToRootRev1.toArray(new String[0]);
-        TreePath treePathForVariable1 = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev1);
-        getVariableList(treePathForVariable1);
-
-        JComboBox<String> variableNameComboBox;
-
-        variableNameComboBox = new JComboBox<>(variableComboList);
-        pathToRoot.clear();
-        variableComboList = new String[0];
-
-
-        meanField = new JTextField();
-        varianceTypeField = new JTextField();
-        distributionName = "normalDistribution";
-
-        Object[] message =
-                {"Variable Name:", variableNameComboBox, "Mean:", meanField, "Variance:", varianceTypeField};
-
-        int option = JOptionPane
-                .showConfirmDialog(Main.frame, message, "NORMAL DISTRIBUTION", JOptionPane.OK_CANCEL_OPTION,
-                        JOptionPane.PLAIN_MESSAGE);
-        if (option == JOptionPane.OK_OPTION) {
-            variableNameComboBoxValue = (String) variableNameComboBox.getSelectedItem();
-            mean = meanField.getText();
-            variance = varianceTypeField.getText();
-
-            // added inside IF block so that if variable window closed without adding then
-            // nothing will happen.
-            distributionNameAndDetails =
-                    variableNameComboBoxValue + "," + distributionName + ",mean="+mean+"___variance="+variance;
-
-            mxCell cellForAddingVariable = (mxCell) pos;
-            pathToRoot.add((String) cellForAddingVariable.getValue());
-            JtreeToGraphConvert.nodeToRootPathVar(cellForAddingVariable);
-            String[] stringArray = pathToRoot.toArray(new String[0]);
-            ArrayList<String> pathToRootRev = new ArrayList<String>();
-
-            for (int i = stringArray.length - 1; i >= 0; i--) {
-                pathToRootRev.add(stringArray[i]);
-            }
-            String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
-            TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
-
-            boolean validInput =
-                    (variableNameComboBoxValue != null) && (!mean.isEmpty()) && (
-                            variance != null);
-
-            if (!validInput) {
-                JOptionPane.showMessageDialog(Main.frame, "Please input all values correctly.");
-            }
-
-            if (validInput) {
-                // added Distribution in a list
-
-                if (variableNameComboBoxValue != null) {
-                    DynamicTree.distributionMap.put(treePathForVariable, distributionNameAndDetails);
-
-                    pathToRoot.clear();
-                    variableComboList = new String[0];
-
-                    // have to call a function to refresh the table view
-                    ODMEEditor.treePanel.refreshDistributionTable(treePathForVariable);
-                }
-            }
-        }
-    }
-
-    public static void addUniformDistribution(Object pos) {
         variableComboList = new String[100];
         pathToRoot.clear();
-        String distributionNameAndDetails, minVal, maxVal, variableNameComboBoxValue, distributionName;
-
-        // Add textfields for minVal and maxVal
-        JTextField minValTypeField, maxValTypeField;
-
 
         // Create combo box with variableName options
         mxCell cellForAddingVariable1 = (mxCell) pos;
@@ -678,7 +1089,7 @@ public class JtreeToGraphAdd {
         }
         String[] stringArrayRev1 = pathToRootRev1.toArray(new String[0]);
         TreePath treePathForVariable1 = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev1);
-        getVariableList(treePathForVariable1);
+        getDistributionList(treePathForVariable1);
 
         JComboBox<String> variableNameComboBox;
 
@@ -686,62 +1097,89 @@ public class JtreeToGraphAdd {
         pathToRoot.clear();
         variableComboList = new String[0];
 
+        //  Number of Samples Input
+        JLabel variableLabel = new JLabel("Select Variable (Distribution):");
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1;
+        dialog.add(variableLabel, gbc);
 
-        minValTypeField = new JTextField();
-        maxValTypeField = new JTextField();
-        distributionName = "uniformDistribution";
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.weightx = 1;
+        dialog.add(variableNameComboBox, gbc);
 
-        Object[] message =
-                {"Variable Name:", variableNameComboBox, "Minimum Value:", minValTypeField, "Maximum Value:", maxValTypeField};
+        // --- Buttons ---
+        JButton okButton = new JButton("Delete");
+        JButton cancelButton = new JButton("Cancel");
 
-        int option = JOptionPane
-                .showConfirmDialog(Main.frame, message, "UNIFORM DISTRIBUTION", JOptionPane.OK_CANCEL_OPTION,
-                        JOptionPane.PLAIN_MESSAGE);
-        if (option == JOptionPane.OK_OPTION) {
-            variableNameComboBoxValue = (String) variableNameComboBox.getSelectedItem();
-            minVal = minValTypeField.getText();
-            maxVal = maxValTypeField.getText();
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.add(okButton);
+        buttonPanel.add(cancelButton);
 
-            // added inside IF block so that if variable window closed without adding then
-            // nothing will happen.
-            distributionNameAndDetails =
-                    variableNameComboBoxValue + "," + distributionName + ",minVal="+minVal+"___maxVal="+maxVal;
-
-            mxCell cellForAddingVariable = (mxCell) pos;
-            pathToRoot.add((String) cellForAddingVariable.getValue());
-            JtreeToGraphConvert.nodeToRootPathVar(cellForAddingVariable);
-            String[] stringArray = pathToRoot.toArray(new String[0]);
-            ArrayList<String> pathToRootRev = new ArrayList<String>();
-
-            for (int i = stringArray.length - 1; i >= 0; i--) {
-                pathToRootRev.add(stringArray[i]);
-            }
-            String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
-            TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
-
-            boolean validInput =
-                    (variableNameComboBoxValue != null) && (!minVal.isEmpty()) && (
-                            maxVal != null);
-
-            if (!validInput) {
-                JOptionPane.showMessageDialog(Main.frame, "Please input all values correctly.");
-            }
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 3;
+        dialog.add(buttonPanel, gbc);
 
 
-            if (validInput) {
-                // added Distribution in a list
 
-                if (variableNameComboBoxValue != null) {
-                    DynamicTree.distributionMap.put(treePathForVariable, distributionNameAndDetails);
+        // --- OK button action ---
+        okButton.addActionListener(ee -> {
 
-//                    variableComboList = new String[0];
-                    pathToRoot.clear();
+            String variableVerification= (String) variableNameComboBox.getSelectedItem();
+            if(variableVerification != null) {
 
-                    // have to call a function to refresh the table view
-                    ODMEEditor.treePanel.refreshDistributionTable(treePathForVariable);
+                mxCell cellForAddingVariable = (mxCell) pos;
+                pathToRoot.add((String) cellForAddingVariable.getValue());
+                JtreeToGraphConvert.nodeToRootPathVar(cellForAddingVariable);
+                String[] stringArray = pathToRoot.toArray(new String[0]);
+                ArrayList<String> pathToRootRev = new ArrayList<String>();
+
+                for (int i = stringArray.length - 1; i >= 0; i--) {
+                    pathToRootRev.add(stringArray[i]);
                 }
+                String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
+                TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
+
+                DefaultMutableTreeNode currentNode =
+                        (DefaultMutableTreeNode) (treePathForVariable.getLastPathComponent());
+
+                int sizeAr = DynamicTree.distributionMap.size();
+                for (TreePath key : DynamicTree.distributionMap.keySet()) {
+
+                    for (String value : DynamicTree.distributionMap.get(key)) {
+                        DefaultMutableTreeNode currentNode1 =
+                                (DefaultMutableTreeNode) (key.getLastPathComponent());
+
+                        String[] properties = value.split(",");
+                        String variableNameComboBoxValue = (String) variableNameComboBox.getSelectedItem();
+                        System.out.println("\n" + currentNode.toString() + "--" + currentNode1.toString() + "-----" + properties[0] + "--" + variableNameComboBoxValue + "\n");
+                        if (currentNode.toString().equals(currentNode1.toString()) && properties[0].equals(variableNameComboBoxValue)) {
+
+                            DynamicTree.distributionMap.remove(key, value);
+                            break;
+                        }
+                    }
+                    int newSizeAr = DynamicTree.distributionMap.size();
+                    if (sizeAr != newSizeAr) {
+                        break;
+                    }
+
+                }
+                // have to call a function to refresh the table view
+                ODMEEditor.treePanel.refreshDistributionTable(treePathForVariable);
+                System.out.println(DynamicTree.distributionMap);
+                pathToRoot.clear();
+
+                dialog.dispose(); // close dialog
             }
-        }
+        });
+        // --- Cancel button action ---
+        cancelButton.addActionListener(ee -> dialog.dispose());
+
+        dialog.setVisible(true);
+
     }
 
     public static void getVariableList(TreePath treePathForVariable) {
@@ -753,6 +1191,52 @@ public class JtreeToGraphAdd {
         for (TreePath key : DynamicTree.varMap.keySet()) {
 
             for (String value : DynamicTree.varMap.get(key)) {
+                DefaultMutableTreeNode currentNode1 =
+                        (DefaultMutableTreeNode) (key.getLastPathComponent());
+
+                String[] properties = value.split(",");
+                if (currentNode.toString().equals(currentNode1.toString()) && properties[0] != null) {
+
+                    variableComboList[a] = properties[0];
+                    a++;
+                }
+            }
+
+        }
+    }
+
+    public static void getDistributionVariableList(TreePath treePathForVariable) {
+        DefaultMutableTreeNode currentNode =
+                (DefaultMutableTreeNode) (treePathForVariable.getLastPathComponent());
+
+        int a = 0;
+
+        for (TreePath key : DynamicTree.distributionMap.keySet()) {
+
+            for (String value : DynamicTree.distributionMap.get(key)) {
+                DefaultMutableTreeNode currentNode1 =
+                        (DefaultMutableTreeNode) (key.getLastPathComponent());
+
+                String[] properties = value.split(",");
+                if (currentNode.toString().equals(currentNode1.toString()) && properties[0] != null) {
+
+                    distributionVariableComboList[a] = properties[0];
+                    a++;
+                }
+            }
+
+        }
+    }
+
+    public static void getDistributionList(TreePath treePathForVariable) {
+        DefaultMutableTreeNode currentNode =
+                (DefaultMutableTreeNode) (treePathForVariable.getLastPathComponent());
+
+        int a = 0;
+
+        for (TreePath key : DynamicTree.distributionMap.keySet()) {
+
+            for (String value : DynamicTree.distributionMap.get(key)) {
                 DefaultMutableTreeNode currentNode1 =
                         (DefaultMutableTreeNode) (key.getLastPathComponent());
 

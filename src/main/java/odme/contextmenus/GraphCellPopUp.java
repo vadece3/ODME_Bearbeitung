@@ -20,6 +20,9 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import static odme.jtreetograph.JtreeToGraphAdd.addLimitToMAspecNode;
+import static odme.jtreetograph.JtreeToGraphAdd.checkLimitForNodeName;
+
 /**
  * <h1>GraphCellPopUp</h1>
  * <p>
@@ -65,6 +68,9 @@ public class GraphCellPopUp extends JPopupMenu {
 									break;
 								case "Add Behaviour":
 									JtreeToGraphAdd.addBehaviourFromGraphPopup(pos);
+									break;
+								case "Add Limit":
+									addLimitToMAspecNode(pos);
 									break;
 								case "Delete Variable":
 									JtreeToGraphDelete.deleteVariableFromGraphPopup(pos);
@@ -119,15 +125,16 @@ public class GraphCellPopUp extends JPopupMenu {
 			itemPrune.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent ae) {
 					if (cellName.endsWith("Dec")) {
-					}
-					else if (cellName.endsWith("MAsp")) {
-
-						JtreeToGraphPrune.pruneMAspNodeFromGraphPopup(pos);
-					}
-					else if (cellName.endsWith("Spec")) {
+					} else if (cellName.endsWith("MAsp")) {
+						int result = checkLimitForNodeName(cellName);
+						if(result == 0){
+							System.out.println("no Limit defined for this MultAspect ");
+						}
+						JtreeToGraphPrune.pruneMAspNodeFromGraphPopup(pos , result);
+						//add check here
+					} else if (cellName.endsWith("Spec")) {
 						JtreeToGraphPrune.pruneNodeFromGraphPopup(pos);
-					}
-					else {
+					} else {
 						JtreeToGraphPrune.pruneSiblingsFromGraphPopup(pos);
 					}
 				}
@@ -139,6 +146,7 @@ public class GraphCellPopUp extends JPopupMenu {
 		// First-level submenu items
 		JMenuItem normalDist = new JMenuItem("Normal Distribution");
 		JMenuItem uniformDist = new JMenuItem("Uniform Distribution");
+		JMenuItem deleteDist = new JMenuItem("DELETE Distribution");
 
 //		// Example of a nested submenu
 //		JMenu advancedMenu = new JMenu("Advanced");
@@ -157,9 +165,14 @@ public class GraphCellPopUp extends JPopupMenu {
 			JtreeToGraphAdd.addUniformDistribution(pos);
 		});
 
+		deleteDist.addActionListener(e -> {
+			JtreeToGraphAdd.deleteDistribution(pos);
+		});
+
 		// Add everything into the "Add Distribution" menu
 		parentMenu.add(normalDist);
 		parentMenu.add(uniformDist);
+		parentMenu.add(deleteDist);
 		parentMenu.addSeparator();
 //		parentMenu.add(advancedMenu); // submenu inside submenu
 	}

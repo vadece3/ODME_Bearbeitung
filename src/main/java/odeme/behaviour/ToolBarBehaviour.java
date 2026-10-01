@@ -1,24 +1,17 @@
 package odeme.behaviour;
 
-import java.awt.BorderLayout;
-import java.awt.Font;
+import behaviourtreetograph.JtreeToGraphConvert;
+import behaviourtreetograph.JtreeToGraphGeneral;
+
+import javax.swing.*;
+import javax.swing.border.EtchedBorder;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.swing.Box;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JToolBar;
-import javax.swing.border.EtchedBorder;
-import javax.swing.undo.CannotRedoException;
-import javax.swing.undo.CannotUndoException;
-
-import behaviourtreetograph.JtreeToGraphConvert;
-import behaviourtreetograph.JtreeToGraphGeneral;
 
 
 

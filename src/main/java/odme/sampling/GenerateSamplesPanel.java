@@ -67,20 +67,20 @@ public class GenerateSamplesPanel extends JPanel {
         //  Output File Path Input
         JLabel filePathLabel = new JLabel("Save As:");
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.weightx = 0;
         add(filePathLabel, gbc);
 
         filePathField = new JTextField();
         filePathField.setEditable(false); // User should use the browse button
         gbc.gridx = 1;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.weightx = 1;
         add(filePathField, gbc);
 
         browseButton = new JButton("Browse...");
         gbc.gridx = 2;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.weightx = 0;
         add(browseButton, gbc);
 
@@ -92,7 +92,7 @@ public class GenerateSamplesPanel extends JPanel {
         buttonPanel.add(cancelButton);
 
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         gbc.gridwidth = 3;
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.EAST;
@@ -175,7 +175,8 @@ public class GenerateSamplesPanel extends JPanel {
 
                     // --- THE ACTUAL CALL TO YOUR BACK-END MODULE ---
                     SamplingManager samplingManager = new SamplingManager();
-                    samplingManager.generateSamples(yamlFilePath, numberOfSamples, outputCsvPath);
+
+                         samplingManager.generateSamples(yamlFilePath, numberOfSamples, outputCsvPath);
 
                     // --- THIS CODE ONLY RUNS IF THE ABOVE LINE SUCCEEDS ---
                     JOptionPane.showMessageDialog(GenerateSamplesPanel.this,

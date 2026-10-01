@@ -161,10 +161,6 @@ public class FileConvertion {
                                     f0.println("<xs:type value=\"" + properties[1] + "\"/>");
                                     f0.println("<xs:minInclusive value=\"" + properties[3] + "\"/>");
                                     f0.println("<xs:maxInclusive value=\"" + properties[4] + "\"/>");
-                                    if (properties.length > 5) {
-                                        f0.println("<xs:distributionType value=\"" + properties[5] + "\"/>");
-                                        f0.println("<xs:distributionDetails value=\"" + properties[6] + "\"/>");
-                                    }
                                     f0.println("</xs:restriction>");
                                     f0.println("</xs:simpleType>");
                                     f0.println("</xs:attribute>");
@@ -175,6 +171,24 @@ public class FileConvertion {
                                 // behaviour with proper style
                                 String[] properties = nobresult.split(",");
                                 f0.println("<xs:attribute name=\"" + properties[0] + "\">");
+                                f0.println("</xs:attribute>");
+
+                            }
+                            else if (result.endsWith("Distion")) {
+                                String nobresult = result.replace("Distion", "");
+
+                                // distribution with proper style
+                                String[] properties = nobresult.split(",");
+                                String type = "distribution";
+                                f0.println(
+                                        "<xs:attribute name=\"" + properties[0] + "\" type=\"" + type + "\">");
+                                f0.println("<xs:simpleType>");
+                                f0.println("<xs:restriction base=\"xs:" + type + "\">");
+                                f0.println("<xs:type value=\"" + type + "\"/>");
+                                f0.println("<xs:distributionName value=\"" + properties[1] + "\"/>");
+                                f0.println("<xs:distributionDetails value=\"" + properties[2] + "\"/>");
+                                f0.println("</xs:restriction>");
+                                f0.println("</xs:simpleType>");
                                 f0.println("</xs:attribute>");
 
                             }
@@ -368,37 +382,12 @@ public class FileConvertion {
             List<String> newLines = Files.readAllLines(path);
             List<String> finalLines = new ArrayList<>();
 
-            //  Collect Distion lines
-            List<String[]> entries = new ArrayList<>();
+            //  Modify Distion lines
             for (String line : newLines) {
-                line = line.trim();
-                if (line.endsWith("Distion/>")) {
-                    String result = line.replaceAll("[</>]", "");
-                    String cleaned = result.replace("Distion", "");
-                    String[] parts = cleaned.split(",");
-                    entries.add(parts);
-                }
-            }
-
-            //  Modify Var lines based on Distion entries
-            for (String line : newLines) {
-                if (line.contains("Distion")) {
-                    // skip any line that still contains "Distion"
-                    continue;
-                }
 
                 String trimmed = line.trim();
-                if (trimmed.endsWith("Var/>")) {
-                    for (String[] entry : entries) {
-                        String varName = entry[0];
-                        if (trimmed.startsWith("<" + varName + ",")) {
-                            // Append the distribution details before Var/>
-                            StringBuilder sb = new StringBuilder(trimmed);
-                            sb.insert(sb.lastIndexOf("Var/>"), "," + entry[1] + "," + entry[2]);
-                            line = sb.toString();
-                            break;
-                        }
-                    }
+                if (trimmed.endsWith("Distion/>Distion")) {
+                    line = line.replace("Distion/>Distion", "Distion/>\nDistion");
                 }
 
                 finalLines.add(line);
@@ -1245,7 +1234,7 @@ public class FileConvertion {
                 + "            <xs:element minOccurs=\"0\" maxOccurs=\"unbounded\" ref=\"entity\"/>\r\n"
                 + "        </xs:sequence>\r\n"
                 + "        <xs:attribute name=\"variablename\" use=\"required\"/>\r\n"
-                + "        <xs:attribute name=\"distributiontype\" use=\"required\"/>\r\n"
+                + "        <xs:attribute name=\"distributionName\" use=\"required\"/>\r\n"
                 + "        <xs:attribute name=\"details\" use=\"required\"/>\r\n" + "        \r\n"
                 + "    </xs:complexType>\r\n" + "\r\n" + "\r\n"
                 + "    <xs:complexType name=\"intracontraintType\">\r\n" + "        <xs:sequence>\r\n"

@@ -1,17 +1,12 @@
 package odeme.behaviour;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Dimension;
-
-import javax.swing.JInternalFrame;
-import javax.swing.JPanel;
-import javax.swing.JSplitPane;
-import javax.swing.plaf.basic.BasicInternalFrameUI;
-import javax.swing.undo.UndoManager;
-
 import behaviourtreetograph.JTreeToGraphBehaviour;
 import odme.odmeeditor.GraphWindow;
+
+import javax.swing.*;
+import javax.swing.plaf.basic.BasicInternalFrameUI;
+import javax.swing.undo.UndoManager;
+import java.awt.*;
 
 
 public class ODMEBehaviourEditor extends JPanel{

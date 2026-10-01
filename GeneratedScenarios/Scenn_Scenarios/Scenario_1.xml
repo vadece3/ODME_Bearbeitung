@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<entity xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ses.xsd" name="Scenario">
+<aspect name="scenarioDec">
+<entity name="Environment">
+<var name="EnvironmentInt" default="22.0"> </var>
+<var name="EnvironmentDouble" default="27.211399535292507"> </var>
+<var name="Season" default="Sprint"> </var>
+<var name="Time" default="Night"> </var>
+</entity>
+<entity name="Obstacle">
+<var name="Bird" default="BirdOne"> </var>
+</entity>
+</aspect>
+</entity>

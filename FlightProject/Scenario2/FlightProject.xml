@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Thing>
+<node3Dec>
+<DomainEnvironment>
+<DomainEnvironmentDec>
+<Wind_Weather>
+</Wind_Weather>
+<Illumination>
+</Illumination>
+</DomainEnvironmentDec>
+</DomainEnvironment>
+<StaticEntity>
+<StaticEntityDec>
+<LandingPad>
+</LandingPad>
+<AirSpace>
+</AirSpace>
+</StaticEntityDec>
+</StaticEntity>
+<SubjectDrone_DynamicEntity>
+</SubjectDrone_DynamicEntity>
+</node3Dec>
+</Thing>

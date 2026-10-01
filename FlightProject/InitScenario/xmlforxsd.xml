@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<entity xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ses.xsd" name="Thing">
+<aspect name="node3Dec">
+<entity name="DomainEnvironment">
+<aspect name="DomainEnvironmentDec">
+<entity name="Weather">
+<specialization name="WeatherSpec">
+<entity name="Snowfall">
+<var name="SnowFallPercentage" type="distribution" distributionName="normalDistribution" details="mean=4.2___standardDeviation=2.3"> </var>
+<var name="QuantityInmm" type="int" default="2" lower="0" upper="10"> </var>
+</entity>
+<entity name="RainFall">
+<var name="RainFallPercentage" type="distribution" distributionName="normalDistribution" details="mean=6___standardDeviation=3"> </var>
+<var name="QuantityInPercentage" type="int" default="20" lower="0" upper="100"> </var>
+</entity>
+<entity name="Wind">
+<var name="WindPercentage" type="distribution" distributionName="normalDistribution" details="mean=5.2___standardDeviation=2.1"> </var>
+<var name="PowerInWatt" type="int" default="10" lower="0" upper="20"> </var>
+</entity>
+</specialization>
+</entity>
+<entity name="Illumination">
+<IntraCon intracontraintname="if(@SnowFall_SnowFallPercentage &lt; 70) then (@RainFall_RainFallPercentage &lt; 60) else true"> </IntraCon>
+<var name="IlluminationPercentage" type="distribution" distributionName="uniformDistribution" details="minVal=1___maxVal=100"> </var>
+<var name="BrigthnessInPercentage" type="int" default="30" lower="10" upper="80"> </var>
+</entity>
+</aspect>
+</entity>
+<entity name="StaticEntity">
+<behaviour name="test"> </behaviour>
+<aspect name="StaticEntityDec">
+<entity name="LandingPad">
+</entity>
+<entity name="AirSpace">
+</entity>
+</aspect>
+</entity>
+<entity name="DynamicEntity">
+<specialization name="DynamicEntitySpec">
+<entity name="IntruderDrone">
+</entity>
+<entity name="SubjectDrone">
+</entity>
+</specialization>
+</entity>
+</aspect>
+</entity>

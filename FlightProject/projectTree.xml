@@ -2,7 +2,7 @@
 <start>
 <Project>
 <MainModule>
-<Main.xml/>
+<FlightProject.xml/>
 </MainModule>
 <AddedModule/>
 </Project>

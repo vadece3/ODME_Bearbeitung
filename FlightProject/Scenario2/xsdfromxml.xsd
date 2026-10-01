@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+ xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" 
+ elementFormDefault="qualified" vc:minVersion="1.1" >
+
+<xs:element name="Thing">
+<xs:complexType>
+<xs:sequence id="node3Dec">
+<xs:element name="DomainEnvironment">
+<xs:complexType>
+<xs:sequence id="DomainEnvironmentDec">
+<xs:element name="Wind_Weather">
+<xs:complexType>
+<xs:attribute name="PowerInWatt" type="int" default="10">
+<xs:simpleType>
+<xs:restriction base="xs:int">
+<xs:type value="int"/>
+<xs:minInclusive value="0"/>
+<xs:maxInclusive value="20"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="Illumination">
+<xs:complexType>
+<xs:attribute name="HasConstraint" type="" default="">
+<xs:simpleType>
+<xs:assert  test="if(@SnowFall_SnowFallPercentage &amp;lt; 70) then (@RainFall_RainFallPercentage &amp;lt; 60) else true"/>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="IlluminationPercentage" type="distribution">
+<xs:simpleType>
+<xs:restriction base="xs:distribution">
+<xs:type value="distribution"/>
+<xs:distributionName value="uniformDistribution"/>
+<xs:distributionDetails value="minVal=1___maxVal=100"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="BrigthnessInPercentage" type="int" default="30">
+<xs:simpleType>
+<xs:restriction base="xs:int">
+<xs:type value="int"/>
+<xs:minInclusive value="10"/>
+<xs:maxInclusive value="80"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="StaticEntity">
+<xs:complexType>
+<xs:sequence id="StaticEntityDec">
+<xs:element name="LandingPad">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="AirSpace">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="SubjectDrone_DynamicEntity">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:schema>

@@ -1,5 +1,6 @@
 package odme.sampling;
 
+import odme.sampling.distribution.DistributionSampling;
 import odme.sampling.model.Parameter;
 import odme.sampling.model.Scenario;
 
@@ -35,8 +36,10 @@ public class SamplingManager {
         List <String> constraint = scenario.getConstraint();
 
         List<Parameter> numericalParams = scenario.getParameters().stream()
-                .filter(p -> "int".equals(p.getType()) || "double".equals(p.getType()) || "float".equals(p.getType()  ))
+                .filter(p -> "int".equals(p.getType()) || "double".equals(p.getType()) || "float".equals(p.getType()) || "distribution".equals(p.getType()  ))
                 .collect(Collectors.toList());
+
+        System.out.println("\n"+numericalParams+"\n");
 
         List<Parameter> categoricalParams = scenario.getParameters().stream()
                 .filter(p -> "categorical".equals(p.getType()))
@@ -171,8 +174,28 @@ public class SamplingManager {
         Map<String, Double> scaledSample = new HashMap<>();
         for (int i = 0; i < numericalParams.size(); i++) {
             Parameter param = numericalParams.get(i);
-            double scaledValue = param.getMin() + normalizedSample[i] * (param.getMax() - param.getMin());
-            scaledSample.put(param.getName(), scaledValue);
+
+            if (param.getDistributionDetails() != null) {
+
+                if (param.getDistributionName().equals("normalDistribution")) {
+                    String[] meanAndStdDeviation = param.getDistributionDetails().split("___");
+                    double mean = Double.parseDouble(meanAndStdDeviation[0].split("=")[1]);
+                    double standardDeviation = Double.parseDouble(meanAndStdDeviation[1].split("=")[1]);
+                    double scaledValue = DistributionSampling.normalDistributionSample(mean, standardDeviation, 1);
+                    scaledSample.put(param.getName(), scaledValue);
+                }
+                if (param.getDistributionName().equals("uniformDistribution")) {
+                    String[] meanAndStdDeviation = param.getDistributionDetails().split("___");
+                    double minValue = Double.parseDouble(meanAndStdDeviation[0].split("=")[1]);
+                    double maxValue = Double.parseDouble(meanAndStdDeviation[1].split("=")[1]);
+                    double scaledValue = DistributionSampling.uniformDistributionSample(minValue, maxValue);
+                    scaledSample.put(param.getName(), scaledValue);
+                }
+            }
+            if (param.getDistributionDetails() == null) {
+                double scaledValue = param.getMin() + normalizedSample[i] * (param.getMax() - param.getMin());
+                scaledSample.put(param.getName(), scaledValue);
+            }
         }
         return scaledSample;
     }

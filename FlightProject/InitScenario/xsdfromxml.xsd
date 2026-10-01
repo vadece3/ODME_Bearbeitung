@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+ xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" 
+ elementFormDefault="qualified" vc:minVersion="1.1" >
+
+<xs:element name="Thing">
+<xs:complexType>
+<xs:sequence id="node3Dec">
+<xs:element name="DomainEnvironment">
+<xs:complexType>
+<xs:sequence id="DomainEnvironmentDec">
+<xs:element name="Weather">
+<xs:complexType>
+<xs:choice id="WeatherSpec">
+<xs:element name="Snowfall">
+<xs:complexType>
+<xs:attribute name="SnowFallPercentage" type="distribution">
+<xs:simpleType>
+<xs:restriction base="xs:distribution">
+<xs:type value="distribution"/>
+<xs:distributionName value="normalDistribution"/>
+<xs:distributionDetails value="mean=4.2___standardDeviation=2.3"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="RainFall">
+<xs:complexType>
+<xs:attribute name="RainFallPercentage" type="distribution">
+<xs:simpleType>
+<xs:restriction base="xs:distribution">
+<xs:type value="distribution"/>
+<xs:distributionName value="normalDistribution"/>
+<xs:distributionDetails value="mean=6___standardDeviation=3"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="Wind">
+<xs:complexType>
+<xs:attribute name="WindPercentage" type="distribution">
+<xs:simpleType>
+<xs:restriction base="xs:distribution">
+<xs:type value="distribution"/>
+<xs:distributionName value="normalDistribution"/>
+<xs:distributionDetails value="mean=5.2___standardDeviation=2.1"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:choice>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="Illumination">
+<xs:complexType>
+<xs:attribute name="HasConstraint" type="" default="">
+<xs:simpleType>
+<xs:assert  test="if(@SnowFall_SnowFallPercentage &amp;lt; 70) then (@RainFall_RainFallPercentage &amp;lt; 60) else true"/>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="IlluminationPercentage" type="distribution">
+<xs:simpleType>
+<xs:restriction base="xs:distribution">
+<xs:type value="distribution"/>
+<xs:distributionName value="uniformDistribution"/>
+<xs:distributionDetails value="minVal=1___maxVal=100"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="StaticEntity">
+<xs:complexType>
+<xs:sequence id="StaticEntityDec">
+<xs:element name="LandingPad">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="AirSpace">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="DynamicEntity">
+<xs:complexType>
+<xs:choice id="DynamicEntitySpec">
+<xs:element name="IntruderDrone">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="SubjectDrone">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:choice>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:schema>

@@ -1,12 +1,7 @@
 package odeme.behaviour;
 
-import java.awt.BorderLayout;
-
-import javax.swing.JFrame;
-
-import odme.odmeeditor.MenuBar;
-import odme.odmeeditor.ODMEEditor;
-import odme.odmeeditor.ToolBar;
+import javax.swing.*;
+import java.awt.*;
 
 public class MainWindow {
 

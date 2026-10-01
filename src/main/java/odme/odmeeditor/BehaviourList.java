@@ -21,12 +21,13 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.DefaultTableModel;
+
 import odeme.behaviour.BehaviourToTree;
+import odeme.behaviour.MainWindow;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import com.mxgraph.util.svg.ParseException;
-import odeme.behaviour.MainWindow;
 
 public class BehaviourList extends JPanel{
 
@@ -45,8 +46,6 @@ public class BehaviourList extends JPanel{
 				dataList1.add(temp);
 			}
 		}
-
-
 		model = new DefaultTableModel(new String[]{"Name"}, 0);
 		for (String[] arr: dataList1) {
 
