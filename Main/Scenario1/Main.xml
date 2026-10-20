@@ -1,17 +1,101 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Scenario>
-<node13Dec>
-<Clear_Environment>
+    <TracedRequirements>
+        <Requirement id="REQ-04" source="OS-1"/>
+        <Requirement id="REQ-02" source="OS-1"/>
+        <Requirement id="REQ-03" source="OS-1"/>
+        <Requirement id="REQ-01" source="OS-1"/>
+    </TracedRequirements>
+        
+        
+        
+        
+          
+    
+    
+    
+    <node13Dec>
+                                                        
+        
+        
+        
+        
+        
+        
+        <Clear_Environment>
 </Clear_Environment>
-<Obstacles>
-<node21Dec>
-<Obtacle_1>
+                                                        
+        
+        
+        
+        
+        
+        
+        <Obstacles>
+                                                                                    
+            
+            
+            
+            
+            
+            
+            <node21Dec>
+                                                                                                                
+                
+                
+                
+                
+                
+                
+                <Obtacle_1>
 </Obtacle_1>
-<Obtacle_2>
+                                                                                                                
+                
+                
+                
+                
+                
+                
+                <Obtacle_2>
 </Obtacle_2>
-</node21Dec>
-</Obstacles>
-<Drone>
+                                                                                                                
+            
+            
+            
+            
+            
+            
+            </node21Dec>
+                                                                                    
+        
+        
+        
+        
+        
+        
+        </Obstacles>
+                                                        
+        
+        
+        
+        
+        
+        
+        <Drone>
 </Drone>
-</node13Dec>
+                                                        
+    
+    
+    
+    
+    
+    
+    </node13Dec>
+                            
+
+
+
+
+
+
 </Scenario>

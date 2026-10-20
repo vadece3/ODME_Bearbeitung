@@ -69,6 +69,14 @@ public class MenuBar {
 
 		addMenu("File", KeyEvent.VK_F, items_file, keyevents_file, keys_file, images_file);
 
+		// Requirements menu (traceability extension)
+		JMenu reqMenu = new JMenu("Requirements");
+		reqMenu.setBorder(new EmptyBorder(10, 20, 10, 20));
+		JMenuItem reqEditorItem = new JMenuItem("Requirements Editor");
+		reqEditorItem.addActionListener(e -> new RequirementsEditor().open());
+		reqMenu.add(reqEditorItem);
+		menuBar.add(reqMenu);
+
 		// Domain Modelling Menu
 		final String[] items_domain_modelling =  {"New Project", "Open"       , "Import Template", "Save as Template", "Import From Cameo"};
 		final int[] keyevents_domain_modelling = {KeyEvent.VK_N, KeyEvent.VK_O, KeyEvent.VK_I    , KeyEvent.VK_E    , KeyEvent.VK_C     };
@@ -111,13 +119,7 @@ public class MenuBar {
 		final String[] images_scenario_manager = {"list"          ,"executionIcon"      ,"feedbackLoopIcon"    , "list"   };
 
 		addMenu("Scenario Manager", 0, items_scenario_manager, keyevents_scenario_manager, keys_scenario_manager, images_scenario_manager);
-		// Requirements menu (traceability extension)
-		JMenu reqMenu = new JMenu("Requirements");
-		reqMenu.setBorder(new EmptyBorder(10, 20, 10, 20));
-		JMenuItem reqEditorItem = new JMenuItem("Requirements Editor");
-		reqEditorItem.addActionListener(e -> new RequirementsEditor().open());
-		reqMenu.add(reqEditorItem);
-		menuBar.add(reqMenu);
+
 
 		// Help Menu
 		final String[] items_help =  {"Manual"     , "About"   };

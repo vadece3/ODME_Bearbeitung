@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -25,6 +27,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import odme.odmeeditor.ODMEEditor;
+import odme.requirements.OperationalScenariosStore.OperationalScenario;
 
 /**
  * Requirements Modeling Editor (deliverable 1), extended with the
@@ -79,7 +82,9 @@ public class RequirementsEditor {
         JButton saveBtn = new JButton("Save");
         JButton refreshBtn = new JButton("Refresh");
         JButton exportBtn = new JButton("Export Matrix (CSV)");
+        JButton osBtn = new JButton("Operational Scenarios...");
 
+        osBtn.addActionListener(e -> manageOperationalScenarios());
         addBtn.addActionListener(e -> addRequirement());
         editBtn.addActionListener(e -> editSelected());
         deleteBtn.addActionListener(e -> deleteSelected());
@@ -100,6 +105,7 @@ public class RequirementsEditor {
         JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT));
         left.add(summaryLabel);
         JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        right.add(osBtn);
         right.add(addBtn);
         right.add(editBtn);
         right.add(deleteBtn);
@@ -128,6 +134,7 @@ public class RequirementsEditor {
         TraceLinksStore.purgeStaleLinks();
         model.setRowCount(0);
         int covered = 0;
+        List<String> osIds = OperationalScenariosStore.ids();
         for (Requirement r : requirements) {
             List<String> scenarios = TraceLinksStore.scenariosFor(r.getId());
             String coveredText;
@@ -137,7 +144,9 @@ public class RequirementsEditor {
                 coveredText = String.join(", ", scenarios);
                 covered++;
             }
-            model.addRow(new Object[] { r.getId(), r.getText(), r.getSource(), coveredText });
+            String sourceText = osIds.contains(r.getSource())
+                    ? r.getSource() : r.getSource() + " (undefined OS)";
+            model.addRow(new Object[] { r.getId(), r.getText(), sourceText, coveredText });
         }
         int total = requirements.size();
         int percent = total == 0 ? 0 : (int) Math.round(100.0 * covered / total);
@@ -234,12 +243,24 @@ public class RequirementsEditor {
         JTextArea textArea = new JTextArea(existing == null ? "" : existing.getText(), 4, 34);
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
-        JTextField sourceField = new JTextField(existing == null ? "OS-1" : existing.getSource());
+        List<String> osIds = OperationalScenariosStore.ids();
+        if (osIds.isEmpty()) {
+            JOptionPane.showMessageDialog(frame,
+                    "No operational scenario is defined yet.\n"
+                            + "Every requirement must originate from one - define it first\n"
+                            + "via 'Operational Scenarios...'.",
+                    "Provenance", JOptionPane.WARNING_MESSAGE);
+            return null;
+        }
+        JComboBox<String> sourceBox = new JComboBox<>(osIds.toArray(new String[0]));
+        if (existing != null && osIds.contains(existing.getSource())) {
+            sourceBox.setSelectedItem(existing.getSource());
+        }
 
         Object[] message = {
                 "ID:", idField,
                 "Requirement text:", new JScrollPane(textArea),
-                "Source (operational scenario):", sourceField };
+                "Source (operational scenario):", sourceBox };
 
         int option = JOptionPane.showConfirmDialog(frame, message,
                 existing == null ? "Add Requirement" : "Edit Requirement",
@@ -258,7 +279,171 @@ public class RequirementsEditor {
                 return null;
             }
         }
-        return new Requirement(id, text, sourceField.getText().trim());
+        return new Requirement(id, text, String.valueOf(sourceBox.getSelectedItem()));
+    }
+
+    // ------------------------------------------------------------------
+    // Operational scenarios: the citable origin of every requirement
+    // (chain OS -> REQ -> BT model). Stored in <project>/operationalscenarios.xml.
+    // ------------------------------------------------------------------
+
+    private void manageOperationalScenarios() {
+        final List<OperationalScenario> list = new ArrayList<>(OperationalScenariosStore.load());
+
+        final DefaultTableModel osModel = new DefaultTableModel(
+                new String[] { "ID", "Operational scenario (full text)" }, 0) {
+            @Override
+            public boolean isCellEditable(int row, int col) { return false; }
+        };
+        final JTable osTable = new JTable(osModel);
+        osTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        osTable.getColumnModel().getColumn(0).setPreferredWidth(60);
+        osTable.getColumnModel().getColumn(1).setPreferredWidth(620);
+
+        final Runnable fill = () -> {
+            osModel.setRowCount(0);
+            for (OperationalScenario os : list) {
+                osModel.addRow(new Object[] { os.getId(), os.getText() });
+            }
+        };
+        fill.run();
+
+        final JDialog dialog = new JDialog(frame,
+                "Operational Scenarios - " + ODMEEditor.projName, true);
+
+        JButton addOs = new JButton("Add");
+        JButton editOs = new JButton("Edit");
+        JButton deleteOs = new JButton("Delete");
+        JButton saveOs = new JButton("Save");
+        JButton closeOs = new JButton("Close");
+
+        addOs.addActionListener(e -> {
+            OperationalScenario os = showOsDialog(dialog, null, list);
+            if (os != null) {
+                list.add(os);
+                fill.run();
+            }
+        });
+        editOs.addActionListener(e -> {
+            int row = osTable.getSelectedRow();
+            if (row < 0) {
+                JOptionPane.showMessageDialog(dialog, "Select an operational scenario first.");
+                return;
+            }
+            OperationalScenario existing = list.get(row);
+            OperationalScenario edited = showOsDialog(dialog, existing, list);
+            if (edited == null) return;
+            if (!existing.getId().equals(edited.getId())
+                    && !requirementsUsing(existing.getId()).isEmpty()) {
+                JOptionPane.showMessageDialog(dialog,
+                        existing.getId() + " is referenced by "
+                                + String.join(", ", requirementsUsing(existing.getId()))
+                                + " - the id cannot be renamed.", "Provenance",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            existing.setId(edited.getId());
+            existing.setText(edited.getText());
+            fill.run();
+        });
+        deleteOs.addActionListener(e -> {
+            int row = osTable.getSelectedRow();
+            if (row < 0) {
+                JOptionPane.showMessageDialog(dialog, "Select an operational scenario first.");
+                return;
+            }
+            String id = list.get(row).getId();
+            List<String> users = requirementsUsing(id);
+            if (!users.isEmpty()) {
+                JOptionPane.showMessageDialog(dialog,
+                        id + " is referenced by " + String.join(", ", users)
+                                + " - delete or re-source those requirements first.",
+                        "Provenance", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int ok = JOptionPane.showConfirmDialog(dialog, "Delete " + id + "?",
+                    "Delete", JOptionPane.OK_CANCEL_OPTION);
+            if (ok == JOptionPane.OK_OPTION) {
+                list.remove(row);
+                fill.run();
+            }
+        });
+        saveOs.addActionListener(e -> {
+            if (OperationalScenariosStore.save(list)) {
+                JOptionPane.showMessageDialog(dialog, "Operational scenarios saved to:\n"
+                        + OperationalScenariosStore.osFile().getAbsolutePath());
+                refreshTable();   // Source column: undefined-OS markers disappear
+            } else {
+                JOptionPane.showMessageDialog(dialog, "Saving failed - see console.",
+                        "Save", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        closeOs.addActionListener(e -> dialog.dispose());
+
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttons.add(addOs);
+        buttons.add(editOs);
+        buttons.add(deleteOs);
+        buttons.add(saveOs);
+        buttons.add(closeOs);
+
+        JScrollPane scroll = new JScrollPane(osTable);
+        scroll.setPreferredSize(new Dimension(700, 200));
+        dialog.add(scroll, BorderLayout.CENTER);
+        dialog.add(buttons, BorderLayout.SOUTH);
+        dialog.pack();
+        dialog.setLocationRelativeTo(frame);
+        dialog.setVisible(true);
+    }
+
+    private OperationalScenario showOsDialog(JDialog owner, OperationalScenario existing,
+                                             List<OperationalScenario> list) {
+        JTextField idField = new JTextField(existing == null ? nextOsId(list) : existing.getId());
+        JTextArea textArea = new JTextArea(existing == null ? "" : existing.getText(), 8, 50);
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+
+        Object[] message = {
+                "ID:", idField,
+                "Operational scenario (full natural-language text):", new JScrollPane(textArea) };
+
+        int option = JOptionPane.showConfirmDialog(owner, message,
+                existing == null ? "Add Operational Scenario" : "Edit Operational Scenario",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (option != JOptionPane.OK_OPTION) return null;
+
+        String id = idField.getText().trim();
+        String text = textArea.getText().trim();
+        if (id.isEmpty() || text.isEmpty()) {
+            JOptionPane.showMessageDialog(owner, "ID and text must not be empty.");
+            return null;
+        }
+        for (OperationalScenario other : list) {
+            if (other != existing && other.getId().equalsIgnoreCase(id)) {
+                JOptionPane.showMessageDialog(owner, "ID " + id + " already exists.");
+                return null;
+            }
+        }
+        return new OperationalScenario(id, text);
+    }
+
+    /** Ids of the requirements whose source is the given operational scenario. */
+    private List<String> requirementsUsing(String osId) {
+        List<String> result = new ArrayList<>();
+        for (Requirement r : requirements) {
+            if (osId.equalsIgnoreCase(r.getSource())) result.add(r.getId());
+        }
+        return result;
+    }
+
+    private String nextOsId(List<OperationalScenario> list) {
+        int max = 0;
+        for (OperationalScenario os : list) {
+            String s = os.getId().replaceAll("[^0-9]", "");
+            try { max = Math.max(max, Integer.parseInt(s)); }
+            catch (NumberFormatException ignored) { }
+        }
+        return "OS-" + (max + 1);
     }
 
     private String nextId() {

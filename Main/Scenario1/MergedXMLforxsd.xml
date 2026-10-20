@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <entity xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Scenario" xsi:noNamespaceSchemaLocation="ses.xsd">
     <TracedRequirements>
-        <Requirement id="REQ-03" source="OS-1"/>
-        <Requirement id="REQ-05" source="OS-1"/>
         <Requirement id="REQ-04" source="OS-1"/>
         <Requirement id="REQ-02" source="OS-1"/>
+        <Requirement id="REQ-03" source="OS-1"/>
         <Requirement id="REQ-01" source="OS-1"/>
     </TracedRequirements>
     <aspect name="node13Dec">

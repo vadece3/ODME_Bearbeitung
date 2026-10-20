@@ -1,3 +1,30 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<entity xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ses.xsd" name="Thing">
+<entity xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ses.xsd" name="Scenario">
+<aspect name="node13Dec">
+<entity name="Environment">
+<specialization name="node18Spec">
+<entity name="Clear">
+</entity>
+<entity name="Fog">
+</entity>
+</specialization>
+</entity>
+<entity name="Obstacles">
+<multiAspect name="node21MAsp">
+<entity name="Obtacle">
+</entity>
+</multiAspect>
+</entity>
+<entity name="Drone">
+<behaviour name="ObstacleAvoidance"> </behaviour>
+<behaviour name="TakeOff"> </behaviour>
+<behaviour name="MoveNextPoint"> </behaviour>
+<behaviour name="ObstacleDetection"> </behaviour>
+<behaviour name="Rotate"> </behaviour>
+<behaviour name="MarkerDetection"> </behaviour>
+<behaviour name="Land"> </behaviour>
+<var name="cruiseAltitude" type="float" default="0.0" lower="200.0" upper="1300.0"> </var>
+<var name="speed" type="float" default="0.0" lower="200.0" upper="700.0"> </var>
+</entity>
+</aspect>
 </entity>
