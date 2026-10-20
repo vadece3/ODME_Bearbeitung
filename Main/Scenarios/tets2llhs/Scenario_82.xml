@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<entity xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ses.xsd" name="Scenario">
+<aspect name="scenarioDec">
+<entity name="Environment">
+<var name="rainIntensity" default="3.0396501441303956"> </var>
+<var name="luminosity" default="713.6858925627657"> </var>
+<var name="Season" default="Summer"> </var>
+<var name="timeOfDay" default="Dawn"> </var>
+</entity>
+<entity name="EgoAc">
+<var name="altitude" default="944.4008407120483"> </var>
+<var name="latitude" default="64.44503383659294"> </var>
+<var name="planeDistance" default="586.0121888486541"> </var>
+</entity>
+<entity name="IntruderAc">
+<var name="latitude" default="63.375376965075574"> </var>
+<var name="altitude" default="936.6033663846265"> </var>
+<var name="planeDistance" default="397.44628007642774"> </var>
+</entity>
+</aspect>
+</entity>

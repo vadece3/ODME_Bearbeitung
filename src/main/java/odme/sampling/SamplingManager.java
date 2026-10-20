@@ -19,8 +19,13 @@ public class SamplingManager {
 
     private final ScenarioParser parser = new ScenarioParser();
     private final LatinHypercubeSampler sampler = new LatinHypercubeSampler();
+    private final SobolSampler sobolSampler = new SobolSampler();
     private final ConstraintEvaluator evaluator = new ConstraintEvaluator();
     private final Random random = new Random();
+
+    /** Names of the available sampling techniques (shown in the Generate Samples window). */
+    public static final String TECHNIQUE_LHS = "Latin Hypercube Sampling (LHS)";
+    public static final String TECHNIQUE_SOBOL = "Sobol Sequence";
 
     /**
      * The main public method to generate constrained samples for a given scenario.
@@ -31,6 +36,17 @@ public class SamplingManager {
      * @throws Exception        If any part of the process fails (e.g., file not found).
      */
     public void generateSamples(String yamlFilePath, int numberOfSamples, String outputCsvPath) throws Exception {
+        generateSamples(yamlFilePath, numberOfSamples, outputCsvPath, TECHNIQUE_LHS);
+    }
+
+    /**
+     * Same as above, but lets the caller choose the sampling technique.
+     *
+     * @param technique TECHNIQUE_LHS or TECHNIQUE_SOBOL
+     */
+    public void generateSamples(String yamlFilePath, int numberOfSamples, String outputCsvPath, String technique) throws Exception {
+        boolean useSobol = TECHNIQUE_SOBOL.equals(technique);
+        System.out.println("Sampling technique: " + (useSobol ? TECHNIQUE_SOBOL : TECHNIQUE_LHS));
         // 1. Parse the YAML file to understand the sampling space
         Scenario scenario = parser.parse(yamlFilePath);
         List <String> constraint = scenario.getConstraint();
@@ -52,7 +68,9 @@ public class SamplingManager {
         // 2. Generate all the necessary samples at once
         // This is much more efficient than generating one by one in a loop
         System.out.println("Generating base samples...");
-        List<double[]> normalizedSamples = sampler.generateNormalizedSamples(numericalParams.size(), numberOfSamples);
+        List<double[]> normalizedSamples = useSobol
+                ? sobolSampler.generateNormalizedSamples(numericalParams.size(), numberOfSamples)
+                : sampler.generateNormalizedSamples(numericalParams.size(), numberOfSamples);
 
         List<Map<String, Double>> finalSamples = new ArrayList<>();
 
@@ -71,10 +89,16 @@ public class SamplingManager {
             int attemptCount = 0;
             // Safety break to prevent infinite loops on impossible constraints
             int maxAttempts = numberOfSamples * 200;
+            // Sobol: restart the sequence, then take its points one after another
+            if (useSobol) {
+                sobolSampler.reset(Math.max(1, numericalParams.size()));
+            }
 
             while (finalSamples.size() < numberOfSamples && attemptCount < maxAttempts) {
                 // Generate a single new sample for this attempt
-                double[] normalizedSample = sampler.generateNormalizedSamples(numericalParams.size(), 1).get(0);
+                double[] normalizedSample = useSobol
+                        ? sobolSampler.nextNormalizedSample(numericalParams.size())
+                        : sampler.generateNormalizedSamples(numericalParams.size(), 1).get(0);
                 Map<String, Double> scaledSample = scaleSample(normalizedSample, numericalParams);
 
                 // Check if the scaled sample satisfies the constraints

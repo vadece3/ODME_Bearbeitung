@@ -16,6 +16,7 @@ import java.io.File;
 public class GenerateSamplesPanel extends JPanel {
 
     private final JTextField numSamplesField;
+    private final JComboBox<String> techniqueBox;
     private final JTextField filePathField;
     private final JTextField filePathFieldyaml;
     private final JButton browseButton;
@@ -63,6 +64,22 @@ public class GenerateSamplesPanel extends JPanel {
         gbc.gridy = 1;
         gbc.weightx = 1;
         add(numSamplesField, gbc);
+
+        //  Sampling Technique selection
+        JLabel techniqueLabel = new JLabel("Sampling Technique:");
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.weightx = 0;
+        add(techniqueLabel, gbc);
+
+        techniqueBox = new JComboBox<>(new String[]{
+                SamplingManager.TECHNIQUE_LHS,
+                SamplingManager.TECHNIQUE_SOBOL
+        });
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        gbc.weightx = 1;
+        add(techniqueBox, gbc);
 
         //  Output File Path Input
         JLabel filePathLabel = new JLabel("Save As:");
@@ -172,15 +189,17 @@ public class GenerateSamplesPanel extends JPanel {
                     System.out.println("  - Samples: " + numberOfSamples);
                     System.out.println("  - Input YAML: " + yamlFilePath);
                     System.out.println("  - Output CSV: " + outputCsvPath);
+                    String technique = (String) techniqueBox.getSelectedItem();
+                    System.out.println("  - Technique: " + technique);
 
                     // --- THE ACTUAL CALL TO YOUR BACK-END MODULE ---
                     SamplingManager samplingManager = new SamplingManager();
 
-                         samplingManager.generateSamples(yamlFilePath, numberOfSamples, outputCsvPath);
+                    samplingManager.generateSamples(yamlFilePath, numberOfSamples, outputCsvPath, technique);
 
                     // --- THIS CODE ONLY RUNS IF THE ABOVE LINE SUCCEEDS ---
                     JOptionPane.showMessageDialog(GenerateSamplesPanel.this,
-                            "Successfully generated " + numberOfSamples + " valid samples!",
+                            "Successfully generated " + numberOfSamples + " valid samples with " + technique + "!",
                             "Success",
                             JOptionPane.INFORMATION_MESSAGE);
 
