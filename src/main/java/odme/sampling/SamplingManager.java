@@ -83,39 +83,10 @@ public class SamplingManager {
             }
         }
 
-        // If there is a constraint, perform rejection sampling.
+        // If there is a constraint, keep only the samples that satisfy ALL constraints.
         else {
-            System.out.println("Constraint found. Starting rejection sampling...");
-            int attemptCount = 0;
-            // Safety break to prevent infinite loops on impossible constraints
-            int maxAttempts = numberOfSamples * 200;
-            // Sobol: restart the sequence, then take its points one after another
-            if (useSobol) {
-                sobolSampler.reset(Math.max(1, numericalParams.size()));
-            }
-
-            while (finalSamples.size() < numberOfSamples && attemptCount < maxAttempts) {
-                // Generate a single new sample for this attempt
-                double[] normalizedSample = useSobol
-                        ? sobolSampler.nextNormalizedSample(numericalParams.size())
-                        : sampler.generateNormalizedSamples(numericalParams.size(), 1).get(0);
-                Map<String, Double> scaledSample = scaleSample(normalizedSample, numericalParams);
-
-                // Check if the scaled sample satisfies the constraints
-                for ( String constraints : constraint) {
-                    if (evaluator.evaluate(constraints, scaledSample)) {
-                        finalSamples.add(scaledSample);
-                        System.out.printf("Found valid sample %d of %d%n", finalSamples.size(), numberOfSamples);
-                    }
-                }
-                attemptCount++;
-            }
-
-            if (finalSamples.size() < numberOfSamples) {
-                throw new RuntimeException("Could not generate the required number of valid samples. " +
-                        "Only found " + finalSamples.size() + " after " + maxAttempts + " attempts. " +
-                        "The constraint may be too restrictive.");
-            }
+            System.out.println("Constraint(s) found: " + constraint.size() + ". Starting rejection sampling...");
+            finalSamples = drawConstrainedSamples(numericalParams, constraint, numberOfSamples, useSobol);
         }
 
         // 3. Write the final results to a CSV file
@@ -125,6 +96,17 @@ public class SamplingManager {
 
 
     public void generateSamplesforDomainModel(String yamlFilePath, int numberOfSamples, String outputCsvPath) throws Exception {
+        generateSamplesforDomainModel(yamlFilePath, numberOfSamples, outputCsvPath, TECHNIQUE_LHS);
+    }
+
+    /**
+     * Domain-model generation with a chosen sampling technique.
+     *
+     * @param technique TECHNIQUE_LHS or TECHNIQUE_SOBOL
+     */
+    public void generateSamplesforDomainModel(String yamlFilePath, int numberOfSamples, String outputCsvPath, String technique) throws Exception {
+        boolean useSobol = TECHNIQUE_SOBOL.equals(technique);
+        System.out.println("Sampling technique (domain model): " + (useSobol ? TECHNIQUE_SOBOL : TECHNIQUE_LHS));
         // 1. Parse the YAML file to understand the sampling space
         Scenario scenario = parser.parse(yamlFilePath);
         List <String> constraint = scenario.getConstraint();
@@ -144,7 +126,9 @@ public class SamplingManager {
         // 2. Generate all the necessary samples at once
         // This is much more efficient than generating one by one in a loop
         System.out.println("Generating base samples...");
-        List<double[]> normalizedSamples = sampler.generateNormalizedSamples(numericalParams.size(), numberOfSamples);
+        List<double[]> normalizedSamples = useSobol
+                ? sobolSampler.generateNormalizedSamples(numericalParams.size(), numberOfSamples)
+                : sampler.generateNormalizedSamples(numericalParams.size(), numberOfSamples);
 
         List<Map<String, Double>> finalSamples = new ArrayList<>();
 
@@ -157,38 +141,82 @@ public class SamplingManager {
             }
         }
 
-        // If there is a constraint, perform rejection sampling.
+        // If there is a constraint, keep only the samples that satisfy ALL constraints.
         else {
-            System.out.println("Constraint found. Starting rejection sampling...");
-            int attemptCount = 0;
-            // Safety break to prevent infinite loops on impossible constraints
-            int maxAttempts = numberOfSamples * 200;
-
-            while (finalSamples.size() < numberOfSamples && attemptCount < maxAttempts) {
-                // Generate a single new sample for this attempt
-                double[] normalizedSample = sampler.generateNormalizedSamples(numericalParams.size(), 1).get(0);
-                Map<String, Double> scaledSample = scaleSample(normalizedSample, numericalParams);
-
-                // Check if the scaled sample satisfies the constraints
-                for ( String constraints : constraint) {
-                    if (evaluator.evaluate(constraints, scaledSample)) {
-                        finalSamples.add(scaledSample);
-                        System.out.printf("Found valid sample %d of %d%n", finalSamples.size(), numberOfSamples);
-                    }
-                }
-                attemptCount++;
-            }
-
-            if (finalSamples.size() < numberOfSamples) {
-                throw new RuntimeException("Could not generate the required number of valid samples. " +
-                        "Only found " + finalSamples.size() + " after " + maxAttempts + " attempts. " +
-                        "The constraint may be too restrictive.");
-            }
+            System.out.println("Constraint(s) found: " + constraint.size() + ". Starting rejection sampling...");
+            finalSamples = drawConstrainedSamples(numericalParams, constraint, numberOfSamples, useSobol);
         }
 
         // 3. Write the final results to a CSV file
         writeToCsv(finalSamples, numericalParams, categoricalParams, outputCsvPath);
         System.out.println("Successfully wrote " + numberOfSamples + " samples to " + outputCsvPath);
+    }
+
+    /**
+     * Rejection sampling: draws candidate points and keeps only those that satisfy
+     * ALL constraints, each accepted point exactly once.
+     *
+     * LHS:   candidates come in full Latin Hypercube batches of numberOfSamples points,
+     *        so every batch is stratified (instead of single points, which would be plain random sampling).
+     * Sobol: candidates are the consecutive points of one Sobol sequence.
+     */
+    private List<Map<String, Double>> drawConstrainedSamples(List<Parameter> numericalParams,
+                                                             List<String> constraints,
+                                                             int numberOfSamples,
+                                                             boolean useSobol) {
+        int dimensions = numericalParams.size();
+        List<Map<String, Double>> accepted = new ArrayList<>();
+        int attemptCount = 0;
+        // Safety break to prevent infinite loops on impossible constraints
+        int maxAttempts = numberOfSamples * 200;
+
+        if (useSobol) {
+            sobolSampler.reset(Math.max(1, dimensions));
+        }
+
+        while (accepted.size() < numberOfSamples && attemptCount < maxAttempts) {
+            List<double[]> candidates;
+            if (useSobol) {
+                candidates = new ArrayList<>();
+                candidates.add(sobolSampler.nextNormalizedSample(dimensions));
+            } else {
+                candidates = sampler.generateNormalizedSamples(dimensions, numberOfSamples);
+                if (candidates.isEmpty()) {
+                    candidates.add(new double[0]); // no numerical parameters
+                }
+            }
+
+            for (double[] candidate : candidates) {
+                if (accepted.size() >= numberOfSamples || attemptCount >= maxAttempts) {
+                    break;
+                }
+                attemptCount++;
+                Map<String, Double> scaledSample = scaleSample(candidate, numericalParams);
+                if (satisfiesAllConstraints(constraints, scaledSample)) {
+                    accepted.add(scaledSample);
+                    System.out.printf("Found valid sample %d of %d%n", accepted.size(), numberOfSamples);
+                }
+            }
+        }
+
+        System.out.println("Rejection sampling: " + accepted.size() + " accepted out of " + attemptCount + " candidates.");
+
+        if (accepted.size() < numberOfSamples) {
+            throw new RuntimeException("Could not generate the required number of valid samples. " +
+                    "Only found " + accepted.size() + " after " + maxAttempts + " attempts. " +
+                    "The constraint may be too restrictive.");
+        }
+        return accepted;
+    }
+
+    /** A sample is valid only if it satisfies every constraint (logical AND). */
+    private boolean satisfiesAllConstraints(List<String> constraints, Map<String, Double> sample) {
+        for (String c : constraints) {
+            if (!evaluator.evaluate(c, sample)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

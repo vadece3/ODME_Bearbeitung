@@ -19,6 +19,11 @@ public class ScenarioParser {
 
     @SuppressWarnings("unchecked")
     public Scenario parse(String yamlFilePath) throws FileNotFoundException {
+        // Start with an empty constraint list for every parse.
+        // (This list is static: without resetting it, each new "Generate" click in the same
+        // ODME session added the YAML's constraints again, so samples were accepted twice, three times...)
+        constraintList = new ArrayList<>();
+
         Yaml yaml = new Yaml();
 
         // use try-with-resources to ensure the stream is closed

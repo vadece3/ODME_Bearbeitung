@@ -31,7 +31,7 @@
 <xs:attribute name="name" use="optional"/> 
 </xs:complexType>
 </xs:element>
-</xs-sequence>
+</xs:sequence>
 <xs:attribute name="name" use="optional"/> 
 </xs:complexType>
 </xs:element>

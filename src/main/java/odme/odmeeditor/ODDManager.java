@@ -76,7 +76,7 @@ public class ODDManager extends JPanel{
 
 	private static String getStateXsdFilePath() {
 		return ODMEEditor.fileLocation+System.getProperty("file.separator")+
-				System.getProperty("file.separator")+
+				ODMEEditor.projName+System.getProperty("file.separator")+
 				"xsdfromxml.xsd";
 	}
 

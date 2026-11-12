@@ -86,7 +86,7 @@ public class FileConvertion {
                 }
                 else if (result.endsWith("MAsp")) {
 
-                    mod = "</xs-sequence>";
+                    mod = "</xs:sequence>";
                     f0.println(mod);
 
                 }

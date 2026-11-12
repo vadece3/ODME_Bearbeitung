@@ -3,7 +3,6 @@ package odme.sampling;
 import org.mariuszgromada.math.mxparser.Argument;
 import org.mariuszgromada.math.mxparser.Expression;
 import org.mariuszgromada.math.mxparser.License;
-import org.mariuszgromada.math.mxparser.mXparser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,127 +13,204 @@ import java.util.regex.Pattern;
 /**
  * Evaluates the constraint string from the scenario against a given sample of data.
  * Uses the mXparser library to safely evaluate mathematical expressions.
+ *
+ * Supported constraint forms (ODME syntax):
+ *   if (@a > 5) then (@b < 1000) else true
+ *   if (@a > 5) then (@b < 1000)                      (no else = "otherwise always valid")
+ *   if (@a > 5) then (@b < 1000) else if (@a < 1) then (@b > 200) else true
+ *   @a + @b <= 10                                      (plain condition, no if)
+ * Logical operators: and / or / not (also &, |, ~, &&, ||). Negative numbers and
+ * arithmetic with parentheses are kept unchanged.
  */
 public class ConstraintEvaluator {
+
+    static {
+        // Needed once per application run.
+        License.iConfirmNonCommercialUse("ODME Project - Clausthal University");
+    }
+
+    private static final Pattern AT_VARIABLE = Pattern.compile("@([A-Za-z][A-Za-z0-9_]*)");
+    private static final Pattern UNDERSCORE_IDENTIFIER = Pattern.compile("\\b([A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)+)\\b");
 
     /**
      * Checks if a given sample of values satisfies the scenario's constraint expression.
      *
      * @param rawConstraint The constraint string, e.g., "if(@rain_intensity > 5) then (@luminosity < 1000) else true"
      * @param sampleValues  A map where the key is the parameter name (e.g., "Environment_rain_intensity")
-     * and the value is the numerical value for this sample.
+     *                      and the value is the numerical value for this sample.
      * @return {@code true} if the sample is valid according to the constraint, {@code false} otherwise.
+     * @throws IllegalArgumentException if the constraint cannot be understood (syntax error,
+     *                                  unknown variable...), so the user sees the real problem
+     *                                  instead of "the constraint may be too restrictive".
      */
     public boolean evaluate(String rawConstraint, Map<String, Double> sampleValues) {
-        // This only needs to be called once per application run, but it's safe here.
-        License.iConfirmNonCommercialUse("ODME Project - Clausthal University");
+        String formattedConstraint = formatExpression(rawConstraint);
 
-        // Prepare the arguments for the expression. The names must not contain special chars.
+        // Prepare the arguments. Names are cleaned the same way as in the expression.
         List<Argument> arguments = new ArrayList<>();
         for (Map.Entry<String, Double> entry : sampleValues.entrySet()) {
-            String cleanName = entry.getKey().replaceAll("[@_()-]", "");
-            arguments.add(new Argument(cleanName, entry.getValue()));
+            arguments.add(new Argument(cleanName(entry.getKey()), entry.getValue()));
         }
 
-        // Format the constraint string into a syntax that mXparser understands
-        String formattedConstraint = formatExpression(rawConstraint);
-        if (formattedConstraint == null) {
-            System.err.println("Could not parse the constraint structure: " + rawConstraint);
-            return false; // Or handle as a critical error
-        }
-
-        // Create the expression and add the arguments
         Expression expression = new Expression(formattedConstraint, arguments.toArray(new Argument[0]));
 
-        // Calculate the result. mXparser returns 1.0 for true and 0.0 for false.
+        // mXparser returns 1.0 for true and 0.0 for false.
         double result = expression.calculate();
 
         if (Double.isNaN(result)) {
-            System.err.println("Syntax Error in constraint expression: " + expression.getErrorMessage());
-            System.err.println("Formatted expression was: " + formattedConstraint);
-            return false;
+            throw new IllegalArgumentException("The constraint cannot be evaluated:\n  " + rawConstraint
+                    + "\nConverted to: " + formattedConstraint
+                    + "\nAvailable variables: " + sampleValues.keySet()
+                    + "\nDetails: " + expression.getErrorMessage());
         }
 
-        return result == 1.0;
+        return result != 0.0;
     }
 
     /**
-     * Converts the ODME constraint syntax "if(condition) then (result1) else result2"
-     * into the mXparser format "if(condition, result1, result2)".
-     *
-     * @param rawExpression The raw constraint string from the YAML file.
-     * @return A formatted string suitable for mXparser, or null if the structure is invalid.
+     * Converts the ODME constraint syntax into the syntax mXparser understands.
+     * Example: "if(@Environment_rain > 5) then (@Environment_lum < 1000) else true"
+     *       -> "if(Environmentrain > 5, (Environmentlum < 1000), 1)"
+     * Package-private so it can be tested.
      */
-    private String formatExpression(String rawExpression) {
+    static String formatExpression(String rawExpression) {
         if (rawExpression == null || rawExpression.trim().isEmpty()) {
             return "1"; // An empty constraint is considered true
         }
+        String s = rawExpression.trim();
 
-        // Regex to capture the three main parts of the if-then-else statement
-        Pattern pattern = Pattern.compile("if\\s*\\((.*)\\)\\s*then\\s*\\((.*)\\)\\s*else\\s*(.*)", Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(rawExpression);
-
-        if (matcher.find()) {
-            String condition = matcher.group(1);
-            String thenPart = matcher.group(2);
-            String elsePart = matcher.group(3);
-
-            // Clean each part and reassemble in the correct format for mXparser
-            String formatted = String.format("if(%s, %s, %s)",
-                    cleanPart(condition),
-                    cleanPart(thenPart),
-                    cleanPart(elsePart));
-            return formatted;
+        // 1. Variable names: "@Environment_rain" -> "Environmentrain" (same cleaning as the argument names)
+        Matcher m = AT_VARIABLE.matcher(s);
+        StringBuffer sb = new StringBuffer();
+        while (m.find()) {
+            m.appendReplacement(sb, Matcher.quoteReplacement(cleanName(m.group(1))));
         }
+        m.appendTail(sb);
+        s = sb.toString();
 
-        return null; // Return null if the pattern doesn't match
+        // Names written without '@' but with underscores are cleaned too
+        m = UNDERSCORE_IDENTIFIER.matcher(s);
+        sb = new StringBuffer();
+        while (m.find()) {
+            m.appendReplacement(sb, Matcher.quoteReplacement(cleanName(m.group(1))));
+        }
+        m.appendTail(sb);
+        s = sb.toString();
+
+        // 2. Boolean words -> numbers / mXparser operators (whole words only)
+        s = s.replaceAll("(?i)\\btrue\\s*\\(\\s*\\)", "1")
+             .replaceAll("(?i)\\bfalse\\s*\\(\\s*\\)", "0")
+             .replaceAll("(?i)\\btrue\\b", "1")
+             .replaceAll("(?i)\\bfalse\\b", "0")
+             .replaceAll("(?i)\\band\\b", "&")
+             .replaceAll("(?i)\\bor\\b", "|")
+             .replaceAll("(?i)\\bnot\\b", "~");
+
+        // 3. if ... then ... else ...  ->  if(condition, thenPart, elsePart)
+        return convertIfThenElse(s);
     }
 
-    /**
-     * Helper method to clean a part of the expression for mXparser.
-     */
-    private String cleanPart(String part) {
-        return part.trim()
-                .replaceAll("[@_()-]", "") // Remove special characters from variable names
-                .replaceAll("true", "1")
-                .replaceAll("false", "0");
+    /** Recursively converts "if (c) then (a) else b" (also nested "else if"). */
+    private static String convertIfThenElse(String s) {
+        s = s.trim();
+        if (!s.toLowerCase().matches("^if\\s*\\(.*")) {
+            return s; // plain expression
+        }
+        int open = s.indexOf('(');
+        int close = matchingParen(s, open);
+        if (close < 0) {
+            return s; // unbalanced: let mXparser report the error
+        }
+        String condition = s.substring(open + 1, close).trim();
+        String rest = s.substring(close + 1).trim();
+
+        // Already in mXparser form "if(c, a, b)": no "then" keyword follows
+        if (!rest.toLowerCase().startsWith("then")) {
+            return s;
+        }
+        rest = rest.substring(4).trim();
+
+        // Split "thenPart else elsePart" at the first "else" that is not inside parentheses
+        int elsePos = findTopLevelWord(rest, "else");
+        String thenPart = elsePos < 0 ? rest : rest.substring(0, elsePos).trim();
+        String elsePart = elsePos < 0 ? "1" : rest.substring(elsePos + 4).trim();
+
+        return "if(" + condition + ", " + convertIfThenElse(thenPart) + ", " + convertIfThenElse(elsePart) + ")";
     }
 
+    private static int matchingParen(String s, int openIndex) {
+        int depth = 0;
+        for (int i = openIndex; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == '(') depth++;
+            else if (c == ')') {
+                depth--;
+                if (depth == 0) return i;
+            }
+        }
+        return -1;
+    }
+
+    private static int findTopLevelWord(String s, String word) {
+        int depth = 0;
+        String lower = s.toLowerCase();
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == '(') depth++;
+            else if (c == ')') depth--;
+            else if (depth == 0 && lower.startsWith(word, i)) {
+                boolean startOk = i == 0 || !Character.isLetterOrDigit(s.charAt(i - 1));
+                int end = i + word.length();
+                boolean endOk = end >= s.length() || !Character.isLetterOrDigit(s.charAt(end));
+                if (startOk && endOk) return i;
+            }
+        }
+        return -1;
+    }
+
+    /** Removes everything except letters and digits: "Environment_rain_intensity" -> "Environmentrainintensity". */
+    private static String cleanName(String name) {
+        return name.replaceAll("[^A-Za-z0-9]", "");
+    }
 
     /**
      * A simple main method to test the evaluator independently.
      */
     public static void main(String[] args) {
         ConstraintEvaluator evaluator = new ConstraintEvaluator();
-        // NOTE: Corrected the test constraint to match the required structure
         String constraint = "if(@Environment_rain_intensity > 5) then (@Environment_luminosity < 1000) else true";
-
         System.out.println("Constraint to test: " + constraint);
+        System.out.println("Converted: " + formatExpression(constraint));
         System.out.println("------------------------------------------");
 
-        // Test Case 1: Should be VALID (rain > 5, luminosity < 1000)
-        Map<String, Double> sample1 = Map.of(
-                "Environment_rain_intensity", 8.0,
-                "Environment_luminosity", 500.0
-        );
-        boolean result1 = evaluator.evaluate(constraint, sample1);
-        System.out.println("Test Case 1 (rain=8, lum=500): Result = " + result1 + " (Expected: true)");
+        check(evaluator, constraint, 8.0, 500.0, true);    // rain > 5, luminosity < 1000
+        check(evaluator, constraint, 8.0, 1500.0, false);  // rain > 5, but luminosity >= 1000
+        check(evaluator, constraint, 3.0, 1500.0, true);   // rain <= 5 -> else true
 
-        // Test Case 2: Should be INVALID (rain > 5, but luminosity >= 1000)
-        Map<String, Double> sample2 = Map.of(
-                "Environment_rain_intensity", 8.0,
-                "Environment_luminosity", 1500.0
-        );
-        boolean result2 = evaluator.evaluate(constraint, sample2);
-        System.out.println("Test Case 2 (rain=8, lum=1500): Result = " + result2 + " (Expected: false)");
+        // Negative numbers are now kept (the old version turned "-5" into "5")
+        String negative = "if(@Environment_rain_intensity > -5) then (@Environment_luminosity < 1000) else false";
+        System.out.println("Converted: " + formatExpression(negative));
+        check(evaluator, negative, -3.0, 500.0, true);
+        check(evaluator, negative, -8.0, 500.0, false);
 
-        // Test Case 3: Should be VALID (rain <= 5, the 'else true' part is triggered)
-        Map<String, Double> sample3 = Map.of(
-                "Environment_rain_intensity", 3.0,
-                "Environment_luminosity", 1500.0
-        );
-        boolean result3 = evaluator.evaluate(constraint, sample3);
-        System.out.println("Test Case 3 (rain=3, lum=1500): Result = " + result3 + " (Expected: true)");
+        // Plain condition without if (the old version rejected every sample)
+        String plain = "@Environment_rain_intensity + @Environment_luminosity / 1000 <= 6";
+        System.out.println("Converted: " + formatExpression(plain));
+        check(evaluator, plain, 4.0, 1500.0, true);
+        check(evaluator, plain, 6.0, 1500.0, false);
+
+        // Nested else if
+        String nested = "if (@Environment_rain_intensity > 5) then (@Environment_luminosity < 1000) "
+                + "else if (@Environment_rain_intensity < 1) then (@Environment_luminosity > 200) else true";
+        System.out.println("Converted: " + formatExpression(nested));
+        check(evaluator, nested, 0.5, 100.0, false);
+        check(evaluator, nested, 0.5, 300.0, true);
         System.out.println("------------------------------------------");
+    }
+
+    private static void check(ConstraintEvaluator e, String c, double rain, double lum, boolean expected) {
+        boolean result = e.evaluate(c, Map.of("Environment_rain_intensity", rain, "Environment_luminosity", lum));
+        System.out.printf("rain=%.1f, lum=%.1f -> %s (expected %s) %s%n",
+                rain, lum, result, expected, result == expected ? "OK" : "<-- WRONG");
     }
 }

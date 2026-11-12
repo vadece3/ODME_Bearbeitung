@@ -274,7 +274,7 @@ public class MenuBar {
 			// Create the dialog
 			JDialog dialog = new JDialog((Frame) null, "Generate Scenarios From Domain Model", true);
 			dialog.setLayout(new GridBagLayout());
-			dialog.setSize(500, 200);
+			dialog.setSize(500, 260);
 			dialog.setLocationRelativeTo(null); // center on screen
 
 			// Layout helper
@@ -303,15 +303,33 @@ public class MenuBar {
 			buttonPanel.add(cancelButton);
 
 			gbc.gridx = 0;
-			gbc.gridy = 2;
+			gbc.gridy = 4;
 			gbc.gridwidth = 3;
 			dialog.add(buttonPanel, gbc);
+
+			// --- Number of samples ---
+			gbc.gridwidth = 1;
+			gbc.gridx = 0;
+			gbc.gridy = 1;
+			dialog.add(new JLabel("Number of Samples:"), gbc);
 
 			numSamplesField = new JTextField("100"); // Default value
 			gbc.gridx = 1;
 			gbc.gridy = 1;
 			gbc.weightx = 1;
 			dialog.add(numSamplesField, gbc);
+
+			// --- Sampling technique (LHS or Sobol) ---
+			JComboBox<String> techniqueBox = new JComboBox<>(new String[]{
+					SamplingManager.TECHNIQUE_LHS,
+					SamplingManager.TECHNIQUE_SOBOL
+			});
+			gbc.gridx = 0;
+			gbc.gridy = 3;
+			dialog.add(new JLabel("Sampling Technique:"), gbc);
+			gbc.gridx = 1;
+			gbc.gridy = 3;
+			dialog.add(techniqueBox, gbc);
 
 			// --- OK button action ---
 			okButton.addActionListener(ee -> {
@@ -401,7 +419,10 @@ public class MenuBar {
 				//end
 
 				//begin: set YAML File
-				String xsdPath = ODMEEditor.fileLocation + "/" + projName + "/xsdfromxml.xsd";
+				String xsdPath = (ODMEEditor.toolMode == "ses")
+						? ODMEEditor.fileLocation + "/" + projName + "/xsdfromxml.xsd"
+						: ODMEEditor.fileLocation + "/" + projName + "/" + ODMEEditor.currentScenario + "/xsdfromxml.xsd";
+				System.out.println(" XSD used for domain-model sampling: " + xsdPath);
 				yamlFilePath= ODMEEditor.fileLocation + "/" + projName + "/" + projName + "Temp.yaml";
 				File yamlFile = new File(yamlFilePath);
 				try {
@@ -435,7 +456,7 @@ public class MenuBar {
                 // --- THE ACTUAL CALL TO YOUR BACK-END MODULE ---
 				SamplingManager samplingManager = new SamplingManager();
                 try {
-                    samplingManager.generateSamplesforDomainModel(yamlFilePath, Integer.parseInt(numSamplesField.getText().trim()), csvPath);
+					samplingManager.generateSamplesforDomainModel(yamlFilePath, Integer.parseInt(numSamplesField.getText().trim()), csvPath, (String) techniqueBox.getSelectedItem());
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }

@@ -357,17 +357,37 @@ public class JTreeToGraphBehaviour {
 						+ " - starting with an empty canvas.");
 				return;
 			}
-			org.w3c.dom.Document doc = com.mxgraph.util.mxXmlUtils.parseXml(
-					com.mxgraph.util.mxUtils.readFile(graphFile.getAbsolutePath()));
-			com.mxgraph.io.mxCodec codec = new com.mxgraph.io.mxCodec(doc);
-			codec.decode(doc.getDocumentElement(), benhaviourGraph.getModel());
-			behaviourParent = benhaviourGraph.getDefaultParent();
-			benhaviourGraph.refresh();
-			System.out.println("Behaviour graph loaded from " + graphFile.getName());
+			loadBehaviourGraph(graphFile);
 		} catch (Exception e) {
 			System.out.println("Behaviour graph load failed - starting with an empty canvas.");
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * Replaces the canvas content with a behaviour graph saved by ODME (a *behaviourGraph.xml file).
+	 * Used at start-up (saved graph of the open scenario) and by File > Open Behaviour Tree.
+	 *
+	 * @throws Exception if the file cannot be read or is not an ODME behaviour graph
+	 */
+	public static void loadBehaviourGraph(java.io.File graphFile) throws Exception {
+		org.w3c.dom.Document doc = com.mxgraph.util.mxXmlUtils.parseXml(
+				com.mxgraph.util.mxUtils.readFile(graphFile.getAbsolutePath()));
+		if (doc == null || doc.getDocumentElement() == null
+				|| !"mxGraphModel".equals(doc.getDocumentElement().getNodeName())) {
+			throw new IllegalArgumentException(graphFile.getName()
+					+ " is not a behaviour graph saved by ODME (expected an mxGraphModel file, e.g. Scenario1behaviourGraph.xml).");
+		}
+		com.mxgraph.io.mxCodec codec = new com.mxgraph.io.mxCodec(doc);
+		benhaviourGraph.getModel().beginUpdate();
+		try {
+			codec.decode(doc.getDocumentElement(), benhaviourGraph.getModel());
+		} finally {
+			benhaviourGraph.getModel().endUpdate();
+		}
+		behaviourParent = benhaviourGraph.getDefaultParent();
+		benhaviourGraph.refresh();
+		System.out.println("Behaviour graph loaded from " + graphFile.getName());
 	}
 
 }

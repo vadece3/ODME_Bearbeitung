@@ -31,14 +31,12 @@
 <xs:attribute name="name" use="optional"/> 
 </xs:complexType>
 </xs:element>
-</xs-sequence>
+</xs:sequence>
 <xs:attribute name="name" use="optional"/> 
 </xs:complexType>
 </xs:element>
 <xs:element name="Drone">
 <xs:complexType>
-<xs:attribute name="ObstacleAvoidance">
-</xs:attribute>
 <xs:attribute name="TakeOff">
 </xs:attribute>
 <xs:attribute name="MoveNextPoint">
@@ -50,6 +48,8 @@
 <xs:attribute name="MarkerDetection">
 </xs:attribute>
 <xs:attribute name="Land">
+</xs:attribute>
+<xs:attribute name="ObstacleAvoidance">
 </xs:attribute>
 <xs:attribute name="cruiseAltitude" type="float" default="0.0">
 <xs:simpleType>
