@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<entity xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ses.xsd" name="Scenario">
-<aspect name="scenarioDec">
-<entity name="Drone">
-<var name="cruiseAltitude" default="628.170137511708"> </var>
-<var name="speed" default="483.79087693950856"> </var>
-</entity>
-</aspect>
-</entity>

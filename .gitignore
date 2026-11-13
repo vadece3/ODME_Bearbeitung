@@ -26,3 +26,22 @@ __pycache__/
 
 #xsd
 Main/ses.xsd
+# ODME workspace and generated data (not source code)
+Main/
+FlightProject/
+InitScenario/
+InitScenario*.xml
+*Temp.yaml
+temp_script.py
+*.ssdbeh
+*.ssddis
+*.ssdflag
+*.ssdintercon
+*.ssdintracons
+*.ssdvar
+*Graph.xml
+graphxml*.xml
+outputgraphxmlforxsd*.xml
+projectTree.xml
+/ses.xsd
+/xsdfromxml.xsd
