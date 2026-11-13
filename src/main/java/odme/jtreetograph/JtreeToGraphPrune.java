@@ -10,7 +10,6 @@ import java.awt.event.KeyListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.ConcurrentModificationException;
 
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
@@ -207,9 +206,16 @@ public class JtreeToGraphPrune {
             }
             int number = Integer.parseInt(nodeListTf.getText());
 
+            Object[] incoming = graph.getIncomingEdges(maspcell);
+            if (incoming.length == 0) {
+                JOptionPane.showMessageDialog(Main.frame,
+                        "This multi-aspect node has no parent node, so it cannot be pruned.",
+                        "Prune", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
             JtreeToGraphSave.saveModuleFromCurrentModel(maspcell);
 
-            Object[] incoming = graph.getIncomingEdges(maspcell);
             Object aspectParent = graph.getModel().getTerminal(incoming[0], true);
             mxCell aspectParentNode = (mxCell) aspectParent;
             currentSelectedCell = aspectParentNode;
@@ -259,38 +265,33 @@ public class JtreeToGraphPrune {
 
             /*
              * Copying variables from old node and transfer to new nodes.
+             *
+             * The transfer maps are rebuilt from scratch for every multi-aspect prune, and we iterate
+             * over snapshots of the live maps. Before, after the first prune the transfer maps WERE the
+             * live maps (see the assignments below), so a second prune changed a map while iterating
+             * over it: ConcurrentModificationException, transfer stopped halfway, variables and
+             * behaviours were lost and later code failed with NullPointerExceptions.
              */
-            try {
+            behMapTransfer = ArrayListMultimap.create();
+            varMapTransfer = ArrayListMultimap.create();
+            distributionMapTransfer = ArrayListMultimap.create();
 
-                for (TreePath key : DynamicTree.varMap.keySet()) {
-                    for (String value : DynamicTree.varMap.get(key)) {
-                        String lastNodeName = key.getLastPathComponent().toString();
-                        variableTransferAfterMultiAspectPruning(lastNodeName, value);
-                    }
-                }
+            Multimap<TreePath, String> varSnapshot = ArrayListMultimap.create(DynamicTree.varMap);
+            Multimap<TreePath, String> distributionSnapshot = ArrayListMultimap.create(DynamicTree.distributionMap);
+            Multimap<TreePath, String> behaviourSnapshot = ArrayListMultimap.create(DynamicTree.behavioursList);
 
-                for (TreePath key : DynamicTree.distributionMap.keySet()) {
-                    for (String value : DynamicTree.distributionMap.get(key)) {
-                        String lastNodeName = key.getLastPathComponent().toString();
-                        distributionTransferAfterMultiAspectPruning(lastNodeName, value);
-                    }
-                }
-
-                //copy behaviour of the node to transfer other node
-                for (TreePath key : DynamicTree.behavioursList.keySet()) {
-
-                    for (String value : DynamicTree.behavioursList.get(key)) {
-
-//                        System.out.println(" TreePath value = "+value);
-                        String lastNodeName = key.getLastPathComponent().toString();
-                        behaviourTransferAfterMultiAspectPruning(lastNodeName, value);
-//                        DynamicTree.behavioursList.remove(key,value);
-                    }
-                }
+            for (java.util.Map.Entry<TreePath, String> entry : varSnapshot.entries()) {
+                if (entry.getKey() == null) continue;
+                variableTransferAfterMultiAspectPruning(entry.getKey().getLastPathComponent().toString(), entry.getValue());
             }
-
-            catch (ConcurrentModificationException e) {
-                System.out.println(e.getMessage());
+            for (java.util.Map.Entry<TreePath, String> entry : distributionSnapshot.entries()) {
+                if (entry.getKey() == null) continue;
+                distributionTransferAfterMultiAspectPruning(entry.getKey().getLastPathComponent().toString(), entry.getValue());
+            }
+            //copy behaviour of the node to transfer other node
+            for (java.util.Map.Entry<TreePath, String> entry : behaviourSnapshot.entries()) {
+                if (entry.getKey() == null) continue;
+                behaviourTransferAfterMultiAspectPruning(entry.getKey().getLastPathComponent().toString(), entry.getValue());
             }
 
             // have to make used array null and count 0 here
@@ -322,7 +323,7 @@ public class JtreeToGraphPrune {
             mxCell cell2 = (mxCell) c;
             if (cell2.isVertex()) {
                 String val = (String) cell2.getValue();
-                if (val.equals(lastNodeName) || val.startsWith(lastNodeName + "_")) {
+                if (val != null && (val.equals(lastNodeName) || val.startsWith(lastNodeName + "_"))) {
 
                     pathToRoot.add(val);
                     JtreeToGraphConvert.nodeToRootPathVar(cell2);
@@ -335,6 +336,10 @@ public class JtreeToGraphPrune {
 
                     String[] stringArrayRev = pathRev.toArray(new String[0]);
                     TreePath treePathForVariableTransfer = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
+                    if (treePathForVariableTransfer == null) { // node not found in the tree: skip instead of storing a null key
+                        pathToRoot.clear();
+                        continue;
+                    }
 
                     int a = 1;
                     for (String v : behMapTransfer.get(treePathForVariableTransfer)) {
@@ -362,7 +367,7 @@ public class JtreeToGraphPrune {
             mxCell cell2 = (mxCell) c;
             if (cell2.isVertex()) {
                 String val = (String) cell2.getValue();
-                if (val.equals(lastNodeName) || val.startsWith(lastNodeName + "_")) {
+                if (val != null && (val.equals(lastNodeName) || val.startsWith(lastNodeName + "_"))) {
 
                     pathToRoot.add(val);
                     JtreeToGraphConvert.nodeToRootPathVar(cell2);
@@ -375,6 +380,10 @@ public class JtreeToGraphPrune {
 
                     String[] stringArrayRev = pathRev.toArray(new String[0]);
                     TreePath treePathForVariableTransfer = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
+                    if (treePathForVariableTransfer == null) { // node not found in the tree: skip instead of storing a null key
+                        pathToRoot.clear();
+                        continue;
+                    }
                     
                     int a = 1;
                     for (String v : varMapTransfer.get(treePathForVariableTransfer)) {
@@ -401,7 +410,7 @@ public class JtreeToGraphPrune {
             mxCell cell2 = (mxCell) c;
             if (cell2.isVertex()) {
                 String val = (String) cell2.getValue();
-                if (val.equals(lastNodeName) || val.startsWith(lastNodeName + "_")) {
+                if (val != null && (val.equals(lastNodeName) || val.startsWith(lastNodeName + "_"))) {
 
                     pathToRoot.add(val);
                     JtreeToGraphConvert.nodeToRootPathDist(cell2);
@@ -414,6 +423,10 @@ public class JtreeToGraphPrune {
 
                     String[] stringArrayRev = pathRev.toArray(new String[0]);
                     TreePath treePathForDistributionTransfer = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
+                    if (treePathForDistributionTransfer == null) { // node not found in the tree: skip instead of storing a null key
+                        pathToRoot.clear();
+                        continue;
+                    }
 
                     int a = 1;
                     for (String v : distributionMapTransfer.get(treePathForDistributionTransfer)) {

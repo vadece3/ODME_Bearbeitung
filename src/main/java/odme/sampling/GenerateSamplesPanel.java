@@ -17,6 +17,7 @@ public class GenerateSamplesPanel extends JPanel {
 
     private final JTextField numSamplesField;
     private final JComboBox<String> techniqueBox;
+    private final JTextField seedField;
     private final JTextField filePathField;
     private final JTextField filePathFieldyaml;
     private final JButton browseButton;
@@ -81,23 +82,37 @@ public class GenerateSamplesPanel extends JPanel {
         gbc.weightx = 1;
         add(techniqueBox, gbc);
 
+        //  Seed (optional, LHS only)
+        JLabel seedLabel = new JLabel("Seed (optional):");
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.weightx = 0;
+        add(seedLabel, gbc);
+
+        seedField = new JTextField();
+        seedField.setToolTipText("Leave empty for a random seed. Enter the same seed again to reproduce an LHS run. Sobol does not use a seed.");
+        gbc.gridx = 1;
+        gbc.gridy = 3;
+        gbc.weightx = 1;
+        add(seedField, gbc);
+
         //  Output File Path Input
         JLabel filePathLabel = new JLabel("Save As:");
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         gbc.weightx = 0;
         add(filePathLabel, gbc);
 
         filePathField = new JTextField();
         filePathField.setEditable(false); // User should use the browse button
         gbc.gridx = 1;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         gbc.weightx = 1;
         add(filePathField, gbc);
 
         browseButton = new JButton("Browse...");
         gbc.gridx = 2;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         gbc.weightx = 0;
         add(browseButton, gbc);
 
@@ -109,7 +124,7 @@ public class GenerateSamplesPanel extends JPanel {
         buttonPanel.add(cancelButton);
 
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = 5;
         gbc.gridwidth = 3;
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.EAST;
@@ -180,6 +195,18 @@ public class GenerateSamplesPanel extends JPanel {
                     return;
                 }
 
+                // Optional seed
+                Long seed = null;
+                String seedText = seedField.getText().trim();
+                if (!seedText.isEmpty()) {
+                    try {
+                        seed = Long.parseLong(seedText);
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(GenerateSamplesPanel.this, "The seed must be a whole number (or empty).", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                }
+
                 // Construct the path to the YAML file
                 yamlFilePath = filePathFieldyaml.getText().trim();
 
@@ -195,11 +222,12 @@ public class GenerateSamplesPanel extends JPanel {
                     // --- THE ACTUAL CALL TO YOUR BACK-END MODULE ---
                     SamplingManager samplingManager = new SamplingManager();
 
-                    samplingManager.generateSamples(yamlFilePath, numberOfSamples, outputCsvPath, technique);
+                    samplingManager.generateSamples(yamlFilePath, numberOfSamples, outputCsvPath, technique, seed);
 
                     // --- THIS CODE ONLY RUNS IF THE ABOVE LINE SUCCEEDS ---
                     JOptionPane.showMessageDialog(GenerateSamplesPanel.this,
-                            "Successfully generated " + numberOfSamples + " valid samples with " + technique + "!",
+                            "Successfully generated " + numberOfSamples + " valid samples with " + technique + "!"
+                                    + (SamplingManager.TECHNIQUE_SOBOL.equals(technique) ? "" : "\nSeed: " + samplingManager.getLastSeed()),
                             "Success",
                             JOptionPane.INFORMATION_MESSAGE);
 

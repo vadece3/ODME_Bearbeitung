@@ -19,6 +19,14 @@ import java.util.List;
  */
 public class LatinHypercubeSampler {
 
+    // One random generator for the whole sampler, so a seed makes every run reproducible
+    private final RandomGenerator rng = new JDKRandomGenerator();
+
+    /** Fixes the random seed: the same seed always gives the same samples. */
+    public void setSeed(long seed) {
+        rng.setSeed(seed);
+    }
+
     /**
      * Generates a set of normalized samples using Latin Hypercube Sampling.
      *
@@ -32,7 +40,6 @@ public class LatinHypercubeSampler {
             return new ArrayList<>();
         }
 
-        RandomGenerator rng = new JDKRandomGenerator();
         double[][] randomMatrix = new double[numberOfSamples][numberOfParameters];
 
         // 1. Generate a matrix of random numbers between 0 and 1

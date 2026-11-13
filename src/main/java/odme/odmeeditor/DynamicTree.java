@@ -742,7 +742,7 @@ public class DynamicTree extends JPanel implements MouseListener {
 
         TreeNode[] nodes = currentNode.getPath();
 
-        String[] nodesToSelectedNode = new String[100];
+        String[] nodesToSelectedNode = new String[Math.max(100, DynamicTree.varMap.size())];
         int b = 0;
 
         for (TreePath key : DynamicTree.varMap.keySet()) {
@@ -786,7 +786,9 @@ public class DynamicTree extends JPanel implements MouseListener {
                 (DefaultMutableTreeNode) (treePathForVariable.getLastPathComponent());
 
         TreeNode[] nodes2 = currentNode.getPath();
-        String[] nodesToSelectedNode2 = new String[2];
+        // was new String[2]: a node with more than 2 behaviours (e.g. Drone with 7) crashed with
+        // ArrayIndexOutOfBoundsException after pruning
+        String[] nodesToSelectedNode2 = new String[Math.max(100, DynamicTree.behavioursList.size())];
 
         int bb = 0;
         for (TreePath key : DynamicTree.behavioursList.keySet()) {

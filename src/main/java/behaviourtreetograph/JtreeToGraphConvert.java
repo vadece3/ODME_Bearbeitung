@@ -314,66 +314,29 @@ public class JtreeToGraphConvert {
 
     }
 
-    public static void mergeBehaviourWithXSD(){
-            PrintWriter f0 = null;
+    /**
+     * Merges the pruned scenario (xmlforxsd.xml) with the saved behaviour tree
+     * (OutputBehaviourxml.xml) into MergedXMLforxsd.xml, then re-tags it with the
+     * traced requirements. The merge is done on parsed XML (see ScenarioBehaviourMerger);
+     * the old version concatenated text lines and could produce empty or broken files.
+     */
+    public static boolean mergeBehaviourWithXSD(){
+        String folder = fileLocation + "/" + ODMEEditor.projName + "/" + selectedScenario;
+        File scenarioXml = new File(folder + "/xmlforxsd.xml");
+        File behaviourXml = new File(folder + "/OutputBehaviourxml.xml");
+        File mergedXml = new File(folder + "/MergedXMLforxsd.xml");
 
-            try {
-                String path = new String();
+        ScenarioBehaviourMerger.Result result = ScenarioBehaviourMerger.merge(scenarioXml, behaviourXml, mergedXml);
+        System.out.println(result.message);
 
-                path = fileLocation + "/" + ODMEEditor.projName +  "/" +selectedScenario+ "/MergedXMLforxsd.xml";
+        if (!result.ok) {
+            javax.swing.JOptionPane.showMessageDialog(null, result.message, "Merge",
+                    javax.swing.JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
 
-                f0 = new PrintWriter(new FileWriter(path));
-            }
-
-            catch (IOException e1) {
-                e1.printStackTrace();
-            }
-
-            Scanner in = null;
-            Scanner beh = null;
-            try{
-
-                String path = new String();
-                String secondFile = new String();
-
-                path = fileLocation +"/" + ODMEEditor.projName +  "/" +selectedScenario+"/xmlforxsd.xml";
-                secondFile = fileLocation +"/" + ODMEEditor.projName +  "/" +selectedScenario+"/OutputBehaviourxml.xml";
-
-                File file = new File (path);
-                File f = new File(secondFile);
-
-                if (!file.exists()) {
-                    file.createNewFile();
-                }
-                in = new Scanner(file);
-                beh = new Scanner(f);
-                while (in.hasNext()){
-                    String line = in.nextLine();
-                    if (line.equals("</entity>")){
-
-                    }
-                    if (!in.hasNext()){
-                        while (beh.hasNext()){
-                            String second = beh.nextLine();
-                            if(second.startsWith("<?xml")){
-
-                            }else {
-                                f0.print(second);
-                            }
-                        }
-                    }
-                    f0.print(line);
-                }
-                in.close();
-                beh.close();
-                f0.close();
-
-                odme.requirements.RequirementTagger.retagMergedFile(selectedScenario);
-            }catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        odme.requirements.RequirementTagger.retagMergedFile(selectedScenario);
+        return true;
     }
 
 }

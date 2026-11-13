@@ -127,9 +127,11 @@ public class ToolBarBehaviour {
 
 
 	private void mergeXML(){
-		JtreeToGraphConvert.mergeBehaviourWithXSD();
-		JOptionPane.showMessageDialog(MainWindow.frame, "Merged Successfully.", "Merge Behaviour with XSD File",
-				JOptionPane.INFORMATION_MESSAGE);
+		// The merge shows its own warning if something is missing; only report success when it worked
+		if (JtreeToGraphConvert.mergeBehaviourWithXSD()) {
+			JOptionPane.showMessageDialog(MainWindow.frame, "Merged Successfully.", "Merge Behaviour with XSD File",
+					JOptionPane.INFORMATION_MESSAGE);
+		}
 	}
 	private void undo(){
 		JtreeToGraphGeneral.undo();
